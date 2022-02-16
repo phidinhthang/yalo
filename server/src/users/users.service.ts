@@ -1,61 +1,85 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { TypedKnex } from '@wwwouter/typed-knex';
-import { Knex } from 'knex';
-import { InjectModel } from 'nest-knexjs';
+import { Inject, Injectable } from '@nestjs/common';
+import * as argon2 from 'argon2';
+import { AuthService } from 'src/auth/auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { User } from './users.entity';
+import { UsersRepo } from './users.repo';
 
 @Injectable()
 export class UsersService {
-  private readonly typedKnex: TypedKnex;
-  constructor(@InjectModel() private readonly knex: Knex) {
-    this.typedKnex = new TypedKnex(this.knex);
-  }
+  constructor(
+    @Inject(UsersRepo) private readonly usersRepo: UsersRepo,
+    private readonly authService: AuthService,
+  ) {}
 
-  async findAll() {
-    const users = await this.typedKnex
-      .query(User)
-      .select('id', 'username')
-      .getMany();
+  async register(createUserDto: CreateUserDto) {
+    const existed = await this.usersRepo.findOne({
+      username: createUserDto.username,
+    });
 
-    return users;
-  }
-
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    try {
-      const user = await this.typedKnex.query(User).insertItemWithReturning({
-        username: createUserDto.username,
-        password: createUserDto.password,
-      });
-
-      return user;
-    } catch (err) {
-      throw new HttpException(err, HttpStatus.BAD_REQUEST);
+    if (existed) {
+      return {
+        field: 'username',
+        message: 'username already existed',
+      };
     }
+
+    const hashedPassword = await argon2.hash(createUserDto.password);
+    const user = await this.usersRepo.create({
+      username: createUserDto.username,
+      password: hashedPassword,
+    });
+
+    console.log('user ', user);
+
+    return {
+      errors: [],
+      user,
+      token: {
+        access: this.authService.signAccessToken(user),
+        refresh: this.authService.signRefreshToken(user),
+      },
+    };
   }
 
-  async findOne(id: number): Promise<Omit<User, 'password'>> {
-    if (!id) {
-      throw new NotFoundException(`User ${id} does not exist`);
-    }
-    const user = await this.typedKnex
-      .query(User)
-      .select('id', 'username')
-      .getSingle();
+  async login(createUserDto: CreateUserDto) {
+    const user = await this.usersRepo.findOne({
+      username: createUserDto.username,
+    });
 
-    return user;
+    if (!user) {
+      return {
+        field: 'username',
+        message: 'username dont existed',
+      };
+    }
+
+    const isMatched = await argon2.verify(
+      user.password,
+      createUserDto.password,
+    );
+
+    if (!isMatched) {
+      return {
+        field: 'password',
+        message: 'Password does not matched',
+      };
+    }
+
+    return {
+      errors: [],
+      user,
+      token: {
+        access: this.authService.signAccessToken(user),
+        refresh: this.authService.signRefreshToken(user),
+      },
+    };
   }
 
-  async remove(id: number): Promise<number> {
-    if (!id) {
-      throw new NotFoundException(`User ${id} does not exist`);
-    }
-    await this.typedKnex.query(User).where('id', id).del();
-    return id;
+  findAll() {
+    return this.usersRepo.findAll();
+  }
+
+  findOne(id: number) {
+    return this.usersRepo.findOne(id);
   }
 }

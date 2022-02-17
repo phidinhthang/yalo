@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Knex } from 'knex';
 import { InjectModel } from 'nest-knexjs';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto } from './users.dto';
 import { User } from './users.entity';
 
 @Injectable()

@@ -6,11 +6,13 @@ import {
   Param,
   UseGuards,
   HttpException,
+  UnauthorizedException,
   HttpStatus,
   UsePipes,
 } from '@nestjs/common';
 import { ZodValidationPipe } from '../common/ZodValidationPipe';
 import { UsersService } from './users.service';
+import { AuthService } from '../auth/auth.service';
 import { HttpAuthGuard } from 'src/common/guards/httpAuth.guard';
 import { MeId } from 'src/common/guards/meId.decorator';
 import {
@@ -27,6 +29,7 @@ import {
   CreateUser,
   UserWithToken,
   GetUsers,
+  RefreshTokenDto,
 } from './users.dto';
 
 @ApiBearerAuth()
@@ -34,12 +37,25 @@ import {
 @Controller('users')
 @UsePipes(ZodValidationPipe)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly authService: AuthService,
+  ) {}
   @Post('refresh_token')
-  refreshToken() {
-    return {
-      accessToken: '',
-    };
+  refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
+    try {
+      const decoded: any = this.authService.verify(
+        refreshTokenDto.refreshToken,
+        process.env.REFRESH_TOKEN_SECRET,
+      );
+      const userId = decoded.userId;
+      return {
+        accessToken: this.authService.signAccessToken({ id: userId } as any),
+      };
+    } catch (err) {
+      console.log(err);
+      throw new UnauthorizedException();
+    }
   }
 
   @UseGuards(HttpAuthGuard)

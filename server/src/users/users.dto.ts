@@ -36,3 +36,7 @@ export class GetUsersDto extends createZodDto(GetUsers) {}
 export const CreateUser = User.omit({ id: true });
 export type CreateUser = Required<z.infer<typeof CreateUser>>;
 export class CreateUserDto extends createZodDto(CreateUser) {}
+
+export const RefreshToken = z.object({refreshToken: z.string()})
+export type RefreshToken = Required<z.infer<typeof RefreshToken>>
+export class RefreshTokenDto extends createZodDto(RefreshToken) {}

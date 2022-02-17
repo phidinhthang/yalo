@@ -3,21 +3,36 @@ import {
   Get,
   Post,
   Body,
-  Delete,
   Param,
   UseGuards,
   HttpException,
   HttpStatus,
+  UsePipes,
 } from '@nestjs/common';
+import { ZodValidationPipe } from '../common/ZodValidationPipe';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { HttpAuthGuard } from 'src/common/guards/httpAuth.guard';
 import { MeId } from 'src/common/guards/meId.decorator';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import {
+  GetUserDto,
+  GetUsersDto,
+  GetUserWithTokenDto,
+  CreateUserDto,
+  CreateUser,
+  UserWithToken,
+  GetUsers,
+} from './users.dto';
 
 @ApiBearerAuth()
 @ApiTags('users')
 @Controller('users')
+@UsePipes(ZodValidationPipe)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
   @Post('refresh_token')
@@ -29,6 +44,9 @@ export class UsersController {
 
   @UseGuards(HttpAuthGuard)
   @Get('me')
+  @ApiResponse({
+    type: GetUserDto,
+  })
   async getMe(@MeId() userId?: number) {
     console.log('user id', userId);
     if (!userId) {
@@ -39,20 +57,32 @@ export class UsersController {
   }
 
   @Post('register')
+  @ApiCreatedResponse({
+    type: GetUserWithTokenDto,
+  })
   register(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.register(createUserDto);
+    return this.usersService.register(createUserDto as CreateUser);
   }
 
   @Post('login')
+  @ApiResponse({
+    type: GetUserWithTokenDto,
+  })
   login(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.login(createUserDto);
+    return this.usersService.login(createUserDto as CreateUser);
   }
 
   @Get()
+  @ApiResponse({
+    type: GetUsersDto,
+  })
   findAll() {
     return this.usersService.findAll();
   }
 
+  @ApiResponse({
+    type: GetUserDto,
+  })
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.usersService.findOne(id);

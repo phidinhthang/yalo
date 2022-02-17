@@ -1,7 +1,7 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { AuthService } from 'src/auth/auth.service';
-import { CreateUserDto } from './dto/create-user.dto';
+import type { CreateUser, GetUser, UserWithToken } from './users.dto';
 import { UsersRepo } from './users.repo';
 
 @Injectable()
@@ -11,16 +11,18 @@ export class UsersService {
     private readonly authService: AuthService,
   ) {}
 
-  async register(createUserDto: CreateUserDto) {
+  async register(createUserDto: CreateUser): Promise<UserWithToken> {
     const existed = await this.usersRepo.findOne({
       username: createUserDto.username,
     });
 
     if (existed) {
-      return {
-        field: 'username',
-        message: 'username already existed',
-      };
+      throw new BadRequestException([
+        {
+          path: ['username'],
+          message: 'username already existed',
+        },
+      ]);
     }
 
     const hashedPassword = await argon2.hash(createUserDto.password);
@@ -32,7 +34,6 @@ export class UsersService {
     console.log('user ', user);
 
     return {
-      errors: [],
       user,
       token: {
         access: this.authService.signAccessToken(user),
@@ -41,16 +42,18 @@ export class UsersService {
     };
   }
 
-  async login(createUserDto: CreateUserDto) {
+  async login(createUserDto: CreateUser): Promise<UserWithToken> {
     const user = await this.usersRepo.findOne({
       username: createUserDto.username,
     });
 
     if (!user) {
-      return {
-        field: 'username',
-        message: 'username dont existed',
-      };
+      throw new BadRequestException([
+        {
+          path: ['username'],
+          message: 'username dont existed',
+        },
+      ]);
     }
 
     const isMatched = await argon2.verify(
@@ -59,14 +62,15 @@ export class UsersService {
     );
 
     if (!isMatched) {
-      return {
-        field: 'password',
-        message: 'Password does not matched',
-      };
+      throw new BadRequestException([
+        {
+          path: ['password'],
+          message: 'Password does not matched',
+        },
+      ]);
     }
 
     return {
-      errors: [],
       user,
       token: {
         access: this.authService.signAccessToken(user),

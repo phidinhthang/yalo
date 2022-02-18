@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { Knex } from 'knex';
 import { InjectModel } from 'nest-knexjs';
-import { CreateUserDto } from './users.dto';
-import { User } from './users.entity';
+import { CreateUserDto, UpdateUserDto } from './users.dto';
+import { User } from './users.dto';
 
 @Injectable()
 export class UsersRepo {
@@ -30,6 +30,20 @@ export class UsersRepo {
       console.log('query', query.toQuery());
       const user = (await query)[0];
 
+      return user;
+    } catch (err) {
+      throw new HttpException(err, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    try {
+      const query = this.knex<User>('users')
+        .update(updateUserDto)
+        .where('id', id)
+        .returning('*');
+      console.log('query ', query.toQuery());
+      const user = (await query)[0];
       return user;
     } catch (err) {
       throw new HttpException(err, HttpStatus.BAD_REQUEST);

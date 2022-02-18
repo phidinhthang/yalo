@@ -7,6 +7,7 @@ export const User = z.object({
     .string()
     .min(1, 'username cannot empty')
     .min(3, 'username must be greater than 3'),
+  isOnline: z.boolean().default(false),
   password: z
     .string()
     .min(1, 'password cannot be empty')
@@ -37,6 +38,10 @@ export const CreateUser = User.omit({ id: true });
 export type CreateUser = Required<z.infer<typeof CreateUser>>;
 export class CreateUserDto extends createZodDto(CreateUser) {}
 
-export const RefreshToken = z.object({refreshToken: z.string()})
-export type RefreshToken = Required<z.infer<typeof RefreshToken>>
+export const UpdateUser = CreateUser.partial();
+export type UpdateUser = z.infer<typeof UpdateUser>;
+export class UpdateUserDto extends createZodDto(UpdateUser) {}
+
+export const RefreshToken = z.object({ refreshToken: z.string() });
+export type RefreshToken = Required<z.infer<typeof RefreshToken>>;
 export class RefreshTokenDto extends createZodDto(RefreshToken) {}

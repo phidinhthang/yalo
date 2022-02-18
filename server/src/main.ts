@@ -1,12 +1,30 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import {
+  AsyncApiDocumentBuilder,
+  AsyncApiModule,
+  AsyncServerObject,
+} from 'nestjs-asyncapi';
 import { patchNestjsSwagger } from '@abitia/zod-dto';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
+
+  const asyncApiServer: AsyncServerObject = {
+    url: 'ws://localhost:4000',
+    protocol: 'socket.io',
+    protocolVersion: '4',
+  };
+
+  const asyncApiOptions = new AsyncApiDocumentBuilder()
+    .setTitle('Zalo web socket.io')
+    .setVersion('1.0')
+    .setDefaultContentType('application/json')
+    .addServer('socket.io-server', asyncApiServer)
+    .build();
 
   const config = new DocumentBuilder()
     .setTitle('Zalo web api')
@@ -15,9 +33,12 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
 
+  const asyncapiDocument = AsyncApiModule.createDocument(app, asyncApiOptions);
   patchNestjsSwagger();
   const document = SwaggerModule.createDocument(app, config);
+
   SwaggerModule.setup('docs', app, document);
+  await AsyncApiModule.setup('/async-api', app, asyncapiDocument);
 
   await app.listen(4000);
 }

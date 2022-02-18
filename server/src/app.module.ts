@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { KnexModule } from 'nest-knexjs';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { SocketModule } from './socket/socket.module';
+import { knexSnakeCaseMappers } from 'objection';
 
 @Module({
   imports: [
@@ -15,10 +17,12 @@ import { AuthModule } from './auth/auth.module';
           min: 2,
           max: 10,
         },
+        ...knexSnakeCaseMappers(),
       },
     }),
     AuthModule,
     UsersModule,
+    SocketModule,
   ],
   controllers: [AppController],
   providers: [AppService],

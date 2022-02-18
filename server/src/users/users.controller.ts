@@ -27,10 +27,9 @@ import {
   GetUserWithTokenDto,
   CreateUserDto,
   CreateUser,
-  UserWithToken,
-  GetUsers,
   RefreshTokenDto,
 } from './users.dto';
+import { config } from '../common/config';
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -46,7 +45,7 @@ export class UsersController {
     try {
       const decoded: any = this.authService.verify(
         refreshTokenDto.refreshToken,
-        process.env.REFRESH_TOKEN_SECRET,
+        config.refreshTokenSecret,
       );
       const userId = decoded.userId;
       return {

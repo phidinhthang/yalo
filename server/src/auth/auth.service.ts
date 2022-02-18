@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SignOptions, VerifyOptions, sign, verify, Secret } from 'jsonwebtoken';
 import { User } from 'src/users/users.entity';
+import { config } from '../common/config';
 
 @Injectable()
 export class AuthService {
@@ -15,14 +16,14 @@ export class AuthService {
   }
 
   signAccessToken(user: User) {
-    console.log('ats', process.env.ACCESS_TOKEN_SECRET);
-    return this.sign({ userId: user.id }, process.env.ACCESS_TOKEN_SECRET, {
+    console.log('ats', config.accessTokenSecret);
+    return this.sign({ userId: user.id }, config.accessTokenSecret, {
       expiresIn: '15m',
     });
   }
 
   signRefreshToken(user: User) {
-    return this.sign({ userId: user.id }, process.env.REFRESH_TOKEN_SECRET, {
+    return this.sign({ userId: user.id }, config.refreshTokenSecret, {
       expiresIn: '7d',
     });
   }

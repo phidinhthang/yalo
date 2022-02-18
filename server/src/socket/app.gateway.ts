@@ -40,15 +40,15 @@ export class AppGateway
 
   async handleDisconnect(socket: Socket) {}
 
-  // @AsyncApiSub({
-  //   channel: 'toggle_online',
-  //   message: {
-  //     name: 'toggle_online',
-  //     payload: {
-  //       type: class {},
-  //     },
-  //   },
-  // })
+  @AsyncApiSub({
+    channel: 'toggle_online',
+    message: {
+      name: 'toggle_online',
+      payload: {
+        type: class {},
+      },
+    },
+  })
   @UseGuards(WsAuthGuard)
   @SubscribeMessage('toggle_online')
   @AsyncApiPub({
@@ -63,15 +63,15 @@ export class AppGateway
     this.socketService.toggleOnlineStatus(userId);
   }
 
-  // @AsyncApiSub({
-  //   channel: 'toggle_offline',
-  //   message: {
-  //     name: 'toggle_offline',
-  //     payload: {
-  //       type: class {},
-  //     },
-  //   },
-  // })
+  @AsyncApiSub({
+    channel: 'toggle_offline',
+    message: {
+      name: 'toggle_offline',
+      payload: {
+        type: class {},
+      },
+    },
+  })
   @UseGuards(WsAuthGuard)
   @SubscribeMessage('toggle_offline')
   @AsyncApiPub({

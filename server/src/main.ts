@@ -8,6 +8,7 @@ import {
 } from 'nestjs-asyncapi';
 import { patchNestjsSwagger } from '@abitia/zod-dto';
 import { AppModule } from './app.module';
+import { config } from './common/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -26,19 +27,24 @@ async function bootstrap() {
     .addServer('socket.io-server', asyncApiServer)
     .build();
 
-  const config = new DocumentBuilder()
+  const swaggerOptions = new DocumentBuilder()
     .setTitle('Zalo web api')
     .setDescription('Zalo Web Api')
     .setVersion('v1')
     .addBearerAuth()
     .build();
 
-  const asyncapiDocument = AsyncApiModule.createDocument(app, asyncApiOptions);
-  patchNestjsSwagger();
-  const document = SwaggerModule.createDocument(app, config);
+  if (config.isProduction) {
+    const asyncapiDocument = AsyncApiModule.createDocument(
+      app,
+      asyncApiOptions,
+    );
+    await AsyncApiModule.setup('/async-api', app, asyncapiDocument);
+  }
 
+  patchNestjsSwagger();
+  const document = SwaggerModule.createDocument(app, swaggerOptions);
   SwaggerModule.setup('docs', app, document);
-  await AsyncApiModule.setup('/async-api', app, asyncapiDocument);
 
   await app.listen(4000);
 }

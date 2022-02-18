@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { LoginPage } from './modules/auth/LoginPage';
 import { ConnectionProvider } from './modules/conn/ConnectionProvider';
+import { MainPage } from './modules/main/MainPage';
+import { Routers } from './Routes';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { refetchOnWindowFocus: false, retry: false } },
@@ -13,10 +15,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ConnectionProvider>
         <BrowserRouter>
-          <Routes>
-            <Route path='/' element={<h1>hello world</h1>} />
-            <Route path='/login' element={<LoginPage />} />
-          </Routes>
+          <Routers />
         </BrowserRouter>
       </ConnectionProvider>
       <ReactQueryDevtools initialIsOpen={false} />

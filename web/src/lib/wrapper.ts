@@ -7,6 +7,12 @@ export const wrap = (connection: Connection) => ({
       connection.fetch('/users/me'),
   },
   mutation: {
+    refreshToken: (data: {
+      refreshToken: string;
+    }): Promise<
+      { accessToken: string } | { statusCode: number; message: string }
+    > =>
+      connection.send('/users/refresh_token', { body: JSON.stringify(data) }),
     login: (data: {
       username: string;
       password: string;

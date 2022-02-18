@@ -19,11 +19,10 @@ export const connect = ({
 }): Promise<Connection> =>
   new Promise((res, rej) => {
     const { getState, setState } = useTokenStore;
-    let accessToken = getState().accessToken;
     const refreshToken = getState().refreshToken;
     const setTokens = getState().setTokens;
 
-    const refresh = async () => {
+    const refresh = async (accessToken: string) => {
       if (accessToken) {
         let shouldRefresh = false;
         try {
@@ -50,7 +49,8 @@ export const connect = ({
 
     const connection: Connection = {
       fetch: async (endpoint, init?: RequestInit) => {
-        refresh();
+        const accessToken = getState().accessToken;
+        refresh(accessToken);
         const r = await fetch(`${url}${endpoint}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -60,7 +60,8 @@ export const connect = ({
         return r.json();
       },
       send: async (endpoint, init?: RequestInit) => {
-        refresh();
+        const accessToken = getState().accessToken;
+        refresh(accessToken);
         console.log('body ', init?.body);
         const r = await fetch(`${url}${endpoint}`, {
           method: 'POST',

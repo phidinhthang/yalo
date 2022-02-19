@@ -10,36 +10,25 @@ import {
   HttpStatus,
   UsePipes,
 } from '@nestjs/common';
-import { ZodValidationPipe } from '../common/ZodValidationPipe';
-import { UsersService } from './users.service';
+import { ValidationPipe } from '../common/validation.pipe';
+import { UsersService } from './user.service';
 import { AuthService } from '../auth/auth.service';
 import { HttpAuthGuard } from 'src/common/guards/httpAuth.guard';
-import { MeId } from 'src/common/guards/meId.decorator';
-import {
-  ApiBearerAuth,
-  ApiCreatedResponse,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
-import {
-  GetUserDto,
-  GetUsersDto,
-  GetUserWithTokenDto,
-  CreateUserDto,
-  CreateUser,
-  RefreshTokenDto,
-} from './users.dto';
+import { MeId } from 'src/common/decorators/meId.decorator';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { CreateUserDto, RefreshTokenDto } from './user.dto';
 import { config } from '../common/config';
 
 @ApiBearerAuth()
 @ApiTags('users')
 @Controller('users')
-@UsePipes(ZodValidationPipe)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly authService: AuthService,
   ) {}
+
+  @UsePipes(new ValidationPipe())
   @Post('refresh_token')
   refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
     try {
@@ -59,9 +48,6 @@ export class UsersController {
 
   @UseGuards(HttpAuthGuard)
   @Get('me')
-  @ApiResponse({
-    type: GetUserDto,
-  })
   async getMe(@MeId() userId?: number) {
     console.log('user id', userId);
     if (!userId) {
@@ -71,33 +57,23 @@ export class UsersController {
     return this.usersService.findOne(userId);
   }
 
+  @UsePipes(new ValidationPipe())
   @Post('register')
-  @ApiCreatedResponse({
-    type: GetUserWithTokenDto,
-  })
   register(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.register(createUserDto as CreateUser);
+    return this.usersService.register(createUserDto);
   }
 
+  @UsePipes(new ValidationPipe())
   @Post('login')
-  @ApiResponse({
-    type: GetUserWithTokenDto,
-  })
   login(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.login(createUserDto as CreateUser);
+    return this.usersService.login(createUserDto);
   }
 
   @Get()
-  @ApiResponse({
-    type: GetUsersDto,
-  })
   findAll() {
     return this.usersService.findAll();
   }
 
-  @ApiResponse({
-    type: GetUserDto,
-  })
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.usersService.findOne(id);

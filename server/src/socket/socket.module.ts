@@ -1,12 +1,13 @@
 import { Global, Module } from '@nestjs/common';
 import { SocketService } from './socket.service';
 import { AppGateway } from './app.gateway';
-import { UsersRepo } from '../users/users.repo';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { User } from 'src/user/user.entity';
 
 @Global()
 @Module({
-  imports: [],
-  providers: [UsersRepo, SocketService, AppGateway],
+  imports: [MikroOrmModule.forFeature({ entities: [User] })],
+  providers: [SocketService, AppGateway],
   exports: [SocketService],
 })
 export class SocketModule {}

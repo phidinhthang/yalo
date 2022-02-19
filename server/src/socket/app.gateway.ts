@@ -12,7 +12,7 @@ import { AsyncApiPub, AsyncApiService, AsyncApiSub } from 'nestjs-asyncapi';
 import { Server, Socket } from 'socket.io';
 import { Client } from '../common/decorators/client.decorator';
 import { WsAuthGuard } from 'src/common/guards/wsAuth.guard';
-import { MeId } from 'src/common/guards/wsMeId.decorator';
+import { MeId } from 'src/common/decorators/wsMeId.decorator';
 import { SocketService } from './socket.service';
 
 class Noop {

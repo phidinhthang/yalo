@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SignOptions, VerifyOptions, sign, verify, Secret } from 'jsonwebtoken';
-import { User } from 'src/users/users.entity';
+import { User } from 'src/user/user.entity';
 import { config } from '../common/config';
 
 @Injectable()
@@ -16,7 +16,6 @@ export class AuthService {
   }
 
   signAccessToken(user: User) {
-    console.log('ats', config.accessTokenSecret);
     return this.sign({ userId: user.id }, config.accessTokenSecret, {
       expiresIn: '15m',
     });

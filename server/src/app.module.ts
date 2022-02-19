@@ -1,30 +1,31 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  OnModuleInit,
+} from '@nestjs/common';
+import { MikroORM } from '@mikro-orm/core';
+import { MikroOrmMiddleware, MikroOrmModule } from '@mikro-orm/nestjs';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { KnexModule } from 'nest-knexjs';
-import { UsersModule } from './users/users.module';
+import { UsersModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { SocketModule } from './socket/socket.module';
-import { knexSnakeCaseMappers } from 'objection';
+import { config } from './common/config';
 
 @Module({
-  imports: [
-    KnexModule.forRoot({
-      config: {
-        client: 'pg',
-        connection: 'postgres://postgres:456852@localhost:5432/zalo-web',
-        pool: {
-          min: 2,
-          max: 10,
-        },
-        ...knexSnakeCaseMappers(),
-      },
-    }),
-    AuthModule,
-    UsersModule,
-    SocketModule,
-  ],
+  imports: [MikroOrmModule.forRoot(), AuthModule, UsersModule, SocketModule],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule, OnModuleInit {
+  constructor(private readonly orm: MikroORM) {}
+
+  async onModuleInit() {
+    if (config.isProduction) await this.orm.getMigrator().up();
+  }
+
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(MikroOrmMiddleware).forRoutes('*');
+  }
+}

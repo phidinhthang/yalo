@@ -1,35 +1,36 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { AuthService } from 'src/auth/auth.service';
-import type { CreateUser, UserWithToken } from './users.dto';
-import { UsersRepo } from './users.repo';
+import { CreateUserDto } from './user.dto';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @Inject(UsersRepo) private readonly usersRepo: UsersRepo,
+    private readonly userRepository: UserRepository,
     private readonly authService: AuthService,
   ) {}
 
-  async register(createUserDto: CreateUser): Promise<UserWithToken> {
-    const existed = await this.usersRepo.findOne({
+  async register(createUserDto: CreateUserDto) {
+    const existed = await this.userRepository.findOne({
       username: createUserDto.username,
     });
 
     if (existed) {
-      throw new BadRequestException([
-        {
-          path: ['username'],
-          message: 'username already existed',
+      throw new BadRequestException({
+        errors: {
+          username: ['username dont exist'],
         },
-      ]);
+      });
     }
 
     const hashedPassword = await argon2.hash(createUserDto.password);
-    const user = await this.usersRepo.create({
+    const user = this.userRepository.create({
       username: createUserDto.username,
       password: hashedPassword,
     });
+
+    await this.userRepository.persistAndFlush(user);
 
     console.log('user ', user);
 
@@ -42,18 +43,17 @@ export class UsersService {
     };
   }
 
-  async login(createUserDto: CreateUser): Promise<UserWithToken> {
-    const user = await this.usersRepo.findOne({
+  async login(createUserDto: CreateUserDto) {
+    const user = await this.userRepository.findOne({
       username: createUserDto.username,
     });
 
     if (!user) {
-      throw new BadRequestException([
-        {
-          path: ['username'],
-          message: 'username dont existed',
+      throw new BadRequestException({
+        errors: {
+          username: ['username dont existed'],
         },
-      ]);
+      });
     }
 
     const isMatched = await argon2.verify(
@@ -62,12 +62,11 @@ export class UsersService {
     );
 
     if (!isMatched) {
-      throw new BadRequestException([
-        {
-          path: ['password'],
-          message: 'Password does not matched',
+      throw new BadRequestException({
+        errors: {
+          password: ['password does not match'],
         },
-      ]);
+      });
     }
 
     return {
@@ -80,10 +79,10 @@ export class UsersService {
   }
 
   findAll() {
-    return this.usersRepo.findAll();
+    return this.userRepository.findAll();
   }
 
   findOne(id: number) {
-    return this.usersRepo.findOne(id);
+    return this.userRepository.findOne(id);
   }
 }

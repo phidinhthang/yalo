@@ -57,7 +57,12 @@ export const connect = ({
             ...(init?.headers || {}),
           },
         });
-        return r.json();
+        const data = await r.json();
+        console.log('status ', r.status);
+        if (r.status > 399) {
+          return Promise.reject(data);
+        }
+        return data;
       },
       send: async (endpoint, init?: RequestInit) => {
         const accessToken = getState().accessToken;

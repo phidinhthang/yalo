@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 import { useTypeSafeUpdateQuery } from '../../shared-hooks/useTypeSafeUpdateQuery';
+import { useConn } from '../conn/useConn';
 
 export const LoginPage = () => {
   const hasTokens = useTokenStore((s) => !!(s.accessToken && s.refreshToken));
@@ -12,6 +13,7 @@ export const LoginPage = () => {
   const [password, setPassword] = useState('');
   const { mutate } = useTypeSafeMutation('login');
   const cache = useTypeSafeUpdateQuery();
+  const conn = useConn();
 
   useEffect(() => {
     if (hasTokens) {
@@ -28,8 +30,8 @@ export const LoginPage = () => {
             mutate([{ username, password }], {
               onSuccess: (data) => {
                 console.log('data', data);
-                if ('message' in data) {
-                  console.log(data.message);
+                if ('errors' in data) {
+                  console.log(data.errors);
                 } else {
                   setTokens({
                     accessToken: data.token.access,

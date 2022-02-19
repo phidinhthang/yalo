@@ -4,7 +4,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { verify } from 'jsonwebtoken';
+import { decode } from 'jsonwebtoken';
 
 export const MeId = createParamDecorator(
   (options: { isOptional?: boolean }, ctx: ExecutionContext): number | null => {
@@ -18,7 +18,7 @@ export const MeId = createParamDecorator(
 
     try {
       if (token?.[1]) {
-        const decoded: any = verify(token[1], process.env.ACCESS_TOKEN_SECRET);
+        const decoded: any = decode(token[1]);
         console.log('decoded ', decoded);
         return decoded?.['userId'];
       }

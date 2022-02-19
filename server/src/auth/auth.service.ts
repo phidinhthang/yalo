@@ -1,5 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { SignOptions, VerifyOptions, sign, verify, Secret } from 'jsonwebtoken';
+import {
+  SignOptions,
+  VerifyOptions,
+  sign,
+  verify,
+  Secret,
+  decode,
+} from 'jsonwebtoken';
 import { User } from 'src/user/user.entity';
 import { config } from '../common/config';
 
@@ -29,5 +36,9 @@ export class AuthService {
 
   verify(token: string, secretKey: Secret, options?: VerifyOptions) {
     return verify(token, secretKey, options);
+  }
+
+  decode(token: string) {
+    return decode(token);
   }
 }

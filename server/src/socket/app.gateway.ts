@@ -1,5 +1,4 @@
 import { UseGuards } from '@nestjs/common';
-import { ApiProperty } from '@nestjs/swagger';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -8,21 +7,17 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { AsyncApiPub, AsyncApiService, AsyncApiSub } from 'nestjs-asyncapi';
 import { Server, Socket } from 'socket.io';
 import { Client } from '../common/decorators/client.decorator';
 import { WsAuthGuard } from 'src/common/guards/wsAuth.guard';
 import { MeId } from 'src/common/decorators/wsMeId.decorator';
 import { SocketService } from './socket.service';
+import { AuthService } from 'src/auth/auth.service';
+import { config } from '../common/config';
 
-class Noop {
-  @ApiProperty()
-  noop: string;
-}
-
-@AsyncApiService()
 @WebSocketGateway({
   namespace: '/ws',
+  cors: { origin: '*' },
 })
 export class AppGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -30,73 +25,60 @@ export class AppGateway
   @WebSocketServer()
   server: Server;
 
-  constructor(private socketService: SocketService) {}
+  constructor(
+    private readonly socketService: SocketService,
+    private readonly authService: AuthService,
+  ) {}
 
   afterInit(server: Server) {
     this.socketService.socket = server;
   }
 
-  async handleConnection(socket: Socket) {}
+  @UseGuards(WsAuthGuard)
+  async handleConnection(client: Socket) {
+    const token: string = client.handshake.query.token as string;
+    if (!token) {
+      client.disconnect(true);
+    }
+    try {
+      const decoded: any = this.authService.verify(
+        token,
+        config.accessTokenSecret,
+      );
+      const userId = decoded.userId;
+      console.log('user join ', userId);
+      client.join(`${userId}`);
+      this.socketService.toggleOnlineStatus(userId);
+    } catch (err) {
+      console.log('ws connect error ', err);
+      client.disconnect(true);
+    }
+  }
 
-  async handleDisconnect(socket: Socket) {}
+  async handleDisconnect(client: Socket) {
+    const token: string = client.handshake.query.token as string;
+    try {
+      const decoded: any = this.authService.decode(token);
+      const userId = decoded.userId;
+      console.log('user leave ', userId);
+      client.leave(`${userId}`);
+      this.socketService.toggleOfflineStatus(userId);
+    } catch (err) {
+      console.log('ws connect error ', err);
+    }
+  }
 
-  @AsyncApiSub({
-    channel: 'toggle_online',
-    message: {
-      name: 'toggle_online',
-      payload: {
-        type: class {},
-      },
-    },
-  })
   @UseGuards(WsAuthGuard)
   @SubscribeMessage('toggle_online')
-  @AsyncApiPub({
-    channel: 'toggle_online',
-    message: {
-      name: 'toggle_online',
-      payload: { type: Noop },
-    },
-  })
   toggleOnline(@MeId() userId: number) {
     console.log('toggle online userId ', userId);
     this.socketService.toggleOnlineStatus(userId);
   }
 
-  @AsyncApiSub({
-    channel: 'toggle_offline',
-    message: {
-      name: 'toggle_offline',
-      payload: {
-        type: class {},
-      },
-    },
-  })
   @UseGuards(WsAuthGuard)
   @SubscribeMessage('toggle_offline')
-  @AsyncApiPub({
-    channel: 'toggle_offline',
-    message: {
-      name: 'toggle_offline',
-      payload: { type: Noop },
-    },
-  })
   toggleOffline(@MeId() userId: number) {
     console.log('toggle offline userId ', userId);
     this.socketService.toggleOfflineStatus(userId);
-  }
-
-  @UseGuards(WsAuthGuard)
-  @SubscribeMessage('join_user')
-  @AsyncApiPub({
-    channel: 'join_user',
-    message: {
-      name: 'join_user',
-      payload: { type: Noop },
-    },
-  })
-  joinUser(@Client() client: Socket, @MeId() userId: number) {
-    console.log('join user id ', userId);
-    client.join(`${userId}`);
   }
 }

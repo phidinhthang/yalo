@@ -1,16 +1,16 @@
 import { useTokenStore } from './useTokenStore';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 import { useTypeSafeUpdateQuery } from '../../shared-hooks/useTypeSafeUpdateQuery';
 
-export const LoginPage = () => {
+export const RegisterPage = () => {
   const hasTokens = useTokenStore((s) => !!(s.accessToken && s.refreshToken));
   const setTokens = useTokenStore((s) => s.setTokens);
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const { mutate } = useTypeSafeMutation('login');
+  const { mutate } = useTypeSafeMutation('register');
   const cache = useTypeSafeUpdateQuery();
 
   useEffect(() => {
@@ -61,9 +61,9 @@ export const LoginPage = () => {
             />
           </div>
           <div>
-            don't have an account ? <Link to='/register'>register</Link>
+            already have an account ? <Link to='/login'>login</Link>
           </div>
-          <button type='submit'>login</button>
+          <button type='submit'>register</button>
         </form>
       </div>
     </>

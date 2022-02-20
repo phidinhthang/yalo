@@ -6,8 +6,6 @@ import {
 } from '@nestjs/common';
 import { MikroORM } from '@mikro-orm/core';
 import { MikroOrmMiddleware, MikroOrmModule } from '@mikro-orm/nestjs';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { UsersModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { SocketModule } from './socket/socket.module';
@@ -15,8 +13,6 @@ import { config } from './common/config';
 
 @Module({
   imports: [MikroOrmModule.forRoot(), AuthModule, UsersModule, SocketModule],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule implements NestModule, OnModuleInit {
   constructor(private readonly orm: MikroORM) {}

@@ -6,7 +6,7 @@ import {
 } from '@mikro-orm/core';
 import { UserRepository } from './user.repository';
 
-@Entity({ customRepository: () => UserRepository })
+@Entity({ tableName: 'users', customRepository: () => UserRepository })
 export class User {
   [EntityRepositoryType]?: UserRepository;
 

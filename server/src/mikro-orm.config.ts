@@ -1,6 +1,9 @@
 import { MikroOrmModuleOptions as Options } from '@mikro-orm/nestjs';
 import { LoadStrategy } from '@mikro-orm/core';
 import { User } from './user/user.entity';
+import { Member } from './conversation/entities/member.entity';
+import { Conversation } from './conversation/entities/conversation.entity';
+import { Message } from './message/message.entity';
 
 const config: Options = {
   type: 'postgresql',
@@ -9,7 +12,7 @@ const config: Options = {
   user: 'postgres',
   password: 'postgres',
   dbName: 'zaloweb',
-  entities: [User],
+  entities: [User, Member, Message, Conversation],
   debug: true,
   loadStrategy: LoadStrategy.JOINED,
   registerRequestContext: false,

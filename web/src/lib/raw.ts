@@ -36,9 +36,12 @@ export const connect = ({
         }
 
         if (shouldRefresh) {
-          const r = await fetch('/refresh_token', {
+          const r = await fetch(`${apiUrl}/users/refresh_token`, {
             method: 'POST',
             body: JSON.stringify({ refreshToken }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
           });
           const d = await r.json();
           accessToken = d.accessToken;
@@ -57,8 +60,10 @@ export const connect = ({
             ...(init?.headers || {}),
           },
         });
-        const data = await r.json();
-        console.log('status ', r.status);
+        let data: any;
+
+        data = await r.json();
+        console.log('response ', r, 'data', data);
         if (r.status > 399) {
           return Promise.reject(data);
         }

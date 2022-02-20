@@ -2,6 +2,7 @@ import { wrap } from '../lib/wrapper';
 import { useQuery, UseQueryOptions } from 'react-query';
 import { useWrappedConn } from '../modules/conn/useConn';
 import { Await } from '../types/util-types';
+import { ErrorResponse } from '../lib/entities';
 
 type Keys = keyof ReturnType<typeof wrap>['query'];
 
@@ -13,8 +14,14 @@ export const useTypeSafeQuery = <K extends Keys>(
   params?: Parameters<ReturnType<typeof wrap>['query'][K]>
 ) => {
   const conn = useWrappedConn();
-
-  return useQuery<Await<ReturnType<ReturnType<typeof wrap>['query'][K]>>>(
+  type TError = Extract<
+    Await<ReturnType<ReturnType<typeof wrap>['query'][K]>>,
+    { errors: any }
+  >;
+  return useQuery<
+    Await<ReturnType<ReturnType<typeof wrap>['query'][K]>>,
+    TError
+  >(
     key,
     () => {
       const fn = conn.query[typeof key === 'string' ? key : key[0]] as any;

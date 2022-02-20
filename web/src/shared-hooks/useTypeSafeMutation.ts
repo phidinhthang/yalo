@@ -17,9 +17,14 @@ export const useTypeSafeMutation = <K extends Keys>(
 ) => {
   const { conn } = useContext(ConnectionContext);
 
+  type TError = Extract<
+    Await<ReturnType<ReturnType<typeof wrap>['mutation'][K]>>,
+    { errors: any }
+  >;
+
   return useMutation<
     Await<ReturnType<ReturnType<typeof wrap>['mutation'][K]>>,
-    any,
+    TError,
     Parameters<ReturnType<typeof wrap>['mutation'][K]>
   >(
     (params) =>

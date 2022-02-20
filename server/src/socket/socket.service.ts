@@ -3,12 +3,17 @@ import { UserRepository } from '../user/user.repository';
 import { EntityManager } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common/decorators';
 import { User } from 'src/user/user.entity';
+import { MessageRepository } from 'src/message/message.repository';
+import { MemberRepository } from 'src/member/member.repository';
 
 @Injectable()
 export class SocketService {
   public socket: Server = null;
 
-  constructor(private readonly em: EntityManager) {}
+  constructor(
+    private readonly em: EntityManager,
+    private readonly memberRepository: MemberRepository,
+  ) {}
 
   async toggleOnlineStatus(userId: number) {
     await this.setOnlineStatus(userId, true);
@@ -30,5 +35,14 @@ export class SocketService {
     await this.em.fork().nativeUpdate(User, userId, { isOnline });
   }
 
-  async;
+  async newMessage(conversationId: number, message: any) {
+    const members = await this.memberRepository.find({
+      conversation: conversationId,
+    });
+    const users = members.map((m) => m.user);
+    console.log('member ids ', users);
+    users.forEach((u) => {
+      this.socket.to(`${u.id}`).emit('new_message', message);
+    });
+  }
 }

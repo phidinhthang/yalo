@@ -2,12 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { CreateMessageDto } from './message.dto';
 import { MessageRepository } from './message.repository';
 import { MemberService } from 'src/member/member.service';
+import { SocketService } from 'src/socket/socket.service';
 
 @Injectable()
 export class MessageService {
   constructor(
     private readonly messageRepository: MessageRepository,
     private readonly memberService: MemberService,
+    private readonly socketService: SocketService,
   ) {}
 
   async create(
@@ -22,6 +24,7 @@ export class MessageService {
       text: createMessageDto.text,
     });
     await this.messageRepository.persistAndFlush(message);
+    await this.socketService.newMessage(conversationId, message);
     return message;
   }
 

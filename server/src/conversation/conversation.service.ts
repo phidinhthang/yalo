@@ -45,8 +45,10 @@ export class ConversationService {
   }
 
   async paginated(meId: number) {
+    const members = await this.memberRepository.find({user: meId})
+    const conversationIds = members.map(m => m.conversation.id)
     const conversations = await this.conversationRepository.find(
-      { members: { user: meId } },
+      { id: {$in: conversationIds}},
       { populate: ['members', 'members.user'] },
     );
     return conversations;

@@ -1,8 +1,8 @@
 import { MikroOrmModuleOptions as Options } from '@mikro-orm/nestjs';
 import { LoadStrategy } from '@mikro-orm/core';
 import { User } from './user/user.entity';
-import { Member } from './conversation/entities/member.entity';
-import { Conversation } from './conversation/entities/conversation.entity';
+import { Member } from './member/member.entity';
+import { Conversation } from './conversation/conversation.entity';
 import { Message } from './message/message.entity';
 
 const config: Options = {
@@ -17,8 +17,8 @@ const config: Options = {
   loadStrategy: LoadStrategy.JOINED,
   registerRequestContext: false,
   migrations: {
-    path: 'dist/migrations',
-    pathTs: 'src/migrations',
+    path: 'dist/common/migrations',
+    pathTs: 'src/common/migrations',
   },
 };
 

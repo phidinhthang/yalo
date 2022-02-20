@@ -68,17 +68,10 @@ export class AppGateway
     }
   }
 
-  @UseGuards(WsAuthGuard)
-  @SubscribeMessage('toggle_online')
-  toggleOnline(@MeId() userId: number) {
-    console.log('toggle online userId ', userId);
-    this.socketService.toggleOnlineStatus(userId);
-  }
-
-  @UseGuards(WsAuthGuard)
-  @SubscribeMessage('toggle_offline')
-  toggleOffline(@MeId() userId: number) {
-    console.log('toggle offline userId ', userId);
-    this.socketService.toggleOfflineStatus(userId);
-  }
+  // @UseGuards(WsAuthGuard)
+  // @SubscribeMessage('toggle_online')
+  // toggleOnline(@MeId() userId: number) {
+  //   console.log('toggle online userId ', userId);
+  //   this.socketService.toggleOnlineStatus(userId);
+  // }
 }

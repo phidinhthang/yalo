@@ -1,16 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMessageDto } from './message.dto';
 import { MessageRepository } from './message.repository';
+import { MemberService } from 'src/member/member.service';
 
 @Injectable()
 export class MessageService {
-  constructor(private readonly messageRepository: MessageRepository) {}
+  constructor(
+    private readonly messageRepository: MessageRepository,
+    private readonly memberService: MemberService,
+  ) {}
 
   async create(
     senderId: number,
     conversationId: number,
     createMessageDto: CreateMessageDto,
   ) {
+    await this.memberService.isMemberOrThrow(senderId, conversationId);
     const message = this.messageRepository.create({
       creator: senderId,
       conversation: conversationId,
@@ -21,8 +26,7 @@ export class MessageService {
   }
 
   async paginated(meId: number, conversationId: number) {
-    return this.messageRepository.find({
-      conversation: { id: conversationId, members: { user: { $in: [meId] } } },
-    });
+    await this.memberService.isMemberOrThrow(meId, conversationId);
+    return this.messageRepository.find({ conversation: conversationId });
   }
 }

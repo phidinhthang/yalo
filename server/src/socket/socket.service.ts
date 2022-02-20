@@ -29,4 +29,6 @@ export class SocketService {
   async setOnlineStatus(userId: number, isOnline: boolean): Promise<void> {
     await this.em.fork().nativeUpdate(User, userId, { isOnline });
   }
+
+  async;
 }

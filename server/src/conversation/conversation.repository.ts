@@ -1,6 +1,6 @@
 import { EntityData, FilterQuery, FindOneOptions, wrap } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
-import { Conversation } from './entities/conversation.entity';
+import { Conversation } from './conversation.entity';
 
 export class ConversationRepository extends EntityRepository<Conversation> {
   async upsert(

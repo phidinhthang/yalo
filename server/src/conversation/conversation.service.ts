@@ -3,8 +3,8 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
 import { User } from 'src/user/user.entity';
 import { ConversationRepository } from './conversation.repository';
-import { ConversationType } from './entities/conversation.entity';
-import { Member } from './entities/member.entity';
+import { ConversationType } from './conversation.entity';
+import { Member } from '../member/member.entity';
 
 @Injectable()
 export class ConversationService {
@@ -15,7 +15,7 @@ export class ConversationService {
     private readonly orm: MikroORM,
   ) {}
 
-  async findOrCreatePrivateConversation(meId: number, partnerId: number) {
+  async findOrCreatePrivate(meId: number, partnerId: number) {
     const conversationId = await this.orm.em.getConnection('read').execute(`
 		select c.id from members m1 
 			inner join conversations c on c.id = m1.conversation_id and c.type = 'private'
@@ -38,7 +38,7 @@ export class ConversationService {
         members: [meMember, partnerMember],
         type: ConversationType.PRIVATE,
       },
-      { populate: ['members'] as any },
+      { populate: ['members', 'members.user'] as any },
     );
 
     return conversation;
@@ -47,7 +47,7 @@ export class ConversationService {
   async paginated(meId: number) {
     const conversations = await this.conversationRepository.find(
       { members: { user: meId } },
-      { populate: ['members'] },
+      { populate: ['members', 'members.user'] },
     );
     return conversations;
   }

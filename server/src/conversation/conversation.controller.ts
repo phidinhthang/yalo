@@ -15,14 +15,11 @@ export class ConversationController {
 
   @UseGuards(HttpAuthGuard)
   @Get('private/:partnerId')
-  async findOrCreatePrivateConversation(
+  async findOrCreatePrivate(
     @MeId() meId: number,
     @Param('partnerId', new ParseIntPipe()) partnerId: number,
   ) {
-    return this.conversationService.findOrCreatePrivateConversation(
-      meId,
-      partnerId,
-    );
+    return this.conversationService.findOrCreatePrivate(meId, partnerId);
   }
 
   @UseGuards(HttpAuthGuard)

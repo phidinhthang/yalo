@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConversationController } from './conversation.controller';
 import { ConversationService } from './conversation.service';
-import { Conversation } from './entities/conversation.entity';
-import { Member } from './entities/member.entity';
+import { Conversation } from './conversation.entity';
+import { Member } from '../member/member.entity';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 
 @Module({

@@ -12,15 +12,17 @@ import { SocketModule } from './socket/socket.module';
 import { config } from './common/config';
 import { ConversationModule } from './conversation/conversation.module';
 import { MessageModule } from './message/message.module';
+import { MemberModule } from './member/member.module';
 
 @Module({
   imports: [
     MikroOrmModule.forRoot(),
     AuthModule,
-    UsersModule,
-    SocketModule,
+    MemberModule,
     ConversationModule,
     MessageModule,
+    UsersModule,
+    SocketModule,
   ],
 })
 export class AppModule implements NestModule, OnModuleInit {

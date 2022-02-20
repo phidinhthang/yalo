@@ -7,17 +7,20 @@ import {
   Collection,
   OneToOne,
   Enum,
+  EntityRepositoryType,
 } from '@mikro-orm/core';
-import { Message } from '../../message/message.entity';
-import { User } from '../../user/user.entity';
-import { ConversationRepository } from '../conversation.repository';
-import { Member } from './member.entity';
+import { Message } from '../message/message.entity';
+import { User } from '../user/user.entity';
+import { ConversationRepository } from './conversation.repository';
+import { Member } from '../member/member.entity';
 
 @Entity({
   tableName: 'conversations',
   customRepository: () => ConversationRepository,
 })
 export class Conversation {
+  [EntityRepositoryType]?: ConversationRepository;
+
   @PrimaryKey()
   id: number;
 

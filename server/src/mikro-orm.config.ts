@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { MikroOrmModuleOptions as Options } from '@mikro-orm/nestjs';
 import { LoadStrategy } from '@mikro-orm/core';
 import { User } from './user/user.entity';

@@ -21,7 +21,7 @@ export const useMainWsHandler = () => {
 
   React.useEffect(() => {
     if (accessToken) {
-      const ws = io(`http://localhost:4000/ws`, {
+      const ws = io(import.meta.env.VITE_API_URL, {
         query: { token: accessToken },
       });
       ws.on('disconnect', () => {

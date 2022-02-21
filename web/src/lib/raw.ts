@@ -1,6 +1,6 @@
 import jwtDecode from 'jwt-decode';
 import { useTokenStore } from '../modules/auth/useTokenStore';
-const apiUrl = 'http://localhost:4000';
+const apiUrl = import.meta.env.VITE_API_URL;
 type Token = string;
 
 export type Connection = {

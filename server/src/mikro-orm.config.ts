@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { MikroOrmModuleOptions as Options } from '@mikro-orm/nestjs';
 import { LoadStrategy } from '@mikro-orm/core';
 import { User } from './user/user.entity';
@@ -7,11 +8,7 @@ import { Message } from './message/message.entity';
 
 const config: Options = {
   type: 'postgresql',
-  host: 'localhost',
-  port: 5432,
-  user: 'postgres',
-  password: 'postgres',
-  dbName: 'zaloweb',
+  clientUrl: process.env.POSTGRES_URL,
   entities: [User, Member, Message, Conversation],
   debug: true,
   loadStrategy: LoadStrategy.JOINED,
@@ -20,6 +17,16 @@ const config: Options = {
     path: 'dist/common/migrations',
     pathTs: 'src/common/migrations',
   },
+  driverOptions:
+    process.env.NODE_ENV === 'production'
+      ? {
+          connection: {
+            ssl: {
+              rejectUnauthorized: false,
+            },
+          },
+        }
+      : undefined,
 };
 
 export default config;

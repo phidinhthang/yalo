@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMessageDto } from './message.dto';
 import { MessageRepository } from './message.repository';
+import { ConversationRepository } from '../conversation/conversation.repository';
 import { MemberService } from 'src/member/member.service';
 import { SocketService } from 'src/socket/socket.service';
 
@@ -9,6 +10,7 @@ export class MessageService {
   constructor(
     private readonly messageRepository: MessageRepository,
     private readonly memberService: MemberService,
+    private readonly conversationRepository: ConversationRepository,
     private readonly socketService: SocketService,
   ) {}
 
@@ -22,6 +24,9 @@ export class MessageService {
       creator: senderId,
       conversation: conversationId,
       text: createMessageDto.text,
+    });
+    await this.conversationRepository.nativeUpdate(conversationId, {
+      lastMessage: message,
     });
     await this.messageRepository.persistAndFlush(message);
     await this.socketService.newMessage(conversationId, message);

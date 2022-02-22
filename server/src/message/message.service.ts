@@ -25,11 +25,11 @@ export class MessageService {
       conversation: conversationId,
       text: createMessageDto.text,
     });
+    await this.messageRepository.persistAndFlush(message);
     await this.conversationRepository.nativeUpdate(conversationId, {
       lastMessage: message,
     });
-    await this.messageRepository.persistAndFlush(message);
-    await this.socketService.newMessage(conversationId, message);
+    await this.socketService.newMessage(senderId, conversationId, message);
     return message;
   }
 

@@ -1,34 +1,44 @@
+import React from 'react';
+import { useQueryClient } from 'react-query';
 import { useTypeSafeQuery } from '../../shared-hooks/useTypeSafeQuery';
 import { useTypeSafeUpdateQuery } from '../../shared-hooks/useTypeSafeUpdateQuery';
 
 export const UserItem = ({
   user,
+  updateQuery,
 }: {
   user: { id: number; username: string; isOnline: boolean };
+  updateQuery: ReturnType<typeof useTypeSafeUpdateQuery>;
 }) => {
-  const { refetch } = useTypeSafeQuery(
+  const [enabled, setEnabled] = React.useState(false);
+  const { refetch, data: conversation } = useTypeSafeQuery(
     ['getPrivateConversation', user.id],
     {
-      enabled: false,
+      enabled,
     },
     [{ id: user.id }]
   );
-  const updateQuery = useTypeSafeUpdateQuery();
+  React.useEffect(() => {
+    if (enabled && conversation) {
+      console.log('conversation found', conversation);
+      updateQuery('getPaginatedConversations', (conversations) => {
+        if (!conversations.find((c) => c.id === conversation?.id)) {
+          console.log('not in');
+          return [conversation!, ...conversations];
+        }
+        console.log('list ', conversations);
+        return conversations;
+      });
+    }
+  }, [enabled, conversation, updateQuery]);
   return (
     <div
       onClick={() => {
-        refetch().then(({ data: conversation }) => {
-          updateQuery('getPaginatedConversations', (conversations) => {
-            if (!conversations.find((c) => c.id === conversation?.id)) {
-              conversations.push(conversation!);
-            }
-            return conversations;
-          });
-        });
+        setEnabled(true);
       }}
     >
       <div>{user.username}</div>
-      <div>{user.isOnline}</div>
+      <div>{user.isOnline ? 'online' : 'offline'}</div>
     </div>
   );
 };

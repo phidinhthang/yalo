@@ -21,7 +21,7 @@ export const useMainWsHandler = () => {
 
   React.useEffect(() => {
     if (accessToken) {
-      const ws = io(import.meta.env.VITE_API_URL, {
+      const ws = io(`${import.meta.env.VITE_API_URL}/ws`, {
         query: { token: accessToken },
       });
       ws.on('disconnect', () => {
@@ -50,11 +50,27 @@ export const useMainWsHandler = () => {
     });
 
     ws?.on('new_message', async (message: Message) => {
+      console.log('new_message', message);
       const conversations = getQuery('getPaginatedConversations');
       if (!conversations) return;
       let conversation = conversations.find(
         (c) => c.id === message.conversation
       );
+      if (!conversation) {
+        conversation = await wConn.query.getPrivateConversation({
+          id: message.creator,
+        });
+        conversation.lastMessage = message;
+        updateQuery('getPaginatedConversations', (conversations) => {
+          conversations.unshift(conversation!);
+          return conversations;
+        });
+        return;
+      }
+      updateQuery(['getPaginatedMessages', conversation.id], (messages) => {
+        messages?.push(message);
+        return messages;
+      });
       updateQuery('getPaginatedConversations', (conversations) => {
         return conversations.map((c) => {
           if (c.id === conversation!.id) {
@@ -63,19 +79,12 @@ export const useMainWsHandler = () => {
           return c;
         });
       });
-      if (conversation) return;
-      conversation = await wConn.query.getPrivateConversation({
-        id: message.conversation,
-      });
-      updateQuery('getPaginatedConversations', (conversations) => {
-        conversations.unshift(conversation!);
-        return conversations;
-      });
     });
 
     return () => {
       ws?.off('toggle_online');
       ws?.off('toggle_offline');
+      ws?.off('new_message');
     };
   }, [ws]);
 };

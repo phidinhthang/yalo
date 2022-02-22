@@ -35,11 +35,11 @@ export class SocketService {
     await this.em.fork().nativeUpdate(User, userId, { isOnline });
   }
 
-  async newMessage(conversationId: number, message: any) {
+  async newMessage(senderId: number, conversationId: number, message: any) {
     const members = await this.memberRepository.find({
       conversation: conversationId,
     });
-    const users = members.map((m) => m.user);
+    const users = members.map((m) => m.user).filter((u) => u.id !== senderId);
     console.log('member ids ', users);
     users.forEach((u) => {
       this.socket.to(`${u.id}`).emit('new_message', message);

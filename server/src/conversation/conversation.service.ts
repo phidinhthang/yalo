@@ -22,15 +22,16 @@ export class ConversationService {
 				inner join members m2 on m2.user_id = ${partnerId} and m2.conversation_id = c.id
 					where m1.user_id = ${meId};
 		`);
-    const meReference = this.orm.em.getReference(User, meId);
-    const partnerReference = this.orm.em.getReference(User, partnerId);
+    console.log('conversation id ', conversationId, typeof conversationId);
+    const me = this.orm.em.getReference(User, meId);
+    const partner = await this.orm.em.findOne(User, partnerId);
     const meMember = this.memberRepository.create({
       conversation: conversationId,
-      user: meReference,
+      user: me,
     });
     const partnerMember = this.memberRepository.create({
       conversation: conversationId,
-      user: partnerReference,
+      user: partner,
     });
     const conversation = await this.conversationRepository.upsert(
       conversationId,
@@ -38,18 +39,18 @@ export class ConversationService {
         members: [meMember, partnerMember],
         type: ConversationType.PRIVATE,
       },
-      { populate: ['members', 'members.user'] as any },
+      { populate: ['members', 'members.user', 'lastMessage'] as any },
     );
 
     return conversation;
   }
 
   async paginated(meId: number) {
-    const members = await this.memberRepository.find({user: meId})
-    const conversationIds = members.map(m => m.conversation.id)
+    const members = await this.memberRepository.find({ user: meId });
+    const conversationIds = members.map((m) => m.conversation.id);
     const conversations = await this.conversationRepository.find(
-      { id: {$in: conversationIds}},
-      { populate: ['members', 'members.user'] },
+      { id: { $in: conversationIds } },
+      { populate: ['members', 'members.user', 'lastMessage'] },
     );
     return conversations;
   }

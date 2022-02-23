@@ -1,44 +1,24 @@
-import React from 'react';
-import { useQueryClient } from 'react-query';
-import { useTypeSafeQuery } from '../../shared-hooks/useTypeSafeQuery';
-import { useTypeSafeUpdateQuery } from '../../shared-hooks/useTypeSafeUpdateQuery';
+import { User } from '../../lib/entities';
+import { Avatar } from '../../ui/Avatar';
 
-export const UserItem = ({
+interface UserItemProps {
+  user: Omit<User, 'password'>;
+  onClick: () => void;
+  className?: string;
+}
+
+export const UserItem: React.FC<UserItemProps> = ({
   user,
-  updateQuery,
-}: {
-  user: { id: number; username: string; isOnline: boolean };
-  updateQuery: ReturnType<typeof useTypeSafeUpdateQuery>;
+  onClick,
+  className = '',
 }) => {
-  const [enabled, setEnabled] = React.useState(false);
-  const { refetch, data: conversation } = useTypeSafeQuery(
-    ['getPrivateConversation', user.id],
-    {
-      enabled,
-    },
-    [{ id: user.id }]
-  );
-  React.useEffect(() => {
-    if (enabled && conversation) {
-      console.log('conversation found', conversation);
-      updateQuery('getPaginatedConversations', (conversations) => {
-        if (!conversations.find((c) => c.id === conversation?.id)) {
-          console.log('not in');
-          return [conversation!, ...conversations];
-        }
-        console.log('list ', conversations);
-        return conversations;
-      });
-    }
-  }, [enabled, conversation, updateQuery]);
   return (
-    <div
-      onClick={() => {
-        setEnabled(true);
-      }}
-    >
-      <div>{user.username}</div>
-      <div>{user.isOnline ? 'online' : 'offline'}</div>
+    <div onClick={onClick} className={`flex ${className}`}>
+      <Avatar size='md' isOnline={user.isOnline} src={user.avatarUrl || ''} />
+      <div className='ml-3'>
+        <div>{user.username}</div>
+        <div>{user.isOnline ? 'online' : 'offline'}</div>
+      </div>
     </div>
   );
 };

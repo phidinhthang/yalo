@@ -24,6 +24,15 @@
           "nullable": false,
           "mappedType": "string"
         },
+        "avatar_url": {
+          "name": "avatar_url",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "string"
+        },
         "is_online": {
           "name": "is_online",
           "type": "boolean",

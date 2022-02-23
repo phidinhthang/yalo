@@ -1,6 +1,7 @@
 export interface User {
   id: number;
   username: string;
+  avatarUrl?: string;
   password: string;
   isOnline: boolean;
 }
@@ -15,6 +16,7 @@ export interface Tokens {
   access: string;
   refresh: string;
 }
+
 export type Message = {
   id: number;
   createdAt: string;

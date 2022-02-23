@@ -16,6 +16,9 @@ export class User {
   @Property()
   username: string;
 
+  @Property({ nullable: true })
+  avatarUrl?: string;
+
   @Property({ default: false, defaultRaw: 'false' })
   isOnline: boolean = false;
 

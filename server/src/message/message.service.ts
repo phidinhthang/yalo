@@ -33,8 +33,30 @@ export class MessageService {
     return message;
   }
 
-  async paginated(meId: number, conversationId: number) {
+  async paginated(
+    meId: number,
+    conversationId: number,
+    { nextCursor, limit }: { limit?: number; nextCursor?: string },
+  ) {
+    limit = Math.min(limit || 3, 20);
+    const limitPlusOne = limit + 1;
     await this.memberService.isMemberOrThrow(meId, conversationId);
-    return this.messageRepository.find({ conversation: conversationId });
+    const opts = nextCursor
+      ? {
+          createdAt: { $lte: nextCursor },
+        }
+      : {};
+    const messages = await this.messageRepository.find(
+      { conversation: conversationId, ...opts },
+      { orderBy: { createdAt: 'DESC' }, limit: limitPlusOne },
+    );
+    let _nextCursor: string | undefined = undefined;
+    if (messages.length === limitPlusOne)
+      _nextCursor = messages[messages.length - 1]?.createdAt.toISOString();
+
+    return {
+      data: messages.slice(0, limit),
+      nextCursor: _nextCursor,
+    };
   }
 }

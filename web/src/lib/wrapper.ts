@@ -1,4 +1,11 @@
-import { Conversation, ErrorResponse, Message, Tokens, User } from './entities';
+import {
+  Conversation,
+  ErrorResponse,
+  Message,
+  Paginated,
+  Tokens,
+  User,
+} from './entities';
 import { Connection } from './raw';
 import { _Omit } from './util-types';
 
@@ -12,11 +19,13 @@ export const wrap = (connection: Connection) => ({
       connection.fetch(`/conversation/private/${data.id}`),
     getPaginatedConversations: (): Promise<Conversation[]> =>
       connection.fetch(`/conversation`),
-    getPaginatedMessages: (data: {
-      conversationId: number;
-    }): Promise<Message[]> =>
-      connection.fetch(`/message/${data.conversationId}`),
-    // getPaginatedMessages: (): Promise<Message[]> => connection.fetch(``),
+    getPaginatedMessages: (
+      data: { conversationId: number },
+      ctx: { nextParam?: string }
+    ): Promise<Paginated<Message[]>> =>
+      connection.fetch(
+        `/message/${data.conversationId}?${new URLSearchParams(ctx)}`
+      ),
   },
   mutation: {
     refreshToken: (data: {

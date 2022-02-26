@@ -1,20 +1,47 @@
 import { formatDistanceToNow } from 'date-fns';
+import { useInView } from 'react-intersection-observer';
 import { Avatar } from '../../ui/Avatar';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
-import { useTypeSafeQuery } from '../../shared-hooks/useTypeSafeQuery';
-import { useTypeSafeUpdateQuery } from '../../shared-hooks/useTypeSafeUpdateQuery';
+import {
+  useTypeSafeInfiniteQuery,
+  useTypeSafeQuery,
+} from '../../shared-hooks/useTypeSafeQuery';
+import {
+  useTypeSafeUpdateQuery,
+  useTypeSafeUpdateInfiniteQuery,
+} from '../../shared-hooks/useTypeSafeUpdateQuery';
 import { useChatStore } from './useChatStore';
 import { Member } from '../../lib/entities';
+import React from 'react';
 
 export const ChatBox = () => {
   const { conversationOpened, message, setMessage } = useChatStore();
+  const [ref, inView] = useInView();
   const { mutate } = useTypeSafeMutation('createMessage');
   const updateQuery = useTypeSafeUpdateQuery();
-  const { data: messages } = useTypeSafeQuery(
+  const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
+  const {
+    data: messages,
+    hasNextPage,
+    fetchNextPage,
+  } = useTypeSafeInfiniteQuery(
     ['getPaginatedMessages', conversationOpened!],
-    { enabled: !!conversationOpened },
+    {
+      enabled: !!conversationOpened,
+      getNextPageParam: (lastPage) => {
+        if (!lastPage.nextCursor) return undefined;
+        return lastPage;
+      },
+    },
     [{ conversationId: conversationOpened! }]
   );
+
+  React.useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, fetchNextPage]);
+
   const { data: conversations } = useTypeSafeQuery('getPaginatedConversations');
   const conversation = conversations?.find((c) => c.id === conversationOpened);
   const memberMap: Record<number, Member> = {};
@@ -28,27 +55,30 @@ export const ChatBox = () => {
   if (!conversation) return <>error</>;
   return (
     <div className='flex flex-col h-full p-3'>
-      <div className='flex-grow'>
-        {messages?.map((m) => (
-          <div className='flex'>
-            <div className='mr-3'>
-              <Avatar
-                size='sm'
-                src={memberMap[m.creator].user.avatarUrl}
-                username={memberMap[m.creator].user.username}
-              />
-            </div>
-            <div>
-              <p>{m.text}</p>
-              <div className='flex'>
-                <div className='flex-grow'></div>
-                <p className='text-sm italic text-gray-500'>
-                  {formatDistanceToNow(new Date(m.createdAt))}
-                </p>
+      <div className='h-32 overflow-y-auto'>
+        {messages?.pages.map((page) =>
+          page.data.map((m) => (
+            <div key={m.id} className='flex'>
+              <div className='mr-3'>
+                <Avatar
+                  size='sm'
+                  src={memberMap[m.creator].user.avatarUrl}
+                  username={memberMap[m.creator].user.username}
+                />
+              </div>
+              <div>
+                <p>{m.text}</p>
+                <div className='flex'>
+                  <div className='flex-grow'></div>
+                  <p className='text-sm italic text-gray-500'>
+                    {formatDistanceToNow(new Date(m.createdAt))}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
+        <div ref={ref}>load more</div>
       </div>
       <form
         className='flex'
@@ -57,11 +87,11 @@ export const ChatBox = () => {
           mutate([{ conversationId: conversationOpened, text: message }], {
             onSuccess: (data) => {
               if (!('id' in data)) return;
-              updateQuery(
+              updateInfiniteQuery(
                 ['getPaginatedMessages', conversationOpened],
                 (messages) => {
                   if (!messages) return messages;
-                  messages.push(data);
+                  messages.pages[0].data.unshift(data);
                   return messages;
                 }
               );

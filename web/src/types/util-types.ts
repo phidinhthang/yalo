@@ -11,3 +11,7 @@ export type Paths<T> = {
     ? Join<K, Paths<T[K]>>
     : K;
 }[keyof T];
+
+export type DropLastParameter<T extends any[]> = T extends [...infer Head, any]
+  ? Head
+  : any[];

@@ -6,7 +6,10 @@ import { useRefreshToken } from '../modules/auth/useRefreshToken';
 import { useTokenStore } from '../modules/auth/useTokenStore';
 import { useWsStore } from '../modules/auth/useWsStore';
 import { ConnectionContext } from '../modules/conn/ConnectionProvider';
-import { useTypeSafeUpdateQuery } from './useTypeSafeUpdateQuery';
+import {
+  useTypeSafeUpdateInfiniteQuery,
+  useTypeSafeUpdateQuery,
+} from './useTypeSafeUpdateQuery';
 import { useWrappedConn } from '../modules/conn/useConn';
 import { useTypeSafeGetQuery } from './useTypeSafeGetQuery';
 
@@ -14,6 +17,7 @@ export const useMainWsHandler = () => {
   const { ws, setWs } = useWsStore();
 
   const updateQuery = useTypeSafeUpdateQuery();
+  const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
   const getQuery = useTypeSafeGetQuery();
   const accessToken = useTokenStore().accessToken;
   const navigate = useNavigate();
@@ -67,10 +71,13 @@ export const useMainWsHandler = () => {
         });
         return;
       }
-      updateQuery(['getPaginatedMessages', conversation.id], (messages) => {
-        messages?.push(message);
-        return messages;
-      });
+      updateInfiniteQuery(
+        ['getPaginatedMessages', conversation.id],
+        (messages) => {
+          messages.pages[0].data.unshift(message);
+          return messages;
+        }
+      );
       updateQuery('getPaginatedConversations', (conversations) => {
         return conversations.map((c) => {
           if (c.id === conversation!.id) {

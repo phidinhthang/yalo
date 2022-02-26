@@ -6,6 +6,7 @@ import {
   UseGuards,
   ParseIntPipe,
   Controller,
+  Query,
 } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { CreateMessageDto } from './message.dto';
@@ -31,7 +32,10 @@ export class MessageController {
   async paginated(
     @MeId() userId: number,
     @Param('conversationId', new ParseIntPipe()) conversationId: number,
+    @Query() q: { limit?: number; nextCursor?: string },
   ) {
-    return this.messageService.paginated(userId, conversationId);
+    q.limit = parseInt(q?.limit as unknown as string, 10);
+    if (Number.isNaN(q.limit)) q.limit = 3;
+    return this.messageService.paginated(userId, conversationId, q);
   }
 }

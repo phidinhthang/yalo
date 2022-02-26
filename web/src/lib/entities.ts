@@ -12,6 +12,12 @@ export interface ErrorResponse<K extends string = string> {
   };
 }
 
+export interface Paginated<Data = unknown> {
+  data: Data;
+  nextCursor?: string;
+  prevCursor?: string;
+}
+
 export interface Tokens {
   access: string;
   refresh: string;

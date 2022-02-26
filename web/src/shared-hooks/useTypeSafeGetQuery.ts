@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
-import { useQueryClient } from 'react-query';
+import { InfiniteData, useQuery, useQueryClient } from 'react-query';
 import { wrap } from '../lib/wrapper';
+import { Await } from '../types/util-types';
 
 type Keys = keyof ReturnType<typeof wrap>['query'];
 
@@ -11,7 +12,19 @@ export const useTypeSafeGetQuery = () => {
   return useCallback(
     <K extends Keys>(key: K | PaginatedKey<K>) => {
       return client.getQueryData<
-        Awaited<ReturnType<ReturnType<typeof wrap>['query'][K]>>
+        Await<ReturnType<ReturnType<typeof wrap>['query'][K]>>
+      >(key);
+    },
+    [client]
+  );
+};
+
+export const useTypeSafeGetInfiniteQuery = () => {
+  const client = useQueryClient();
+  return useCallback(
+    <K extends Keys>(key: K | PaginatedKey<K>) => {
+      return client.getQueryData<
+        InfiniteData<Await<ReturnType<ReturnType<typeof wrap>['query'][K]>>>
       >(key);
     },
     [client]

@@ -1,9 +1,7 @@
 import { Server } from 'socket.io';
-import { UserRepository } from '../user/user.repository';
 import { EntityManager } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common/decorators';
 import { User } from 'src/user/user.entity';
-import { MessageRepository } from 'src/message/message.repository';
 import { MemberRepository } from 'src/member/member.repository';
 
 @Injectable()
@@ -32,7 +30,9 @@ export class SocketService {
   }
 
   async setOnlineStatus(userId: number, isOnline: boolean): Promise<void> {
-    await this.em.fork().nativeUpdate(User, userId, { isOnline });
+    await this.em
+      .fork()
+      .nativeUpdate(User, userId, { isOnline, lastLoginAt: new Date() });
   }
 
   async newMessage(senderId: number, conversationId: number, message: any) {

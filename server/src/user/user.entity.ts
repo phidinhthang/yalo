@@ -22,6 +22,9 @@ export class User {
   @Property({ default: false, defaultRaw: 'false' })
   isOnline: boolean = false;
 
+  @Property({ nullable: true })
+  lastLoginAt?: Date;
+
   @Property({ hidden: true })
   password: string;
 }

@@ -22,6 +22,7 @@ export const ChatBox = () => {
   const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
   const {
     data: messages,
+    isLoading,
     hasNextPage,
     fetchNextPage,
   } = useTypeSafeInfiniteQuery(
@@ -36,11 +37,19 @@ export const ChatBox = () => {
     [{ conversationId: conversationOpened! }]
   );
 
+  const endRef = React.useRef<HTMLDivElement>(null);
+
   React.useEffect(() => {
     if (inView && hasNextPage) {
       fetchNextPage();
     }
   }, [inView, hasNextPage, fetchNextPage]);
+
+  React.useEffect(() => {
+    if (!isLoading) {
+      endRef.current?.scrollIntoView({ behavior: 'auto' });
+    }
+  }, [endRef.current, conversationOpened, isLoading]);
 
   const { data: conversations } = useTypeSafeQuery('getPaginatedConversations');
   const conversation = conversations?.find((c) => c.id === conversationOpened);
@@ -55,7 +64,10 @@ export const ChatBox = () => {
   if (!conversation) return <>error</>;
   return (
     <div className='flex flex-col h-full p-3'>
-      <div className='h-32 overflow-y-auto'>
+      <div className='h-32 overflow-y-auto flex flex-col-reverse'>
+        <div ref={endRef} style={{ float: 'left', clear: 'both' }}>
+          a
+        </div>
         {messages?.pages.map((page) =>
           page.data.map((m) => (
             <div key={m.id} className='flex'>
@@ -78,7 +90,7 @@ export const ChatBox = () => {
             </div>
           ))
         )}
-        <div ref={ref}>load more</div>
+        {hasNextPage ? <div ref={ref} className='mb-1 pb-1'></div> : null}
       </div>
       <form
         className='flex'
@@ -117,7 +129,7 @@ export const ChatBox = () => {
           onChange={(e) => setMessage(e.target.value)}
         />
         <button
-          className='text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
+          className='text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
           type='submit'
         >
           send

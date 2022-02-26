@@ -20,6 +20,7 @@ export const useMainWsHandler = () => {
   const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
   const getQuery = useTypeSafeGetQuery();
   const accessToken = useTokenStore().accessToken;
+  const setTokens = useTokenStore().setTokens;
   const navigate = useNavigate();
   const wConn = useWrappedConn();
 
@@ -29,8 +30,10 @@ export const useMainWsHandler = () => {
         query: { token: accessToken },
       });
       ws.on('disconnect', () => {
+        setTokens({ accessToken: '', refreshToken: '' });
         navigate('/login');
       });
+
       setWs(ws);
     }
   }, [accessToken]);
@@ -47,7 +50,10 @@ export const useMainWsHandler = () => {
     ws?.on('toggle_offline', (userId: number) => {
       updateQuery('findAll', (users) => {
         return users?.map((u) => {
-          if (u.id === userId) u.isOnline = false;
+          if (u.id === userId) {
+            u.isOnline = false;
+            u.lastLoginAt = new Date().toISOString();
+          }
           return u;
         });
       });
@@ -96,10 +102,10 @@ export const useMainWsHandler = () => {
   }, [ws]);
 };
 
-export const MainWsHandlerProvider: React.FC = ({ children }) => {
+export const MainWsHandlerProvider: React.FC = React.memo(({ children }) => {
   useMainWsHandler();
   const { conn } = useContext(ConnectionContext);
   const { isLoading } = useRefreshToken();
-  if (!conn || isLoading) return null;
+  if (!conn || isLoading) return <></>;
   return <>{children}</>;
-};
+});

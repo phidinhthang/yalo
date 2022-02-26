@@ -43,6 +43,16 @@
           "default": "false",
           "mappedType": "boolean"
         },
+        "last_login_at": {
+          "name": "last_login_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
         "password": {
           "name": "password",
           "type": "varchar(255)",

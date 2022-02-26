@@ -4,6 +4,7 @@ export interface User {
   avatarUrl?: string;
   password: string;
   isOnline: boolean;
+  lastLoginAt?: string;
 }
 
 export interface ErrorResponse<K extends string = string> {

@@ -3,6 +3,9 @@ import { useTypeSafeQuery } from '../../shared-hooks/useTypeSafeQuery';
 import { useTypeSafeUpdateQuery } from '../../shared-hooks/useTypeSafeUpdateQuery';
 import { User } from '../../lib/entities';
 import { UserItem } from './UserItem';
+import { useNavigate } from 'react-router-dom';
+import { useIsDesktopScreen } from '../../shared-hooks/useIsDesktopScreen';
+import { useChatStore } from '../chat/useChatStore';
 
 export const UserItemController = ({
   user,
@@ -10,6 +13,9 @@ export const UserItemController = ({
   user: Omit<User, 'password'>;
 }) => {
   const [enabled, setEnabled] = React.useState(false);
+  const { setConversationOpened } = useChatStore();
+  const navigate = useNavigate();
+  const isDesktopScreen = useIsDesktopScreen();
   const updateQuery = useTypeSafeUpdateQuery();
   const { data: conversation } = useTypeSafeQuery(
     ['getPrivateConversation', user.id],
@@ -28,7 +34,10 @@ export const UserItemController = ({
       }
       return conversations;
     });
-  }, [enabled, conversation, updateQuery]);
+
+    if (!isDesktopScreen) navigate('/');
+    setConversationOpened(conversation.id);
+  }, [enabled, conversation, updateQuery, isDesktopScreen, navigate]);
 
   return (
     <UserItem

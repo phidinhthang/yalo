@@ -1,3 +1,4 @@
+import debounce from 'lodash.debounce';
 import { useEffect, useState } from 'react';
 
 export const useMediaQuery = (query: string): boolean => {
@@ -16,12 +17,16 @@ export const useMediaQuery = (query: string): boolean => {
 
   useEffect(() => {
     const matchMedia = window.matchMedia(query);
+    const debounced = debounce(handleChange, 1000);
+    matchMedia.addEventListener('change', debounced);
+
     handleChange();
-    matchMedia.addEventListener('change', handleChange);
+
     return () => {
-      matchMedia.removeEventListener('change', handleChange);
+      debounced.cancel();
+      matchMedia.removeEventListener('change', debounced);
     };
-  }, [query]);
+  }, [query, handleChange]);
 
   return matches;
 };

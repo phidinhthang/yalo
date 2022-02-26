@@ -4,22 +4,14 @@ import { useTokenStore } from '../auth/useTokenStore';
 
 export const ConnectionContext = React.createContext<{
   conn: Connection | null;
-  setUser: (u: { id: number; username: string }) => void;
   setConn: (u: Connection | null) => void;
 }>({
   conn: null,
-  setUser: () => {},
   setConn: () => {},
 });
 
 export const ConnectionProvider: React.FC<{}> = ({ children }) => {
-  const [conn, setConn] = useState<Connection | null>(null);
-
-  React.useEffect(() => {
-    if (!conn) {
-      connect({}).then((conn) => setConn(conn));
-    }
-  }, [conn]);
+  const [conn, setConn] = useState<Connection | null>(connect({}));
 
   return (
     <ConnectionContext.Provider
@@ -27,14 +19,6 @@ export const ConnectionProvider: React.FC<{}> = ({ children }) => {
         () => ({
           conn,
           setConn,
-          setUser: (u: { id: number; username: string }) => {
-            if (conn) {
-              setConn({
-                ...conn,
-                user: u,
-              });
-            }
-          },
         }),
         [conn]
       )}

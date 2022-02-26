@@ -1,3 +1,4 @@
+import { formatDistanceToNow } from 'date-fns';
 import { User } from '../../lib/entities';
 import { Avatar } from '../../ui/Avatar';
 
@@ -14,10 +15,21 @@ export const UserItem: React.FC<UserItemProps> = ({
 }) => {
   return (
     <div onClick={onClick} className={`flex ${className}`}>
-      <Avatar size='md' isOnline={user.isOnline} src={user.avatarUrl || ''} />
+      <Avatar
+        size='md'
+        isOnline={user.isOnline}
+        src={user.avatarUrl || ''}
+        username={user.username}
+      />
       <div className='ml-3'>
         <div>{user.username}</div>
-        <div>{user.isOnline ? 'online' : 'offline'}</div>
+        <div className='text-sm text-gray-500 italic'>
+          {!user.isOnline && user.lastLoginAt
+            ? formatDistanceToNow(new Date(user.lastLoginAt), {
+                addSuffix: true,
+              })
+            : null}
+        </div>
       </div>
     </div>
   );

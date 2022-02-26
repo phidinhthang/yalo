@@ -10,7 +10,7 @@ export const RegisterPage = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const { mutate } = useTypeSafeMutation('register');
+  const { mutate, error } = useTypeSafeMutation('register');
   const cache = useTypeSafeUpdateQuery();
 
   useEffect(() => {
@@ -28,56 +28,68 @@ export const RegisterPage = () => {
             e.preventDefault();
             mutate([{ username, password }], {
               onSuccess: (data) => {
-                console.log('data', data);
-                if ('errors' in data) {
-                  console.log(data.errors);
-                } else {
-                  setTokens({
-                    accessToken: data.token.access,
-                    refreshToken: data.token.refresh,
-                  });
-                  cache('me', (x) => {
-                    return data.user;
-                  });
-                }
-              },
-              onError: (error) => {
-                console.log('error', error);
+                setTokens({
+                  accessToken: data.token.access,
+                  refreshToken: data.token.refresh,
+                });
+                cache('me', (x) => {
+                  return data.user;
+                });
               },
             });
           }}
         >
-          <div className='mb-6'>
-            <label
-              htmlFor='username'
-              className='block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300'
-            >
-              Your name
-            </label>
-            <input
-              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@flowbite.com'
-              type='text'
-              name='username'
-              placeholder='Enter your username...'
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
+          <div className={`${error?.errors.username ? 'mb-1' : 'mb-6'}`}>
+            <div>
+              <label
+                htmlFor='username'
+                className='block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300'
+              >
+                Your name
+              </label>
+              <input
+                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@flowbite.com'
+                type='text'
+                name='username'
+                placeholder='Enter your username...'
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              {error?.errors.username?.map((e, idx) => (
+                <p
+                  className='mt-1 text-sm text-red-600 dark:text-red-500'
+                  key={idx}
+                >
+                  {e}
+                </p>
+              ))}
+            </div>
           </div>
-          <div className='mb-3'>
-            <label
-              htmlFor='password'
-              className='block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300'
-            >
-              Your password
-            </label>
-            <input
-              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-              type='password'
-              name='password'
-              placeholder='Enter your password...'
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+          <div className={`${error?.errors.password ? 'mb-0' : 'mb-3'}`}>
+            <div>
+              <label
+                htmlFor='password'
+                className='block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300'
+              >
+                Your password
+              </label>
+              <input
+                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                type='password'
+                name='password'
+                placeholder='Enter your password...'
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              {error?.errors.password?.map((e, idx) => (
+                <p
+                  className='mt-1 text-sm text-red-600 dark:text-red-500'
+                  key={idx}
+                >
+                  {e}
+                </p>
+              ))}
+            </div>
           </div>
           <div className='mb-3'>
             already have an account ?{' '}

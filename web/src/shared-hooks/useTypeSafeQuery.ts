@@ -7,27 +7,29 @@ import {
 } from 'react-query';
 import { useWrappedConn } from '../modules/conn/useConn';
 import { Await } from '../types/util-types';
-import { ErrorResponse } from '../lib/entities';
 import { DropLastParameter } from '../types/util-types';
 
 type Keys = keyof ReturnType<typeof wrap>['query'];
 
 type PaginatedKey<K extends Keys> = [K, ...(string | number | boolean)[]];
 
-export const useTypeSafeQuery = <K extends Keys>(
+export const useTypeSafeQuery = <
+  K extends Keys,
+  TData = Exclude<
+    Await<ReturnType<ReturnType<typeof wrap>['query'][K]>>,
+    { errors: any }
+  >,
+  TError = Extract<
+    Await<ReturnType<ReturnType<typeof wrap>['query'][K]>>,
+    { errors: any }
+  >
+>(
   key: K | PaginatedKey<K>,
-  opts?: UseQueryOptions,
+  opts?: UseQueryOptions<TData, TError>,
   params?: Parameters<ReturnType<typeof wrap>['query'][K]>
 ) => {
   const conn = useWrappedConn();
-  type TError = Extract<
-    Await<ReturnType<ReturnType<typeof wrap>['query'][K]>>,
-    { errors: any }
-  >;
-  return useQuery<
-    Await<ReturnType<ReturnType<typeof wrap>['query'][K]>>,
-    TError
-  >(
+  return useQuery<TData, TError>(
     key,
     () => {
       const fn = conn.query[typeof key === 'string' ? key : key[0]] as any;
@@ -37,22 +39,24 @@ export const useTypeSafeQuery = <K extends Keys>(
   );
 };
 
-export const useTypeSafeInfiniteQuery = <K extends Keys>(
-  key: K | PaginatedKey<K>,
-  opts?: UseInfiniteQueryOptions<
-    Await<ReturnType<ReturnType<typeof wrap>['query'][K]>>
+export const useTypeSafeInfiniteQuery = <
+  K extends Keys,
+  TData = Exclude<
+    Await<ReturnType<ReturnType<typeof wrap>['query'][K]>>,
+    { errors: any }
   >,
+  TError = Extract<
+    Await<ReturnType<ReturnType<typeof wrap>['query'][K]>>,
+    { errors: any }
+  >
+>(
+  key: K | PaginatedKey<K>,
+  opts?: UseInfiniteQueryOptions<TData, TError>,
   params?: DropLastParameter<Parameters<ReturnType<typeof wrap>['query'][K]>>
 ) => {
   const conn = useWrappedConn();
-  type TError = Extract<
-    Await<ReturnType<ReturnType<typeof wrap>['query'][K]>>,
-    { errors: any }
-  >;
-  return useInfiniteQuery<
-    Await<ReturnType<ReturnType<typeof wrap>['query'][K]>>,
-    TError
-  >(
+
+  return useInfiniteQuery<TData, TError>(
     key,
     (ctx) => {
       const fn = conn.query[typeof key === 'string' ? key : key[0]] as any;

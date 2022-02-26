@@ -6,24 +6,29 @@ import { ConnectionContext } from '../modules/conn/ConnectionProvider';
 
 type Keys = keyof ReturnType<typeof wrap>['mutation'];
 
-export const useTypeSafeMutation = <K extends Keys>(
+export const useTypeSafeMutation = <
+  K extends Keys,
+  TData = Exclude<
+    Await<ReturnType<ReturnType<typeof wrap>['mutation'][K]>>,
+    { errors: any }
+  >,
+  TError = Extract<
+    Await<ReturnType<ReturnType<typeof wrap>['mutation'][K]>>,
+    { errors: any }
+  >
+>(
   key: K,
   opts?: UseMutationOptions<
-    Await<ReturnType<ReturnType<typeof wrap>['mutation'][K]>>,
-    any,
+    TData,
+    TError,
     Parameters<ReturnType<typeof wrap>['mutation'][K]>,
     any
   >
 ) => {
   const { conn } = useContext(ConnectionContext);
 
-  type TError = Extract<
-    Await<ReturnType<ReturnType<typeof wrap>['mutation'][K]>>,
-    { errors: any }
-  >;
-
   return useMutation<
-    Await<ReturnType<ReturnType<typeof wrap>['mutation'][K]>>,
+    TData,
     TError,
     Parameters<ReturnType<typeof wrap>['mutation'][K]>
   >(

@@ -12,7 +12,10 @@ export const useTypeSafeGetQuery = () => {
   return useCallback(
     <K extends Keys>(key: K | PaginatedKey<K>) => {
       return client.getQueryData<
-        Await<ReturnType<ReturnType<typeof wrap>['query'][K]>>
+        Exclude<
+          Await<ReturnType<ReturnType<typeof wrap>['query'][K]>>,
+          { errors: any }
+        >
       >(key);
     },
     [client]
@@ -24,7 +27,12 @@ export const useTypeSafeGetInfiniteQuery = () => {
   return useCallback(
     <K extends Keys>(key: K | PaginatedKey<K>) => {
       return client.getQueryData<
-        InfiniteData<Await<ReturnType<ReturnType<typeof wrap>['query'][K]>>>
+        InfiniteData<
+          Exclude<
+            Await<ReturnType<ReturnType<typeof wrap>['query'][K]>>,
+            { errors: any }
+          >
+        >
       >(key);
     },
     [client]

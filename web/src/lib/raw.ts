@@ -82,7 +82,10 @@ export const connect = ({
             ...(init?.headers || {}),
           },
         });
-        return r.json();
+
+        const data = await r.json();
+        if (r.status > 399) return Promise.reject(data);
+        return data;
       },
     };
     res(connection);

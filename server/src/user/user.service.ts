@@ -19,7 +19,7 @@ export class UsersService {
     if (existed) {
       throw new BadRequestException({
         errors: {
-          username: ['username dont exist'],
+          username: ['username already exist'],
         },
       });
     }

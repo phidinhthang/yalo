@@ -8,7 +8,7 @@ export interface User {
 
 export interface ErrorResponse<K extends string = string> {
   errors: {
-    [k in K]: string[];
+    [k in K]?: string[];
   };
 }
 

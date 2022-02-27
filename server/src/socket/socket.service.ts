@@ -3,6 +3,7 @@ import { EntityManager } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common/decorators';
 import { User } from 'src/user/user.entity';
 import { MemberRepository } from 'src/member/member.repository';
+import { Conversation } from 'src/conversation/conversation.entity';
 
 @Injectable()
 export class SocketService {
@@ -48,5 +49,14 @@ export class SocketService {
 
   async newUser(user: User) {
     this.socket.emit('new_user', user);
+  }
+
+  async newConversation(adminId: number, conversation: Conversation) {
+    const users = conversation.members.getItems().map((m) => m.user);
+    users
+      .filter((u) => u.id !== adminId)
+      .forEach((u) => {
+        this.socket.to(`${u.id}`).emit('new_conversation', conversation);
+      });
   }
 }

@@ -1,10 +1,13 @@
 import { EntityRepository, MikroORM } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { User } from 'src/user/user.entity';
 import { ConversationRepository } from './conversation.repository';
 import { ConversationType } from './conversation.entity';
 import { Member } from '../member/member.entity';
+import { CreateGroupConversationDto } from './conversation.dto';
+import { UserRepository } from 'src/user/user.repository';
+import { SocketService } from 'src/socket/socket.service';
 
 @Injectable()
 export class ConversationService {
@@ -12,7 +15,9 @@ export class ConversationService {
     private readonly conversationRepository: ConversationRepository,
     @InjectRepository(Member)
     private readonly memberRepository: EntityRepository<Member>,
+    private readonly userRepository: UserRepository,
     private readonly orm: MikroORM,
+    private readonly socketService: SocketService,
   ) {}
 
   async findOrCreatePrivate(meId: number, partnerId: number) {
@@ -46,6 +51,43 @@ export class ConversationService {
     });
 
     await this.orm.em.persistAndFlush([meMember, partnerMember, conversation]);
+    return conversation;
+  }
+
+  async createGroupConversation(
+    meId: number,
+    { title, memberIds }: CreateGroupConversationDto,
+  ) {
+    const memberCount = await this.userRepository.count({
+      id: { $in: memberIds },
+    });
+    console.log('member count ', memberCount);
+    if (memberCount < memberIds.length) {
+      throw new BadRequestException({
+        errors: {
+          members: ['some member does not exist.'],
+        },
+      });
+    }
+    memberIds.push(meId);
+
+    let conversation = this.conversationRepository.create({
+      title,
+      admin: meId,
+      type: ConversationType.GROUP,
+    });
+    memberIds.forEach((mId) => {
+      const member = this.memberRepository.create({ user: mId, conversation });
+      conversation.members.add(member);
+    });
+
+    await this.conversationRepository.persistAndFlush(conversation);
+
+    conversation = await this.conversationRepository.findOne(conversation.id, {
+      populate: ['members', 'members.user', 'lastMessage'],
+    });
+    await this.socketService.newConversation(meId, conversation);
+
     return conversation;
   }
 

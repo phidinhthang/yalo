@@ -23,25 +23,29 @@ export class ConversationService {
 					where m1.user_id = ${meId};
 		`);
     console.log('conversation id ', conversationId, typeof conversationId);
-    const me = this.orm.em.getReference(User, meId);
+    if (conversationId) {
+      const conversation = await this.conversationRepository.findOne(
+        conversationId,
+        { populate: ['members', 'members.user', 'lastMessage'] },
+      );
+
+      if (conversation) return conversation;
+    }
+    const me = await this.orm.em.findOne(User, meId);
     const partner = await this.orm.em.findOne(User, partnerId);
     const meMember = this.memberRepository.create({
-      conversation: conversationId,
       user: me,
     });
     const partnerMember = this.memberRepository.create({
-      conversation: conversationId,
       user: partner,
     });
-    const conversation = await this.conversationRepository.upsert(
-      conversationId,
-      {
-        members: [meMember, partnerMember],
-        type: ConversationType.PRIVATE,
-      },
-      { populate: ['members', 'members.user', 'lastMessage'] as any },
-    );
 
+    const conversation = this.conversationRepository.create({
+      type: ConversationType.PRIVATE,
+      members: [meMember, partnerMember],
+    });
+
+    await this.orm.em.persistAndFlush([meMember, partnerMember, conversation]);
     return conversation;
   }
 

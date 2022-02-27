@@ -17,8 +17,8 @@ export const UserItem: React.FC<UserItemProps> = ({
     <div onClick={onClick} className={`flex ${className}`}>
       <Avatar
         size='md'
-        isOnline={user.isOnline}
         src={user.avatarUrl || ''}
+        isOnline={user.isOnline}
         username={user.username}
       />
       <div className='ml-3'>

@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useIsDesktopScreen } from '../../shared-hooks/useIsDesktopScreen';
-import { FullHeight } from '../../ui/FullHeight';
-import { NavigationBottom } from '../../ui/NavigationBottom';
+import { MainLayout } from '../../ui/MainLayout';
+import { UserListController } from '../user/UserListController';
 import { ConversationListController } from './ConversationListController';
 
 export const ConversationPage = () => {
@@ -14,13 +14,9 @@ export const ConversationPage = () => {
   }, [isDesktopScreen]);
 
   return (
-    <FullHeight>
-      <div className='h-full flex flex-col'>
-        <div className='flex-grow'>
-          <ConversationListController />
-        </div>
-        {!isDesktopScreen ? <NavigationBottom /> : null}
-      </div>
-    </FullHeight>
+    <MainLayout>
+      <ConversationListController />
+      <UserListController />
+    </MainLayout>
   );
 };

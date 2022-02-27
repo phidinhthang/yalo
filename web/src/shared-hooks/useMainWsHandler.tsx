@@ -94,10 +94,15 @@ export const useMainWsHandler = () => {
       });
     });
 
+    ws?.on('new_user', (user) => {
+      updateQuery('findAll', (users) => (users ? [user, ...users] : users));
+    });
+
     return () => {
       ws?.off('toggle_online');
       ws?.off('toggle_offline');
       ws?.off('new_message');
+      ws?.off('new_user');
     };
   }, [ws]);
 };

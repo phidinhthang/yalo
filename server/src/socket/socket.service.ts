@@ -45,4 +45,8 @@ export class SocketService {
       this.socket.to(`${u.id}`).emit('new_message', message);
     });
   }
+
+  async newUser(user: User) {
+    this.socket.emit('new_user', user);
+  }
 }

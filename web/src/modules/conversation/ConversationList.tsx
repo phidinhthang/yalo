@@ -20,7 +20,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
       {conversations.map((c) => {
         const partner = c.members.filter(
           (m) => m.user?.id !== undefined && m.user.id !== me!.id
-        )[0].user;
+        )[0]?.user;
         const lastMessageSentByMe = c.lastMessage?.creator === me.id;
         return (
           <div
@@ -29,13 +29,13 @@ export const ConversationList: React.FC<ConversationListProps> = ({
             className='flex mb-3 p-2 hover:bg-gray-100 hover:cursor-pointer'
           >
             <Avatar
-              isOnline={partner.isOnline}
-              src={partner.avatarUrl || ''}
-              username={partner.username}
               size='md'
+              src={partner?.avatarUrl || ''}
+              isOnline={partner?.isOnline || false}
+              username={partner?.username}
             />
             <div className='ml-3'>
-              <div>{partner.username}</div>
+              <div>{partner?.username}</div>
               <div className='flex'>
                 <div className='truncate mr-2'>
                   {lastMessageSentByMe ? 'You: ' : ''}

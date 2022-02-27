@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { AuthService } from 'src/auth/auth.service';
+import { SocketService } from 'src/socket/socket.service';
 import { CreateUserDto } from './user.dto';
 import { UserRepository } from './user.repository';
 
@@ -9,6 +10,7 @@ export class UsersService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly authService: AuthService,
+    private readonly socketService: SocketService,
   ) {}
 
   async register(createUserDto: CreateUserDto) {
@@ -32,7 +34,7 @@ export class UsersService {
 
     await this.userRepository.persistAndFlush(user);
 
-    console.log('user ', user);
+    this.socketService.newUser(user);
 
     return {
       user,

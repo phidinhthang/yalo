@@ -15,3 +15,29 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.overflow-y-auto::-webkit-scrollbar,
+.emoji-picker-react .emoji-scroll-wrapper::-webkit-scrollbar {
+  width: 8px;
+  height: 0.25rem;
+}
+
+.root {
+  max-height: 100vh;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  --bg-opacity: 1;
+  background-color: #e9eef2;
+  /* background-color: rgba(247, 250, 252, var(--bg-opacity)); */
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  --bg-opacity: 1;
+  background-color: #c9cdd1;
+  /* background-color: rgba(237, 242, 247, var(--bg-opacity)); */
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  border-radius: 0.25rem;
+}

@@ -15,14 +15,20 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   const isDesktopScreen = useIsDesktopScreen();
   return (
     <div className='h-screen max-h-screen flex flex-col'>
-      <div className='flex flex-auto'>
+      <div className='flex flex-auto h-full'>
         <SideBar />
         {isDesktopScreen && leftPanel ? (
-          <div className='w-72 h-full'>{leftPanel}</div>
+          <div className='w-72 h-full overflow-y-auto overflow-x-hidden'>
+            {leftPanel}
+          </div>
         ) : null}
-        <div className='h-full flex-auto'>{children}</div>
+        <div className='h-full flex-auto overflow-y-auto overflow-x-hidden'>
+          {children}
+        </div>
         {isDesktopScreen && rightPanel ? (
-          <div className='w-80 h-full'>{rightPanel}</div>
+          <div className='w-80 h-full overflow-y-auto overflow-x-hidden'>
+            {rightPanel}
+          </div>
         ) : null}
       </div>
     </div>

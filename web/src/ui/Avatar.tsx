@@ -1,4 +1,5 @@
 import React from 'react';
+import { User } from '../lib/entities';
 
 export const avatarSizeMap = {
   default: '80px',
@@ -94,4 +95,72 @@ export const Avatar: React.FC<AvatarProps> = ({
       )}
     </div>
   );
+};
+
+export const AvatarGroup = ({
+  children,
+}: {
+  children: React.ReactElement<AvatarProps>[];
+}) => {
+  children = children.slice(0, 4);
+  if (children.length === 4)
+    return (
+      <div className='flex flex-wrap' style={{ width: 50, height: 50 }}>
+        {React.Children.map(children, (child, idx) => (
+          <div
+            style={{
+              flexBasis: '50%',
+              marginLeft: idx === 1 || idx === 3 ? -10 : undefined,
+              marginTop: idx === 2 || idx === 3 ? -13 : undefined,
+            }}
+          >
+            {React.cloneElement(child, { size: 'xxs' })}
+          </div>
+        ))}
+      </div>
+    );
+
+  if (children.length === 3) {
+    return (
+      <div
+        className='flex flex-wrap items-center justify-center'
+        style={{ width: 50, height: 50 }}
+      >
+        {React.Children.map(children, (child, idx) => (
+          <div
+            style={{
+              flexBasis: '50%',
+              marginLeft: idx === 1 ? -10 : undefined,
+              marginTop: idx === 2 ? -13 : undefined,
+            }}
+          >
+            {React.cloneElement(child, { size: 'xxs' })}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (children.length === 2) {
+    return (
+      <div
+        className='flex flex-wrap justify-between'
+        style={{ width: 50, height: 50 }}
+      >
+        {React.Children.map(children, (child, idx) => (
+          <div
+            style={{
+              flexBasis: '50%',
+              marginLeft: idx === 1 ? -10 : undefined,
+              marginTop: idx === 1 ? 13 : undefined,
+            }}
+          >
+            {React.cloneElement(child, { size: 'xxs' })}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return <>{children}</>;
 };

@@ -17,6 +17,8 @@ import { Member } from '../../lib/entities';
 import React from 'react';
 import { Skeleton } from '../../ui/Skeleton';
 import { randomNumber } from '../../utils/randomNumber';
+import { Input } from '../../ui/Input';
+import { Button } from '../../ui/Button';
 
 const MainSkeleton = () => {
   const genHeight = () => randomNumber(3, 8) * 12;
@@ -126,7 +128,7 @@ export const ChatBox = () => {
   }
 
   return (
-    <div className='h-screen relative flex flex-col'>
+    <div className='h-screen relative flex flex-col border-l-2'>
       <div className='flex-auto overflow-y-auto flex flex-col-reverse px-2'>
         <div ref={endRef} style={{ float: 'left', clear: 'both' }}></div>
         {messages?.pages.map((page) =>
@@ -151,10 +153,10 @@ export const ChatBox = () => {
             </div>
           ))
         )}
-        {hasNextPage ? <div ref={ref} className='mb-1 pb-1'></div> : null}
+        {hasNextPage ? <div ref={ref} className='pb-1'></div> : null}
       </div>
       <form
-        className='flex'
+        className='flex mb-2'
         onSubmit={(e) => {
           e.preventDefault();
           mutate([{ conversationId: conversationOpened, text: message }], {
@@ -183,18 +185,13 @@ export const ChatBox = () => {
           });
         }}
       >
-        <input
-          className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+        <Input
           placeholder='type message...'
+          size='lg'
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         />
-        <button
-          className='text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
-          type='submit'
-        >
-          send
-        </button>
+        <Button type='submit'>send</Button>
       </form>
     </div>
   );

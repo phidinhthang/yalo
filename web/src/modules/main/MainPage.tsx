@@ -1,10 +1,16 @@
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { Modal } from '../../ui/Modal';
 import { useTypeSafeQuery } from '../../shared-hooks/useTypeSafeQuery';
+import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
+import { useTypeSafeUpdateQuery } from '../../shared-hooks/useTypeSafeUpdateQuery';
 import { ChatBox } from '../chat/ChatBox';
 import { UserListController } from '../user/UserListController';
 import { ConversationListController } from '../conversation/ConversationListController';
 import { MainLayout } from '../../ui/MainLayout';
+import { SvgOutlineUserGroup } from '../../icons/OutlineUserGroup';
+import { CreateGroupConversationWidget } from '../conversation/CreateGroupConversationWidget';
 
 export const MainPage = () => {
   const navigate = useNavigate();
@@ -17,10 +23,13 @@ export const MainPage = () => {
     <div>
       <MainLayout
         leftPanel={
-          <div className='flex flex-col flex-auto border-r-2 h-full'>
+          <div className='flex flex-col flex-auto h-full'>
             <div className='flex-auto'>
               <div>
-                <p className='pb-1 pl-2'>Conversations</p>
+                <div className='pb-1 pl-2 flex justify-between'>
+                  <p>Conversations</p>
+                  <CreateGroupConversationWidget />
+                </div>
                 <ConversationListController />
               </div>
               <div>

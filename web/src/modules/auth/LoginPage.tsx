@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 import { useTypeSafeUpdateQuery } from '../../shared-hooks/useTypeSafeUpdateQuery';
+import { Input } from '../../ui/Input';
+import { Button } from '../../ui/Button';
 
 export const LoginPage = () => {
   const hasTokens = useTokenStore((s) => !!(s.accessToken && s.refreshToken));
@@ -10,7 +12,7 @@ export const LoginPage = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const { mutate, error } = useTypeSafeMutation('login');
+  const { mutate, error, isLoading } = useTypeSafeMutation('login');
   const updateQuery = useTypeSafeUpdateQuery();
   useEffect(() => {
     if (hasTokens) {
@@ -46,12 +48,12 @@ export const LoginPage = () => {
               >
                 Your name
               </label>
-              <input
-                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@flowbite.com'
+              <Input
                 type='text'
                 name='username'
                 placeholder='Enter your username...'
                 value={username}
+                disabled={isLoading}
                 onChange={(e) => setUsername(e.target.value)}
               />
               {error?.errors.username?.map((e, idx) => (
@@ -71,12 +73,12 @@ export const LoginPage = () => {
             >
               Your password
             </label>
-            <input
-              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+            <Input
               type='password'
               name='password'
               placeholder='Enter your password...'
               value={password}
+              disabled={isLoading}
               onChange={(e) => setPassword(e.target.value)}
             />
             {error?.errors.password?.map((e, idx) => (
@@ -94,12 +96,14 @@ export const LoginPage = () => {
               register
             </Link>
           </div>
-          <button
+          <Button
             type='submit'
-            className='text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
+            fullWidth
+            loading={isLoading}
+            disabled={isLoading}
           >
             login
-          </button>
+          </Button>
         </form>
       </div>
     </>

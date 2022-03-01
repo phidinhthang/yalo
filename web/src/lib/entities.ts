@@ -41,7 +41,7 @@ export type Member = {
 export type Conversation = {
   id: number;
   title: null | string;
-  type: string;
+  type: 'private' | 'group';
   admin: null | string;
   lastMessage: null | Message;
   createdAt: string;

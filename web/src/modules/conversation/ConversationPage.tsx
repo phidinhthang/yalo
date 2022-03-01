@@ -4,19 +4,27 @@ import { useIsDesktopScreen } from '../../shared-hooks/useIsDesktopScreen';
 import { MainLayout } from '../../ui/MainLayout';
 import { UserListController } from '../user/UserListController';
 import { ConversationListController } from './ConversationListController';
+import { CreateGroupConversationWidget } from './CreateGroupConversationWidget';
 
 export const ConversationPage = () => {
   const navigate = useNavigate();
   const isDesktopScreen = useIsDesktopScreen();
 
   React.useEffect(() => {
-    if (isDesktopScreen) setTimeout(() => navigate('/'), 200);
-  }, [isDesktopScreen]);
+    if (isDesktopScreen) navigate('/');
+  }, [isDesktopScreen, navigate]);
 
   return (
     <MainLayout>
-      <ConversationListController />
-      <UserListController />
+      <div className='h-full flex flex-col'>
+        <div className='w-full p-2 flex justify-end'>
+          <CreateGroupConversationWidget />
+        </div>
+        <div className='flex-auto overflow-y-auto'>
+          <ConversationListController />
+          <UserListController />
+        </div>
+      </div>
     </MainLayout>
   );
 };

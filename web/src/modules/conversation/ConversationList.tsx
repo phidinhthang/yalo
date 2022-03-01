@@ -1,7 +1,7 @@
 import React from 'react';
 import { Conversation } from '../../lib/entities';
 import { User } from '../../lib/entities';
-import { Avatar } from '../../ui/Avatar';
+import { Avatar, AvatarGroup } from '../../ui/Avatar';
 import { formatDistance } from 'date-fns';
 
 interface ConversationListProps {
@@ -21,6 +21,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
         const partner = c.members.filter(
           (m) => m.user?.id !== undefined && m.user.id !== me!.id
         )[0]?.user;
+        const members = c.members.filter((m) => m.user.id !== me.id);
         const lastMessageSentByMe = c.lastMessage?.creator === me.id;
         return (
           <div
@@ -28,14 +29,22 @@ export const ConversationList: React.FC<ConversationListProps> = ({
             onClick={() => onOpened(c.id)}
             className='flex mb-3 p-2 hover:bg-gray-100 hover:cursor-pointer'
           >
-            <Avatar
-              size='md'
-              src={partner?.avatarUrl || ''}
-              isOnline={partner?.isOnline || false}
-              username={partner?.username}
-            />
+            {c.type === 'private' ? (
+              <Avatar
+                size='md'
+                src={partner?.avatarUrl || ''}
+                isOnline={partner?.isOnline || false}
+                username={partner?.username}
+              />
+            ) : (
+              <AvatarGroup>
+                {members.map((m) => (
+                  <Avatar src={m.user.avatarUrl} username={m.user.username} />
+                ))}
+              </AvatarGroup>
+            )}
             <div className='ml-3'>
-              <div>{partner?.username}</div>
+              <div>{c.title ? c.title : partner?.username}</div>
               <div className='flex'>
                 <div className='truncate mr-2'>
                   {lastMessageSentByMe ? 'You: ' : ''}

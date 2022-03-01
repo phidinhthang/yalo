@@ -1,10 +1,13 @@
 import { useTokenStore } from './useTokenStore';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 import { useTypeSafeUpdateQuery } from '../../shared-hooks/useTypeSafeUpdateQuery';
 import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
+import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
+import { useTranslation } from 'react-i18next';
 
 export const LoginPage = () => {
   const hasTokens = useTokenStore((s) => !!(s.accessToken && s.refreshToken));
@@ -14,6 +17,9 @@ export const LoginPage = () => {
   const [password, setPassword] = useState('');
   const { mutate, error, isLoading } = useTypeSafeMutation('login');
   const updateQuery = useTypeSafeUpdateQuery();
+  const { t } = useTypeSafeTranslation();
+  const { i18n } = useTranslation();
+
   useEffect(() => {
     if (hasTokens) {
       navigate('/');
@@ -22,9 +28,9 @@ export const LoginPage = () => {
 
   return (
     <>
-      <div>
+      <div className='w-screen h-screen flex items-center justify-center flex-col'>
         <form
-          className='w-full px-4 max-w-[480px] m-auto'
+          className='w-full px-4 max-w-[480px] mx-auto'
           onSubmit={(e) => {
             e.preventDefault();
             mutate([{ username, password }], {
@@ -36,6 +42,7 @@ export const LoginPage = () => {
                 updateQuery('me', (x) => {
                   return data.user;
                 });
+                toast.success('Login successfully!');
               },
             });
           }}
@@ -46,12 +53,12 @@ export const LoginPage = () => {
                 htmlFor='username'
                 className='block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300'
               >
-                Your name
+                {t('common.yourName')}
               </label>
               <Input
                 type='text'
                 name='username'
-                placeholder='Enter your username...'
+                placeholder={t('common.usernamePlaceholder')}
                 value={username}
                 disabled={isLoading}
                 onChange={(e) => setUsername(e.target.value)}
@@ -71,12 +78,12 @@ export const LoginPage = () => {
               htmlFor='password'
               className='block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300'
             >
-              Your password
+              {t('common.yourPassword')}
             </label>
             <Input
               type='password'
               name='password'
-              placeholder='Enter your password...'
+              placeholder={t('common.passwordPlaceholder')}
               value={password}
               disabled={isLoading}
               onChange={(e) => setPassword(e.target.value)}
@@ -91,9 +98,9 @@ export const LoginPage = () => {
             ))}
           </div>
           <div className='mb-3'>
-            don't have an account ?{' '}
+            {t('pages.login.dontHaveAccount')}{' '}
             <Link to='/register' className='underline'>
-              register
+              {t('common.register')}
             </Link>
           </div>
           <Button
@@ -102,9 +109,27 @@ export const LoginPage = () => {
             loading={isLoading}
             disabled={isLoading}
           >
-            login
+            {t('common.login')}
           </Button>
         </form>
+        <div className='flex gap-8 mt-8'>
+          <button
+            className='underline text-sm'
+            onClick={() => {
+              i18n.changeLanguage('vi');
+            }}
+          >
+            Tiếng Việt
+          </button>
+          <button
+            className='underline text-sm'
+            onClick={() => {
+              i18n.changeLanguage('en');
+            }}
+          >
+            English
+          </button>
+        </div>
       </div>
     </>
   );

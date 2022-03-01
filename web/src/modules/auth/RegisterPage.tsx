@@ -1,10 +1,12 @@
 import { useTokenStore } from './useTokenStore';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 import { useTypeSafeUpdateQuery } from '../../shared-hooks/useTypeSafeUpdateQuery';
 import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
+import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
 
 export const RegisterPage = () => {
   const hasTokens = useTokenStore((s) => !!(s.accessToken && s.refreshToken));
@@ -14,6 +16,7 @@ export const RegisterPage = () => {
   const [password, setPassword] = useState('');
   const { mutate, error, isLoading } = useTypeSafeMutation('register');
   const cache = useTypeSafeUpdateQuery();
+  const { t } = useTypeSafeTranslation();
 
   useEffect(() => {
     if (hasTokens) {
@@ -37,6 +40,7 @@ export const RegisterPage = () => {
                 cache('me', (x) => {
                   return data.user;
                 });
+                toast.success('Register successfully!');
               },
             });
           }}
@@ -47,12 +51,12 @@ export const RegisterPage = () => {
                 htmlFor='username'
                 className='block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300'
               >
-                Your name
+                {t('common.yourName')}
               </label>
               <Input
                 type='text'
                 name='username'
-                placeholder='Enter your username...'
+                placeholder={t('common.usernamePlaceholder')}
                 value={username}
                 disabled={isLoading}
                 onChange={(e) => setUsername(e.target.value)}
@@ -73,12 +77,12 @@ export const RegisterPage = () => {
                 htmlFor='password'
                 className='block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300'
               >
-                Your password
+                {t('common.yourPassword')}
               </label>
               <Input
                 type='password'
                 name='password'
-                placeholder='Enter your password...'
+                placeholder={t('common.passwordPlaceholder')}
                 value={password}
                 disabled={isLoading}
                 onChange={(e) => setPassword(e.target.value)}
@@ -94,9 +98,9 @@ export const RegisterPage = () => {
             </div>
           </div>
           <div className='mb-3'>
-            already have an account ?{' '}
+            {t('pages.register.haveAccount')}{' '}
             <Link to='/login' className='underline'>
-              login
+              {t('common.login')}
             </Link>
           </div>
           <Button
@@ -105,7 +109,7 @@ export const RegisterPage = () => {
             disabled={isLoading}
             loading={isLoading}
           >
-            register
+            {t('common.register')}
           </Button>
         </form>
       </div>

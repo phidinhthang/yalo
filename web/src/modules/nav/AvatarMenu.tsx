@@ -1,6 +1,7 @@
 import React from 'react';
 import { useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useIsDesktopScreen } from '../../shared-hooks/useIsDesktopScreen';
 import { useOnClickOutside } from '../../shared-hooks/useOnClickOutside';
 import { useTypeSafeQuery } from '../../shared-hooks/useTypeSafeQuery';
@@ -32,6 +33,7 @@ export const AvatarMenu = () => {
     navigate('/login');
     queryClient.clear();
     setConversationOpened(null);
+    toast.success('Logout successfully!');
   };
 
   React.useEffect(() => {

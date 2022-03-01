@@ -1,0 +1,23 @@
+{
+  "common": {
+    "yourName": "Tên tài khoản của bạn",
+    "yourPassword": "Mật khẩu của bạn",
+    "usernamePlaceholder": "Nhập tên tài khoản...",
+    "passwordPlaceholder": "Nhập mật khẩu...",
+    "login": "Đăng nhập",
+    "register": "Đăng kí",
+    "logout": "Đăng xuất",
+    "ago": "{{ time, ago }}"
+  },
+  "pages": {
+    "login": {
+      "dontHaveAccount": "Chưa có tài khoản ?"
+    },
+    "register": {
+      "haveAccount": "Đã có tài khoản ?"
+    },
+    "main": {
+      "sendMsg": "Gửi"
+    }
+  }
+}

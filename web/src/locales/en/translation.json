@@ -1,0 +1,24 @@
+{
+  "common": {
+    "yourName": "Your name",
+    "yourPassword": "Your password",
+    "usernamePlaceholder": "Enter your username...",
+    "passwordPlaceholder": "Enter your password...",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "hello": "hello",
+    "ago": "`{{ time, ago }}"
+  },
+  "pages": {
+    "login": {
+      "dontHaveAccount": "don't have an account?"
+    },
+    "register": {
+      "haveAccount": "already have an account?"
+    },
+    "main": {
+      "sendMsg": "Send"
+    }
+  }
+}

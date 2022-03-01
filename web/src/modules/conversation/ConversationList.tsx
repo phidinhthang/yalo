@@ -2,7 +2,7 @@ import React from 'react';
 import { Conversation } from '../../lib/entities';
 import { User } from '../../lib/entities';
 import { Avatar, AvatarGroup } from '../../ui/Avatar';
-import { formatDistance } from 'date-fns';
+import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
 
 interface ConversationListProps {
   conversations: Conversation[];
@@ -15,6 +15,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
   onOpened,
   me,
 }) => {
+  const { t } = useTypeSafeTranslation();
   return (
     <>
       {conversations.map((c) => {
@@ -44,7 +45,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
               </AvatarGroup>
             )}
             <div className='ml-3'>
-              <div>{c.title ? c.title : partner?.username}</div>
+              <div>{c.type === 'group' ? c.title : partner?.username}</div>
               <div className='flex'>
                 <div className='truncate mr-2'>
                   {lastMessageSentByMe ? 'You: ' : ''}
@@ -52,11 +53,9 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                 </div>
                 <div className='text-gray-500 text-sm italic relative -bottom-[2px]'>
                   {c.lastMessage
-                    ? formatDistance(
-                        new Date(c.lastMessage!.createdAt),
-                        new Date(),
-                        { addSuffix: true /* locale: vi */ }
-                      )
+                    ? t('common.ago', {
+                        time: new Date(c.lastMessage.createdAt),
+                      })
                     : null}
                 </div>
               </div>

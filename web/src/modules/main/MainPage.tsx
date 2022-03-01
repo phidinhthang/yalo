@@ -1,15 +1,10 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Modal } from '../../ui/Modal';
 import { useTypeSafeQuery } from '../../shared-hooks/useTypeSafeQuery';
-import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
-import { useTypeSafeUpdateQuery } from '../../shared-hooks/useTypeSafeUpdateQuery';
 import { ChatBox } from '../chat/ChatBox';
 import { UserListController } from '../user/UserListController';
 import { ConversationListController } from '../conversation/ConversationListController';
 import { MainLayout } from '../../ui/MainLayout';
-import { SvgOutlineUserGroup } from '../../icons/OutlineUserGroup';
 import { CreateGroupConversationWidget } from '../conversation/CreateGroupConversationWidget';
 
 export const MainPage = () => {

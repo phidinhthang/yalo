@@ -20,18 +20,12 @@ export const useMainWsHandler = () => {
   const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
   const getQuery = useTypeSafeGetQuery();
   const accessToken = useTokenStore().accessToken;
-  const setTokens = useTokenStore().setTokens;
-  const navigate = useNavigate();
   const wConn = useWrappedConn();
 
   React.useEffect(() => {
     if (accessToken) {
       const ws = io(`${import.meta.env.VITE_API_URL}/ws`, {
         query: { token: accessToken },
-      });
-      ws.on('disconnect', () => {
-        setTokens({ accessToken: '', refreshToken: '' });
-        navigate('/login');
       });
 
       setWs(ws);

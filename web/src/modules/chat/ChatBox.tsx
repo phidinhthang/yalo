@@ -19,6 +19,7 @@ import { Skeleton } from '../../ui/Skeleton';
 import { randomNumber } from '../../utils/randomNumber';
 import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
+import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
 
 const MainSkeleton = () => {
   const genHeight = () => randomNumber(3, 8) * 12;
@@ -65,6 +66,7 @@ export const ChatBox = () => {
   const { mutate } = useTypeSafeMutation('createMessage');
   const updateQuery = useTypeSafeUpdateQuery();
   const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
+  const { t } = useTypeSafeTranslation();
   const {
     data: messages,
     isLoading,
@@ -191,7 +193,7 @@ export const ChatBox = () => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         />
-        <Button type='submit'>send</Button>
+        <Button type='submit'>{t('pages.main.sendMsg')}</Button>
       </form>
     </div>
   );

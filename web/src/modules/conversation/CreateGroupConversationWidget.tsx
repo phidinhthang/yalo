@@ -1,4 +1,5 @@
 import React from 'react';
+import { toast } from 'react-toastify';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 import { useTypeSafeQuery } from '../../shared-hooks/useTypeSafeQuery';
 import { useTypeSafeUpdateQuery } from '../../shared-hooks/useTypeSafeUpdateQuery';
@@ -49,12 +50,12 @@ export const CreateGroupConversationWidget = () => {
                         return [data, ...conversations];
                       }
                     );
+                    toast.success('Create group successfully!');
+                    setIsModalOpen(false);
                   },
                   onError: (error) => {
                     console.log('conversation err ', error);
-                  },
-                  onSettled: () => {
-                    setIsModalOpen(false);
+                    toast.error('Create group failure!');
                   },
                 });
               }}

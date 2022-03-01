@@ -65,7 +65,7 @@ export class ConversationService {
     if (memberCount < memberIds.length) {
       throw new BadRequestException({
         errors: {
-          members: ['some member does not exist.'],
+          memberIds: ['some member does not exist.'],
         },
       });
     }

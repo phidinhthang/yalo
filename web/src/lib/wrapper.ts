@@ -59,7 +59,7 @@ export const wrap = (connection: Connection) => ({
     createGroupConversation: (data: {
       title: string;
       memberIds: number[];
-    }): Promise<Conversation | ErrorResponse<'members' | 'title'>> =>
+    }): Promise<Conversation | ErrorResponse<'memberIds' | 'title'>> =>
       connection.send(`/conversation`, { body: JSON.stringify(data) }),
   },
 });

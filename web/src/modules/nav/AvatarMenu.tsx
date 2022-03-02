@@ -10,6 +10,7 @@ import { useTokenStore } from '../auth/useTokenStore';
 import { useChatStore } from '../chat/useChatStore';
 import { useWsStore } from '../auth/useWsStore';
 import { Modal } from '../../ui/Modal';
+import { Button } from '../../ui/Button';
 
 export const AvatarMenu = () => {
   const [isOpenDropdown, setIsOpenDropdown] = React.useState(false);
@@ -56,6 +57,7 @@ export const AvatarMenu = () => {
         >
           <li className='block py-2 px-4 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'>
             <a
+              className='block'
               onClick={(e) => {
                 e.preventDefault();
                 setIsModalOpen(true);
@@ -73,7 +75,14 @@ export const AvatarMenu = () => {
         onRequestClose={(e) => {
           setIsModalOpen(false);
         }}
-        footer={<button onClick={(e) => logout()}>ok</button>}
+        footer={
+          <div className='flex w-full'>
+            <div className='flex-grow'></div>
+            <Button onClick={(e) => logout()} className=''>
+              ok
+            </Button>
+          </div>
+        }
       >
         Are you sure to logout ?
       </Modal>

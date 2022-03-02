@@ -1,7 +1,7 @@
 import { formatDistanceToNow } from 'date-fns';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate } from 'react-router-dom';
-import { Avatar } from '../../ui/Avatar';
+import { Avatar, AvatarGroup } from '../../ui/Avatar';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 import {
   useTypeSafeInfiniteQuery,
@@ -20,6 +20,7 @@ import { randomNumber } from '../../utils/randomNumber';
 import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
 import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
+import { SvgSolidArrowLeft } from '../../icons/SolidArrowLeft';
 
 const MainSkeleton = () => {
   const genHeight = () => randomNumber(3, 8) * 12;
@@ -83,6 +84,7 @@ export const ChatBox = () => {
     },
     [{ conversationId: conversationOpened! }]
   );
+  const { data: me } = useTypeSafeQuery('me');
 
   const endRef = React.useRef<HTMLDivElement>(null);
 
@@ -98,6 +100,9 @@ export const ChatBox = () => {
 
   const { data: conversations } = useTypeSafeQuery('getPaginatedConversations');
   const conversation = conversations?.find((c) => c.id === conversationOpened);
+  const members = conversation?.members.filter((m) => m.user.id !== me?.id);
+  const partner = members?.[0].user;
+  const isGroup = conversation?.type === 'group';
   const memberMap: Record<number, Member> = {};
 
   conversation?.members.forEach((m) => {
@@ -130,35 +135,74 @@ export const ChatBox = () => {
   }
 
   return (
-    <div className='h-screen relative flex flex-col border-l-2'>
-      <div className='flex-auto overflow-y-auto flex flex-col-reverse px-2'>
+    <div className='relative flex flex-col h-full'>
+      <div className='border-b-2 px-2 py-3 flex items-center'>
+        {!isDesktopScreen ? (
+          <button
+            className='w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-50 mr-2'
+            onClick={() => {
+              navigate('/conversations');
+            }}
+          >
+            <SvgSolidArrowLeft />
+          </button>
+        ) : null}
+        <div className='flex'>
+          <AvatarGroup>
+            {members?.map((m) => (
+              <Avatar
+                key={m.user.id}
+                username={m.user.username}
+                src={m.user.avatarUrl}
+                size='md'
+              />
+            )) || []}
+          </AvatarGroup>
+          <p className='ml-2'>
+            {isGroup ? conversation.title : partner?.username}
+          </p>
+        </div>
+      </div>
+      <div className='flex-auto overflow-y-auto flex flex-col-reverse px-2 bg-gray-100'>
         <div ref={endRef} style={{ float: 'left', clear: 'both' }}></div>
         {messages?.pages.map((page) =>
-          page.data.map((m) => (
-            <div key={m.id} className='flex my-2'>
-              <div className='mr-3'>
-                <Avatar
-                  size='sm'
-                  src={memberMap[m.creator].user.avatarUrl}
-                  username={memberMap[m.creator].user.username}
-                />
-              </div>
-              <div>
-                <p>{m.text}</p>
-                <div className='flex'>
-                  <div className='flex-grow'></div>
-                  <p className='text-sm italic text-gray-500'>
-                    {formatDistanceToNow(new Date(m.createdAt))}
-                  </p>
+          page.data.map((m) => {
+            const isMsgSentByMe = m.creator === me?.id;
+            return (
+              <div
+                key={m.id}
+                className={`flex my-2 gap-3 ${
+                  isMsgSentByMe ? 'flex-row-reverse' : 'flex-row'
+                }`}
+              >
+                <div>
+                  <Avatar
+                    size='sm'
+                    src={memberMap[m.creator].user.avatarUrl}
+                    username={memberMap[m.creator].user.username}
+                  />
+                </div>
+                <div
+                  className={`bg-white rounded-lg p-2 ${
+                    isMsgSentByMe ? 'text-right' : ''
+                  }`}
+                >
+                  <p>{m.text}</p>
+                  <div className='flex'>
+                    <div className='flex-grow'></div>
+                    <p className='text-sm italic text-gray-500'>
+                      {formatDistanceToNow(new Date(m.createdAt))}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
         {hasNextPage ? <div ref={ref} className='pb-1'></div> : null}
       </div>
       <form
-        className='flex mb-2'
+        className='flex bg-white'
         onSubmit={(e) => {
           e.preventDefault();
           mutate([{ conversationId: conversationOpened, text: message }], {

@@ -14,7 +14,7 @@ export const Modal: React.FC<
       className={`overflow-y-auto overflow-x-hidden flex z-50 justify-center items-center h-full md:inset-0`}
       {...props}
     >
-      <div className='relative px-4 w-full max-w-2xl h-full md:h-auto'>
+      <div className='relative px-4 w-full max-w-2xl h-full mt-32 md:mt-0 md:h-auto'>
         <div className='relative bg-white rounded-lg shadow dark:bg-gray-700'>
           <div className='flex justify-between items-start p-5 rounded-t border-b dark:border-gray-600'>
             <h3 className='text-xl font-semibold text-gray-900 lg:text-2xl dark:text-white'>

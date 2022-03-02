@@ -17,7 +17,7 @@ export const ConversationPage = () => {
   return (
     <MainLayout>
       <div className='h-full flex flex-col'>
-        <div className='w-full p-2 flex justify-end'>
+        <div className='w-full p-2 flex justify-end border-b-2'>
           <CreateGroupConversationWidget />
         </div>
         <div className='flex-auto overflow-y-auto'>

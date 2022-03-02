@@ -18,13 +18,13 @@ export const MainPage = () => {
     <div>
       <MainLayout
         leftPanel={
-          <div className='flex flex-col flex-auto h-full'>
-            <div className='flex-auto'>
+          <div className='flex flex-col h-full'>
+            <div className='pb-1 pl-2 pt-4 flex justify-between'>
+              <p>Conversations</p>
+              <CreateGroupConversationWidget />
+            </div>
+            <div className='overflow-y-auto'>
               <div>
-                <div className='pb-1 pl-2 flex justify-between'>
-                  <p>Conversations</p>
-                  <CreateGroupConversationWidget />
-                </div>
                 <ConversationListController />
               </div>
               <div>
@@ -35,7 +35,9 @@ export const MainPage = () => {
           </div>
         }
       >
-        <ChatBox />
+        <div className='h-full border-l-2'>
+          <ChatBox />
+        </div>
       </MainLayout>
     </div>
   );

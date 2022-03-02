@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
+import { toast } from 'react-toastify';
 import { Message } from '../lib/entities';
 import { useRefreshToken } from '../modules/auth/useRefreshToken';
 import { useTokenStore } from '../modules/auth/useTokenStore';
@@ -92,11 +92,22 @@ export const useMainWsHandler = () => {
       updateQuery('findAll', (users) => (users ? [user, ...users] : users));
     });
 
+    ws?.on('new_conversation', (conversation) => {
+      toast.info(
+        `You were added to group conversation "${conversation.title}"`,
+        { position: 'bottom-left' }
+      );
+      updateQuery('getPaginatedConversations', (conversations) =>
+        conversations ? [conversation, ...conversations] : conversations
+      );
+    });
+
     return () => {
       ws?.off('toggle_online');
       ws?.off('toggle_offline');
       ws?.off('new_message');
       ws?.off('new_user');
+      ws?.off('new_conversation');
     };
   }, [ws]);
 };

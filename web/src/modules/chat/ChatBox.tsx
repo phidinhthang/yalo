@@ -158,9 +158,18 @@ export const ChatBox = () => {
               />
             )) || []}
           </AvatarGroup>
-          <p className='ml-2'>
-            {isGroup ? conversation.title : partner?.username}
-          </p>
+          <div className='ml-2'>
+            <p>{isGroup ? conversation.title : partner?.username}</p>
+            <p>
+              {isGroup
+                ? `${conversation.members.length} members`
+                : partner?.isOnline
+                ? 'is online'
+                : `${t('common.ago', {
+                    time: new Date(partner!.lastLoginAt!),
+                  })}`}
+            </p>
+          </div>
         </div>
       </div>
       <div className='flex-auto overflow-y-auto flex flex-col-reverse px-2 bg-gray-100'>
@@ -183,7 +192,7 @@ export const ChatBox = () => {
                   />
                 </div>
                 <div
-                  className={`bg-white rounded-lg p-2 ${
+                  className={`bg-white max-w-full break-all rounded-lg p-2 ${
                     isMsgSentByMe ? 'text-right' : ''
                   }`}
                 >

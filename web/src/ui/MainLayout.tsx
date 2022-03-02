@@ -18,15 +18,15 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
       <div className='flex flex-auto h-full'>
         <SideBar />
         {isDesktopScreen && leftPanel ? (
-          <div className='w-72 h-full overflow-y-auto overflow-x-hidden'>
+          <div className='w-72 h-full overflow-y-auto flex-shrink-0'>
             {leftPanel}
           </div>
         ) : null}
-        <div className='h-full flex-auto overflow-y-auto overflow-x-hidden'>
+        <div className='h-full flex-auto overflow-y-auto flex-shrink'>
           {children}
         </div>
         {isDesktopScreen && rightPanel ? (
-          <div className='w-80 h-full overflow-y-auto overflow-x-hidden'>
+          <div className='w-80 h-full overflow-y-auto flex-shrink-0'>
             {rightPanel}
           </div>
         ) : null}

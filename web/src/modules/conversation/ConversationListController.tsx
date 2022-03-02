@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { useChatStore } from '../chat/useChatStore';
 import { useTypeSafeQuery } from '../../shared-hooks/useTypeSafeQuery';
-import { ConversationList } from './ConversationList';
 import { useIsDesktopScreen } from '../../shared-hooks/useIsDesktopScreen';
 import { Skeleton } from '../../ui/Skeleton';
+import { ConversationItem } from './ConversationItem';
 
 const MainSkeleton = () => {
   return (
@@ -22,7 +22,7 @@ const MainSkeleton = () => {
 };
 
 export const ConversationListController = () => {
-  const { setConversationOpened, conversationOpened } = useChatStore();
+  const { setConversationOpened } = useChatStore();
   const { data: conversations, isLoading: isConversationsLoading } =
     useTypeSafeQuery('getPaginatedConversations');
   const { data: me, isLoading: isMeLoading, isError } = useTypeSafeQuery('me');
@@ -34,14 +34,17 @@ export const ConversationListController = () => {
 
   return (
     <>
-      <ConversationList
-        conversations={conversations || []}
-        onOpened={(id: number) => {
-          setConversationOpened(id);
-          if (!isDesktopScreen) navigate('/');
-        }}
-        me={me!}
-      />
+      {conversations?.map((c, idx) => (
+        <ConversationItem
+          key={idx}
+          conversation={c}
+          onOpened={(id: number) => {
+            setConversationOpened(id);
+            if (!isDesktopScreen) navigate('/');
+          }}
+          me={me!}
+        />
+      ))}
     </>
   );
 };

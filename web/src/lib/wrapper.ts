@@ -65,7 +65,9 @@ export const wrap = (connection: Connection) => ({
       connection.send(`/conversation/member/${conversationId}`, {
         method: 'DELETE',
       }),
-    deleteGroupConversation: (conversationId: number): Promise<boolean> =>
+    deleteGroupConversation: (
+      conversationId: number
+    ): Promise<boolean | ErrorResponse<'conversationId'>> =>
       connection.send(`/conversation/${conversationId}`, { method: 'DELETE' }),
   },
 });

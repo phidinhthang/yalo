@@ -4,6 +4,8 @@ import { Conversation, User } from '../../lib/entities';
 import { Avatar, AvatarGroup } from '../../ui/Avatar';
 import React from 'react';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
+import { useTypeSafeUpdateQuery } from '../../shared-hooks/useTypeSafeUpdateQuery';
+import { toast } from 'react-toastify';
 
 interface ConversationItemProps {
   conversation: Conversation;
@@ -24,7 +26,6 @@ export const ConversationItem = ({
   const partner = c.members.filter(
     (m) => m.user?.id !== undefined && m.user.id !== me!.id
   )[0]?.user;
-  const menuRef = React.useRef<HTMLDivElement | null>(null);
   const [isOpenMenu, setIsOpenMenu] = React.useState(false);
   const { mutate: leaveGroupConversation } = useTypeSafeMutation(
     'leaveGroupConversation'
@@ -32,10 +33,10 @@ export const ConversationItem = ({
   const { mutate: deleteGroupConversation } = useTypeSafeMutation(
     'deleteGroupConversation'
   );
+  const updateQuery = useTypeSafeUpdateQuery();
 
   return (
     <div
-      key={c.id}
       onClick={() => onOpened(c.id)}
       className='flex flex-auto mb-3 p-2 hover:bg-gray-100 hover:cursor-pointer group'
     >
@@ -50,7 +51,11 @@ export const ConversationItem = ({
       ) : (
         <AvatarGroup>
           {members.map((m) => (
-            <Avatar src={m.user.avatarUrl} username={m.user.username} />
+            <Avatar
+              src={m.user.avatarUrl}
+              username={m.user.username}
+              size='md'
+            />
           ))}
         </AvatarGroup>
       )}
@@ -81,32 +86,67 @@ export const ConversationItem = ({
               <SvgSolidDots />
             </button>
             <div
-              className={`absolute top-full right-0 w-44 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 ${
+              className={`absolute top-full z-50 right-0 w-44 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 ${
                 isOpenMenu ? 'block' : 'hidden'
               }`}
             >
               {c.type === 'group' ? (
                 <>
-                  <li className='block py-2 px-4 text-gray-700 bg:white hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'>
+                  <li className='block py-2 px-4 w-full h-full text-gray-700 bg-white hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'>
                     <a
                       className='block'
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        leaveGroupConversation([c.id]);
+                        leaveGroupConversation([c.id], {
+                          onSuccess: (_) => {
+                            toast.success('left conversation successfully!');
+                            updateQuery(
+                              'getPaginatedConversations',
+                              (conversations) => {
+                                return conversations?.filter(
+                                  (_c) => _c.id !== c.id
+                                );
+                              }
+                            );
+                          },
+                          onSettled: () => {
+                            setIsOpenMenu(false);
+                          },
+                        });
                       }}
                       href='#'
                     >
                       Leave group
                     </a>
                   </li>
-                  <li className='block py-2 px-4 text-gray-700 bg:white hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'>
+                  <li className='block py-2 px-4 text-gray-700 bg-white hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'>
                     <a
                       className='block'
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        deleteGroupConversation([c.id]);
+                        deleteGroupConversation([c.id], {
+                          onSuccess: (_) => {
+                            toast.success('conversation deleted!');
+                            updateQuery(
+                              'getPaginatedConversations',
+                              (conversations) => {
+                                return conversations?.filter(
+                                  (_c) => _c.id !== c.id
+                                );
+                              }
+                            );
+                          },
+                          onError: (error) => {
+                            if (error.errors.conversationId?.[0]) {
+                              toast.error(error.errors.conversationId[0]);
+                            }
+                          },
+                          onSettled: () => {
+                            setIsOpenMenu(false);
+                          },
+                        });
                       }}
                       href='#'
                     >

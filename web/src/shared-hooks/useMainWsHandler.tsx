@@ -128,7 +128,13 @@ export const useMainWsHandler = () => {
     });
 
     ws?.on('delete_conversation', (conversation: Conversation) => {
-      console.log('conversation deleted ', conversation);
+      toast.info(
+        `Group conversation "${conversation.title} has been deleted"`,
+        { position: 'bottom-left' }
+      );
+      updateQuery('getPaginatedConversations', (conversations) =>
+        conversations?.filter((c) => c.id !== conversation.id)
+      );
     });
 
     ws?.on(
@@ -142,12 +148,29 @@ export const useMainWsHandler = () => {
         conversation: Conversation;
         conversationDeletedReason?: 'admin_leave' | 'member_count';
       }) => {
-        console.log(
-          'conversation leave',
-          userId,
-          conversation,
-          conversationDeletedReason
-        );
+        updateQuery('getPaginatedConversations', (conversations) => {
+          if (conversationDeletedReason === 'admin_leave') {
+            toast.info(
+              `Group conversation "${conversation.title}" has been deleted because admin has left`,
+              { position: 'bottom-left' }
+            );
+          }
+          if (conversationDeletedReason === 'member_count') {
+            toast.info(
+              `Group conversation "${conversation.title}" has been deleted because number of members is <= 2`,
+              { position: 'bottom-left' }
+            );
+          }
+          if (conversationDeletedReason) {
+            return conversations?.filter((c) => c.id !== conversation.id);
+          }
+          return conversations?.map((c) => {
+            if (c.id === conversation.id) {
+              c.members = c.members.filter((m) => m.user.id !== userId);
+            }
+            return c;
+          });
+        });
       }
     );
 

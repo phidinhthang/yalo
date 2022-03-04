@@ -18,6 +18,10 @@ export const CreateGroupConversationWidget = () => {
   const { mutate: createGroupConversation } = useTypeSafeMutation(
     'createGroupConversation'
   );
+  const clearModalState = () => {
+    setMemberIds([]);
+    setTitle('');
+  };
   const updateQuery = useTypeSafeUpdateQuery();
 
   return (
@@ -34,7 +38,7 @@ export const CreateGroupConversationWidget = () => {
         isOpen={isModalOpen}
         onRequestClose={() => {
           setIsModalOpen(false);
-          setMemberIds([]);
+          clearModalState();
         }}
         footer={
           <div className='flex flex-row-reverse'>
@@ -53,6 +57,7 @@ export const CreateGroupConversationWidget = () => {
                     );
                     toast.success('Create group successfully!');
                     setIsModalOpen(false);
+                    clearModalState();
                   },
                   onError: (error) => {
                     console.log('conversation err ', error);

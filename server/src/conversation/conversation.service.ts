@@ -145,8 +145,9 @@ export class ConversationService {
     if (!admin) {
       throw new BadRequestException({
         errors: {
-          conversationId:
+          conversationId: [
             'You do not have permission to delete the conversation',
+          ],
         },
       });
     }

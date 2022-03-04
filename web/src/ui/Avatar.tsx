@@ -108,6 +108,7 @@ export const AvatarGroup = ({
       <div className='flex flex-wrap' style={{ width: 50, height: 50 }}>
         {React.Children.map(children, (child, idx) => (
           <div
+            key={idx}
             style={{
               flexBasis: '50%',
               marginLeft: idx === 1 || idx === 3 ? -10 : undefined,
@@ -128,6 +129,7 @@ export const AvatarGroup = ({
       >
         {React.Children.map(children, (child, idx) => (
           <div
+            key={idx}
             style={{
               flexBasis: '50%',
               marginLeft: idx === 1 ? -10 : undefined,
@@ -149,6 +151,7 @@ export const AvatarGroup = ({
       >
         {React.Children.map(children, (child, idx) => (
           <div
+            key={idx}
             style={{
               flexBasis: '50%',
               marginLeft: idx === 1 ? -10 : undefined,

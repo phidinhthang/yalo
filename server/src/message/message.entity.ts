@@ -19,7 +19,7 @@ export class Message {
   @ManyToOne(() => User)
   creator: User;
 
-  @ManyToOne(() => Conversation)
+  @ManyToOne(() => Conversation, { onDelete: 'cascade' })
   conversation: Conversation;
 
   @Property()

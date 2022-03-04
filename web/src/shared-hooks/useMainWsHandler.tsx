@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { io } from 'socket.io-client';
 import { toast } from 'react-toastify';
-import { Message } from '../lib/entities';
+import { Message, Conversation } from '../lib/entities';
 import { useRefreshToken } from '../modules/auth/useRefreshToken';
 import { useTokenStore } from '../modules/auth/useTokenStore';
 import { useWsStore } from '../modules/auth/useWsStore';
@@ -40,6 +40,17 @@ export const useMainWsHandler = () => {
           return u;
         });
       });
+      updateQuery('getPaginatedConversations', (conversations) => {
+        if (!conversations) return conversations;
+        conversations
+          .filter((c) => c.type === 'private')
+          .forEach((c) => {
+            c.members.forEach((m) => {
+              if (m.user.id === userId) m.user.isOnline = true;
+            });
+          });
+        return conversations;
+      });
     });
     ws?.on('toggle_offline', (userId: number) => {
       updateQuery('findAll', (users) => {
@@ -50,6 +61,20 @@ export const useMainWsHandler = () => {
           }
           return u;
         });
+      });
+      updateQuery('getPaginatedConversations', (conversations) => {
+        if (!conversations) return conversations;
+        conversations
+          .filter((c) => c.type === 'private')
+          .forEach((c) => {
+            c.members.forEach((m) => {
+              if (m.user.id === userId) {
+                m.user.isOnline = false;
+                m.user.lastLoginAt = new Date().toISOString();
+              }
+            });
+          });
+        return conversations;
       });
     });
 
@@ -102,12 +127,38 @@ export const useMainWsHandler = () => {
       );
     });
 
+    ws?.on('delete_conversation', (conversation: Conversation) => {
+      console.log('conversation deleted ', conversation);
+    });
+
+    ws?.on(
+      'leave_conversation',
+      ({
+        userId,
+        conversation,
+        conversationDeletedReason,
+      }: {
+        userId: number;
+        conversation: Conversation;
+        conversationDeletedReason?: 'admin_leave' | 'member_count';
+      }) => {
+        console.log(
+          'conversation leave',
+          userId,
+          conversation,
+          conversationDeletedReason
+        );
+      }
+    );
+
     return () => {
       ws?.off('toggle_online');
       ws?.off('toggle_offline');
       ws?.off('new_message');
       ws?.off('new_user');
       ws?.off('new_conversation');
+      ws?.off('delete_conversation');
+      ws?.off('leave_conversation');
     };
   }, [ws]);
 };

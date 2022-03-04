@@ -65,7 +65,7 @@ export const connect = ({ url = apiUrl }: { url?: string }): Connection => {
       refresh(accessToken);
       console.log('body ', init?.body);
       const r = await fetch(`${url}${endpoint}`, {
-        method: 'POST',
+        method: init?.method ? init.method : 'POST',
         body: init?.body,
         headers: {
           Authorization: `Bearer ${accessToken}`,

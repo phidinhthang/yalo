@@ -3,6 +3,7 @@ import { SvgSolidDots } from '../../icons/SolidDots';
 import { Conversation, User } from '../../lib/entities';
 import { Avatar, AvatarGroup } from '../../ui/Avatar';
 import React from 'react';
+import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 
 interface ConversationItemProps {
   conversation: Conversation;
@@ -25,6 +26,12 @@ export const ConversationItem = ({
   )[0]?.user;
   const menuRef = React.useRef<HTMLDivElement | null>(null);
   const [isOpenMenu, setIsOpenMenu] = React.useState(false);
+  const { mutate: leaveGroupConversation } = useTypeSafeMutation(
+    'leaveGroupConversation'
+  );
+  const { mutate: deleteGroupConversation } = useTypeSafeMutation(
+    'deleteGroupConversation'
+  );
 
   return (
     <div
@@ -78,15 +85,36 @@ export const ConversationItem = ({
                 isOpenMenu ? 'block' : 'hidden'
               }`}
             >
-              <li className='block py-2 px-4 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'>
-                <a
-                  className='block'
-                  onClick={(e) => {
-                    e.preventDefault();
-                  }}
-                  href='#'
-                ></a>
-              </li>
+              {c.type === 'group' ? (
+                <>
+                  <li className='block py-2 px-4 text-gray-700 bg:white hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'>
+                    <a
+                      className='block'
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        leaveGroupConversation([c.id]);
+                      }}
+                      href='#'
+                    >
+                      Leave group
+                    </a>
+                  </li>
+                  <li className='block py-2 px-4 text-gray-700 bg:white hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'>
+                    <a
+                      className='block'
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        deleteGroupConversation([c.id]);
+                      }}
+                      href='#'
+                    >
+                      Delete group
+                    </a>
+                  </li>
+                </>
+              ) : null}
             </div>
           </div>
         </div>

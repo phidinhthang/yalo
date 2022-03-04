@@ -1,20 +1,20 @@
-import { EntityRepository, MikroORM } from '@mikro-orm/core';
-import { InjectRepository } from '@mikro-orm/nestjs';
+import { MikroORM } from '@mikro-orm/core';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { User } from 'src/user/user.entity';
 import { ConversationRepository } from './conversation.repository';
 import { ConversationType } from './conversation.entity';
-import { Member } from '../member/member.entity';
 import { CreateGroupConversationDto } from './conversation.dto';
 import { UserRepository } from 'src/user/user.repository';
 import { SocketService } from 'src/socket/socket.service';
+import { MemberService } from '../member/member.service';
+import { MemberRepository } from '../member/member.repository';
 
 @Injectable()
 export class ConversationService {
   constructor(
     private readonly conversationRepository: ConversationRepository,
-    @InjectRepository(Member)
-    private readonly memberRepository: EntityRepository<Member>,
+    private readonly memberService: MemberService,
+    private readonly memberRepository: MemberRepository,
     private readonly userRepository: UserRepository,
     private readonly orm: MikroORM,
     private readonly socketService: SocketService,
@@ -69,6 +69,14 @@ export class ConversationService {
         },
       });
     }
+    if (memberIds.includes(meId)) {
+      throw new BadRequestException({
+        errors: {
+          memberIds: ['cannot contain yourself'],
+        },
+      });
+    }
+
     memberIds.push(meId);
 
     let conversation = this.conversationRepository.create({
@@ -89,6 +97,64 @@ export class ConversationService {
     await this.socketService.newConversation(meId, conversation);
 
     return conversation;
+  }
+
+  async leaveGroupConversation(meId: number, conversationId: number) {
+    let conversationDeletedReason: undefined | 'admin_leave' | 'member_count';
+    await this.memberService.isMemberOrThrow(meId, conversationId);
+    const conversation = await this.conversationRepository.findOne(
+      { id: conversationId, type: ConversationType.GROUP },
+      { populate: ['members'] },
+    );
+    if (conversation?.admin.id === meId) {
+      conversationDeletedReason = 'admin_leave';
+    }
+    await this.memberRepository.nativeDelete({
+      conversation: conversationId,
+      user: meId,
+    });
+    const memberCount = await this.memberRepository.count({
+      conversation: conversationId,
+    });
+
+    console.log('member count ', memberCount);
+
+    if (memberCount <= 2) {
+      conversationDeletedReason = 'member_count';
+    }
+    if (conversationDeletedReason) {
+      await this.conversationRepository.nativeDelete(conversationId);
+    }
+
+    await this.socketService.leaveConversation(
+      meId,
+      conversation,
+      conversationDeletedReason,
+    );
+
+    return true;
+  }
+
+  async deleteGroupConversation(meId: number, conversationId: number) {
+    await this.memberService.isMemberOrThrow(meId, conversationId);
+    const conversation = await this.conversationRepository.findOne(
+      { admin: meId, type: ConversationType.GROUP, id: conversationId },
+      { populate: ['members'] },
+    );
+    const admin = conversation?.admin;
+    if (!admin) {
+      throw new BadRequestException({
+        errors: {
+          conversationId:
+            'You do not have permission to delete the conversation',
+        },
+      });
+    }
+
+    await this.conversationRepository.nativeDelete(conversationId);
+    await this.socketService.deleteConversation(meId, conversation);
+
+    return true;
   }
 
   async paginated(meId: number) {

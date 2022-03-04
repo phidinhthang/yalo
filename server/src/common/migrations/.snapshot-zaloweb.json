@@ -367,6 +367,7 @@
             "id"
           ],
           "referencedTableName": "public.conversations",
+          "deleteRule": "cascade",
           "updateRule": "cascade"
         }
       }

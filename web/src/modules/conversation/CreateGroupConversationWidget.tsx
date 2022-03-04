@@ -13,6 +13,7 @@ export const CreateGroupConversationWidget = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [title, setTitle] = React.useState('');
   const { data: users } = useTypeSafeQuery('findAll');
+  const { data: me } = useTypeSafeQuery('me');
   const [memberIds, setMemberIds] = React.useState<number[]>([]);
   const { mutate: createGroupConversation } = useTypeSafeMutation(
     'createGroupConversation'
@@ -71,31 +72,33 @@ export const CreateGroupConversationWidget = () => {
           onChange={(e) => setTitle(e.target.value)}
         />
         <div className='max-h-96 overflow-y-auto'>
-          {users?.map((u) => (
-            <label
-              key={u.id}
-              htmlFor={`member__${u.id}`}
-              className='flex items-center gap-3 p-2 hover:bg-gray-100 hover:cursor-pointer'
-            >
-              <input
-                id={`member__${u.id}`}
-                type='checkbox'
-                checked={memberIds.some((mId) => mId === u.id)}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setMemberIds((mIds) => [...mIds, u.id]);
-                  } else {
-                    setMemberIds((mIds) => mIds.filter((id) => id !== u.id));
-                  }
-                }}
-                className='w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
-              ></input>
-              <Avatar size='sm' src={u.avatarUrl} username={u.username} />
-              <div>
-                <div>{u.username}</div>
-              </div>
-            </label>
-          ))}
+          {users
+            ?.filter((u) => u.id !== me?.id)
+            .map((u) => (
+              <label
+                key={u.id}
+                htmlFor={`member__${u.id}`}
+                className='flex items-center gap-3 p-2 hover:bg-gray-100 hover:cursor-pointer'
+              >
+                <input
+                  id={`member__${u.id}`}
+                  type='checkbox'
+                  checked={memberIds.some((mId) => mId === u.id)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setMemberIds((mIds) => [...mIds, u.id]);
+                    } else {
+                      setMemberIds((mIds) => mIds.filter((id) => id !== u.id));
+                    }
+                  }}
+                  className='w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+                ></input>
+                <Avatar size='sm' src={u.avatarUrl} username={u.username} />
+                <div>
+                  <div>{u.username}</div>
+                </div>
+              </label>
+            ))}
         </div>
       </Modal>
     </>

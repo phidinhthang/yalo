@@ -61,5 +61,11 @@ export const wrap = (connection: Connection) => ({
       memberIds: number[];
     }): Promise<Conversation | ErrorResponse<'memberIds' | 'title'>> =>
       connection.send(`/conversation`, { body: JSON.stringify(data) }),
+    leaveGroupConversation: (conversationId: number): Promise<boolean> =>
+      connection.send(`/conversation/member/${conversationId}`, {
+        method: 'DELETE',
+      }),
+    deleteGroupConversation: (conversationId: number): Promise<boolean> =>
+      connection.send(`/conversation/${conversationId}`, { method: 'DELETE' }),
   },
 });

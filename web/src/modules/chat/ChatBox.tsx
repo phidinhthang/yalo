@@ -21,6 +21,9 @@ import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
 import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
 import { SvgSolidArrowLeft } from '../../icons/SolidArrowLeft';
+import { SvgSolidInfo } from '../../icons/SolidInfo';
+import { ChatInfo } from './ChatInfo';
+import { useOnClickOutside } from '../../shared-hooks/useOnClickOutside';
 
 const MainSkeleton = () => {
   const genHeight = () => randomNumber(3, 8) * 12;
@@ -68,6 +71,7 @@ export const ChatBox = () => {
   const updateQuery = useTypeSafeUpdateQuery();
   const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
   const { t } = useTypeSafeTranslation();
+  const [isChatInfoBoxOpen, setIsChatInfoBoxOpen] = React.useState(false);
   const {
     data: messages,
     isLoading,
@@ -85,6 +89,11 @@ export const ChatBox = () => {
     [{ conversationId: conversationOpened! }]
   );
   const { data: me } = useTypeSafeQuery('me');
+  const chatInfoRef = React.useRef<HTMLDivElement | null>(null);
+
+  useOnClickOutside(chatInfoRef, () => {
+    setIsChatInfoBoxOpen(false);
+  });
 
   const endRef = React.useRef<HTMLDivElement>(null);
 
@@ -136,39 +145,54 @@ export const ChatBox = () => {
 
   return (
     <div className='relative flex flex-col h-full'>
-      <div className='border-b-2 px-2 py-3 flex items-center'>
-        {!isDesktopScreen ? (
-          <button
-            className='w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-50 mr-2'
-            onClick={() => {
-              navigate('/conversations');
-            }}
-          >
-            <SvgSolidArrowLeft />
-          </button>
-        ) : null}
-        <div className='flex'>
-          <AvatarGroup>
-            {members?.map((m) => (
-              <Avatar
-                key={m.user.id}
-                username={m.user.username}
-                src={m.user.avatarUrl}
-                size='md'
-              />
-            )) || []}
-          </AvatarGroup>
-          <div className='ml-2'>
-            <p>{isGroup ? conversation.title : partner?.username}</p>
-            <p>
-              {isGroup
-                ? `${conversation.members.length} members`
-                : partner?.isOnline
-                ? 'is online'
-                : `${t('common.ago', {
-                    time: new Date(partner!.lastLoginAt!),
-                  })}`}
-            </p>
+      <div className='border-b-2 px-2 py-3 flex w-full items-center justify-between'>
+        <div className='flex items-center'>
+          {!isDesktopScreen ? (
+            <button
+              className='w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-50 mr-2'
+              onClick={() => {
+                navigate('/conversations');
+              }}
+            >
+              <SvgSolidArrowLeft />
+            </button>
+          ) : null}
+          <div className='flex'>
+            <AvatarGroup>
+              {members?.map((m) => (
+                <Avatar
+                  key={m.user.id}
+                  username={m.user.username}
+                  src={m.user.avatarUrl}
+                  size='md'
+                />
+              )) || []}
+            </AvatarGroup>
+            <div className='ml-2'>
+              <p>{isGroup ? conversation.title : partner?.username}</p>
+              <p>
+                {isGroup
+                  ? `${conversation.members.length} members`
+                  : partner?.isOnline
+                  ? 'is online'
+                  : `${t('common.ago', {
+                      time: new Date(partner!.lastLoginAt!),
+                    })}`}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div>
+            <button
+              onClick={() => {
+                setIsChatInfoBoxOpen((o) => !o);
+              }}
+              className='w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-50'
+            >
+              <SvgSolidInfo className='w-6 h-6' />
+            </button>
+            {isChatInfoBoxOpen ? <ChatInfo ref={chatInfoRef} /> : null}
           </div>
         </div>
       </div>

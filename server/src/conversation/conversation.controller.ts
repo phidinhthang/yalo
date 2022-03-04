@@ -7,6 +7,7 @@ import {
   Post,
   Body,
   UsePipes,
+  Delete,
 } from '@nestjs/common';
 import { MeId } from 'src/common/decorators/meId.decorator';
 import { HttpAuthGuard } from 'src/common/guards/httpAuth.guard';
@@ -37,6 +38,30 @@ export class ConversationController {
     return this.conversationService.createGroupConversation(
       meId,
       createGroupConversationDto,
+    );
+  }
+
+  @UseGuards(HttpAuthGuard)
+  @Delete('/:conversationId')
+  async deleteGroupConversation(
+    @MeId() meId: number,
+    @Param('conversationId', new ParseIntPipe()) conversationId: number,
+  ) {
+    return this.conversationService.deleteGroupConversation(
+      meId,
+      conversationId,
+    );
+  }
+
+  @UseGuards(HttpAuthGuard)
+  @Delete('/member/:conversationId')
+  async leaveGroupConversation(
+    @MeId() meId: number,
+    @Param('conversationId', new ParseIntPipe()) conversationId: number,
+  ) {
+    return this.conversationService.leaveGroupConversation(
+      meId,
+      conversationId,
     );
   }
 

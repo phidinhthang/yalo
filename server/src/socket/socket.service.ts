@@ -59,4 +59,32 @@ export class SocketService {
         this.socket.to(`${u.id}`).emit('new_conversation', conversation);
       });
   }
+
+  async deleteConversation(adminId: number, conversation: Conversation) {
+    const users = conversation.members.getItems().map((m) => m.user);
+    users
+      .filter((u) => u.id !== adminId)
+      .forEach((u) => {
+        this.socket.to(`${u.id}`).emit('delete_conversation', conversation);
+      });
+  }
+
+  async leaveConversation(
+    userId: number,
+    conversation: Conversation,
+    conversationDeletedReason?: string,
+  ) {
+    const members = conversation.members.getItems();
+    console.log('conversation members ', members);
+    const users = members.map((m) => m.user);
+    users
+      .filter((u) => u.id !== userId)
+      .forEach((u) => {
+        this.socket.to(`${u.id}`).emit('leave_conversation', {
+          userId,
+          conversation,
+          conversationDeletedReason,
+        });
+      });
+  }
 }

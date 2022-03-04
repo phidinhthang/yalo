@@ -87,4 +87,20 @@ export class SocketService {
         });
       });
   }
+
+  async deleteMessage(
+    messageId: number,
+    senderId: number,
+    conversationId: number,
+  ) {
+    const members = await this.memberRepository.find({
+      conversation: conversationId,
+    });
+    const users = members.map((m) => m.user).filter((u) => u.id !== senderId);
+    users.forEach((u) => {
+      this.socket
+        .to(`${u.id}`)
+        .emit('delete_message', messageId, conversationId);
+    });
+  }
 }

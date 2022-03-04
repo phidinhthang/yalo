@@ -73,7 +73,13 @@ export const ConversationItem = ({
         <div className='flex flex-auto justify-between'>
           <div className='truncate mr-2'>
             {lastMessageSentByMe ? 'You: ' : ''}
-            {c.lastMessage?.text}
+            {c.lastMessage?.isDeleted ? (
+              <span className='italic text-gray-500'>
+                message has been deleted
+              </span>
+            ) : (
+              c.lastMessage?.text
+            )}
           </div>
           <div className='flex justify-end relative'>
             <button

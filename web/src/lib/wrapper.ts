@@ -56,6 +56,8 @@ export const wrap = (connection: Connection) => ({
       connection.send(`/message/create/${data.conversationId}`, {
         body: JSON.stringify(data),
       }),
+    deleteMessage: (messageId: number) =>
+      connection.send(`/message/${messageId}`, { method: 'DELETE' }),
     createGroupConversation: (data: {
       title: string;
       memberIds: number[];

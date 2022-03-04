@@ -4,6 +4,7 @@ import { MessageRepository } from './message.repository';
 import { ConversationRepository } from '../conversation/conversation.repository';
 import { MemberService } from 'src/member/member.service';
 import { SocketService } from 'src/socket/socket.service';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class MessageService {
@@ -31,6 +32,26 @@ export class MessageService {
     });
     await this.socketService.newMessage(senderId, conversationId, message);
     return message;
+  }
+
+  async delete(senderId: number, messageId: number) {
+    const message = await this.messageRepository.findOne({
+      id: messageId,
+      creator: senderId,
+    });
+    if (!message) {
+      throw new BadRequestException();
+    }
+    message.text = '';
+    message.isDeleted = true;
+    await this.messageRepository.persistAndFlush(message);
+    await this.socketService.deleteMessage(
+      messageId,
+      senderId,
+      message.conversation.id,
+    );
+
+    return true;
   }
 
   async paginated(

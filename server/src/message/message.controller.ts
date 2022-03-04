@@ -12,6 +12,7 @@ import { MessageService } from './message.service';
 import { CreateMessageDto } from './message.dto';
 import { HttpAuthGuard } from 'src/common/guards/httpAuth.guard';
 import { MeId } from 'src/common/decorators/meId.decorator';
+import { Delete } from '@nestjs/common';
 
 @Controller('message')
 export class MessageController {
@@ -25,6 +26,15 @@ export class MessageController {
     @Body() createMessageDto: CreateMessageDto,
   ) {
     return this.messageService.create(userId, conversationId, createMessageDto);
+  }
+
+  @UseGuards(HttpAuthGuard)
+  @Delete('/:messageId')
+  async delete(
+    @MeId() userId: number,
+    @Param('messageId', new ParseIntPipe()) messageId: number,
+  ) {
+    return this.messageService.delete(userId, messageId);
   }
 
   @UseGuards(HttpAuthGuard)

@@ -24,6 +24,7 @@ import { SvgSolidArrowLeft } from '../../icons/SolidArrowLeft';
 import { SvgSolidInfo } from '../../icons/SolidInfo';
 import { ChatInfo } from './ChatInfo';
 import { useOnClickOutside } from '../../shared-hooks/useOnClickOutside';
+import { SvgSolidTrash } from '../../icons/SolidTrash';
 
 const MainSkeleton = () => {
   const genHeight = () => randomNumber(3, 8) * 12;
@@ -41,7 +42,7 @@ const MainSkeleton = () => {
           >
             <Skeleton circle className='w-14 h-14 rounded-full' />
             <div
-              className={`flex flex-col flex-1 ${
+              className={`flex flex-col flex-auto ${
                 isLeft ? 'items-start' : 'items-end'
               }`}
             >
@@ -89,6 +90,7 @@ export const ChatBox = () => {
     [{ conversationId: conversationOpened! }]
   );
   const { data: me } = useTypeSafeQuery('me');
+  const { mutate: deleteMessage } = useTypeSafeMutation('deleteMessage');
   const chatInfoRef = React.useRef<HTMLDivElement | null>(null);
 
   useOnClickOutside(chatInfoRef, () => {
@@ -144,7 +146,7 @@ export const ChatBox = () => {
   }
 
   return (
-    <div className='relative flex flex-col h-full'>
+    <div className='relative flex flex-col h-full w-full'>
       <div className='border-b-2 px-2 py-3 flex w-full items-center justify-between'>
         <div className='flex items-center'>
           {!isDesktopScreen ? (
@@ -204,7 +206,7 @@ export const ChatBox = () => {
             return (
               <div
                 key={m.id}
-                className={`flex my-2 gap-3 ${
+                className={`flex my-2 gap-3 w-full ${
                   isMsgSentByMe ? 'flex-row-reverse' : 'flex-row'
                 }`}
               >
@@ -216,16 +218,68 @@ export const ChatBox = () => {
                   />
                 </div>
                 <div
-                  className={`bg-white max-w-full break-all rounded-lg p-2 ${
+                  className={`bg-white break-all rounded-lg relative p-2 group ${
                     isMsgSentByMe ? 'text-right' : ''
                   }`}
+                  style={{ maxWidth: 'calc(100% - 132px)' }}
                 >
-                  <p>{m.text}</p>
+                  <p>
+                    {m.isDeleted ? (
+                      <span className='italic text-gray-500'>
+                        message has been deleted
+                      </span>
+                    ) : (
+                      m.text
+                    )}
+                  </p>
                   <div className='flex'>
                     <div className='flex-grow'></div>
                     <p className='text-sm italic text-gray-500'>
                       {formatDistanceToNow(new Date(m.createdAt))}
                     </p>
+                  </div>
+                  <div
+                    className={`absolute bottom-0 right-full w-20 h-16 bg-pink hidden group-hover:flex items-center justify-center ${
+                      isMsgSentByMe ? 'right-full' : 'left-full'
+                    }`}
+                  >
+                    <div>
+                      <button
+                        className='w-6 h-6 rounded-full flex items-center justify-center bg-white border hover:bg-gray-100'
+                        onClick={() => {
+                          deleteMessage([m.id], {
+                            onSuccess: () => {
+                              updateInfiniteQuery(
+                                ['getPaginatedMessages', conversationOpened],
+                                (messages) => {
+                                  messages?.pages.forEach((p) =>
+                                    p.data.forEach((msg) => {
+                                      if (msg.id === m.id) msg.isDeleted = true;
+                                      return msg;
+                                    })
+                                  );
+                                  return messages;
+                                }
+                              );
+                              updateQuery(
+                                'getPaginatedConversations',
+                                (conversations) => {
+                                  conversations?.forEach((c) => {
+                                    if (c.lastMessage?.id === m.id) {
+                                      c.lastMessage.text = '';
+                                      c.lastMessage.isDeleted = true;
+                                    }
+                                  });
+                                  return conversations;
+                                }
+                              );
+                            },
+                          });
+                        }}
+                      >
+                        <SvgSolidTrash />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

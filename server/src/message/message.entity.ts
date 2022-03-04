@@ -25,6 +25,9 @@ export class Message {
   @Property()
   text: string;
 
+  @Property({ default: false, defaultRaw: 'false' })
+  isDeleted: boolean = false;
+
   @Property({ defaultRaw: 'CURRENT_TIMESTAMP' })
   createdAt: Date = new Date();
 }

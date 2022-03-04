@@ -8,7 +8,7 @@
     "register": "Register",
     "logout": "Logout",
     "hello": "hello",
-    "ago": "`{{ time, ago }}"
+    "ago": "{{ time, ago }}"
   },
   "pages": {
     "login": {

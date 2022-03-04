@@ -29,6 +29,7 @@ export type Message = {
   createdAt: string;
   creator: number;
   conversation: number;
+  isDeleted: boolean;
   text: string;
 };
 

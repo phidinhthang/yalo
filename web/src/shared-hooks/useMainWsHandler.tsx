@@ -113,6 +113,32 @@ export const useMainWsHandler = () => {
       });
     });
 
+    ws?.on('delete_message', (messageId: number, conversationId: number) => {
+      updateInfiniteQuery(
+        ['getPaginatedMessages', conversationId],
+        (messages) => {
+          messages?.pages.forEach((p) => {
+            p.data.forEach((m) => {
+              if (m.id === messageId) {
+                m.text = '';
+                m.isDeleted = true;
+              }
+            });
+          });
+          return messages;
+        }
+      );
+      updateQuery('getPaginatedConversations', (conversations) => {
+        conversations.forEach((c) => {
+          if (c.lastMessage?.id === messageId) {
+            c.lastMessage.text = '';
+            c.lastMessage.isDeleted = true;
+          }
+        });
+        return conversations;
+      });
+    });
+
     ws?.on('new_user', (user) => {
       updateQuery('findAll', (users) => (users ? [user, ...users] : users));
     });
@@ -178,6 +204,7 @@ export const useMainWsHandler = () => {
       ws?.off('toggle_online');
       ws?.off('toggle_offline');
       ws?.off('new_message');
+      ws?.off('delete_message');
       ws?.off('new_user');
       ws?.off('new_conversation');
       ws?.off('delete_conversation');

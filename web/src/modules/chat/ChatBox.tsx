@@ -64,7 +64,8 @@ const MainSkeleton = () => {
 };
 
 export const ChatBox = () => {
-  const { conversationOpened, message, setMessage } = useChatStore();
+  const { conversationOpened, setConversationOpened, message, setMessage } =
+    useChatStore();
   const [ref, inView] = useInView();
   const isDesktopScreen = useIsDesktopScreen();
   const navigate = useNavigate();
@@ -154,6 +155,8 @@ export const ChatBox = () => {
               className='w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-50 mr-2'
               onClick={() => {
                 navigate('/conversations');
+                setConversationOpened(null);
+                setMessage('');
               }}
             >
               <SvgSolidArrowLeft />
@@ -200,9 +203,27 @@ export const ChatBox = () => {
       </div>
       <div className='flex-auto overflow-y-auto flex flex-col-reverse px-2 bg-gray-100'>
         <div ref={endRef} style={{ float: 'left', clear: 'both' }}></div>
-        {messages?.pages.map((page) =>
-          page.data.map((m) => {
+        {messages?.pages.map((page, p_idx) =>
+          page.data.map((m, m_idx) => {
             const isMsgSentByMe = m.creator === me?.id;
+            const seenMembers = members
+              ?.filter(
+                (mb) =>
+                  mb.user.id !== me?.id &&
+                  mb.user.id !== m.creator &&
+                  mb?.lastReadAt &&
+                  new Date(mb.lastReadAt) > new Date(m.createdAt)
+              )
+              .map((mb) => mb.user.username);
+            const seenMembersDisplay = seenMembers?.slice(0, 2);
+            const seenText = seenMembersDisplay?.length
+              ? seenMembers?.length === seenMembersDisplay?.length
+                ? `${seenMembersDisplay?.join(', ')} seen`
+                : `${seenMembersDisplay?.join(', ')} and ${
+                    seenMembers!.length - seenMembersDisplay!.length
+                  } other seen`
+              : '';
+
             return (
               <div
                 key={m.id}
@@ -237,6 +258,11 @@ export const ChatBox = () => {
                     <p className='text-sm italic text-gray-500'>
                       {formatDistanceToNow(new Date(m.createdAt))}
                     </p>
+                    {seenText && p_idx === 0 && m_idx === 0 ? (
+                      <p className='text-sm italic text-gray-500 ml-3'>
+                        {seenText}
+                      </p>
+                    ) : null}
                   </div>
                   <div
                     className={`absolute bottom-0 right-full w-20 h-16 bg-pink hidden group-hover:flex items-center justify-center ${

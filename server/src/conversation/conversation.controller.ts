@@ -1,3 +1,4 @@
+import { Patch } from '@nestjs/common';
 import {
   Controller,
   Get,
@@ -63,6 +64,15 @@ export class ConversationController {
       meId,
       conversationId,
     );
+  }
+
+  @UseGuards(HttpAuthGuard)
+  @Patch('/member/mark_read/:conversationId')
+  async markReadMsg(
+    @MeId() meId: number,
+    @Param('conversationId', new ParseIntPipe()) conversationId: number,
+  ) {
+    return this.conversationService.markReadMsg(meId, conversationId);
   }
 
   @UseGuards(HttpAuthGuard)

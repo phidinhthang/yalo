@@ -12,6 +12,7 @@ import {
 } from './useTypeSafeUpdateQuery';
 import { useWrappedConn } from '../modules/conn/useConn';
 import { useTypeSafeGetQuery } from './useTypeSafeGetQuery';
+import { useChatStore } from '../modules/chat/useChatStore';
 
 export const useMainWsHandler = () => {
   const { ws, setWs } = useWsStore();
@@ -111,6 +112,9 @@ export const useMainWsHandler = () => {
           return c;
         });
       });
+      const { conversationOpened } = useChatStore.getState();
+      if (conversationOpened)
+        await wConn.mutation.markReadMsg(conversationOpened);
     });
 
     ws?.on('delete_message', (messageId: number, conversationId: number) => {
@@ -138,6 +142,23 @@ export const useMainWsHandler = () => {
         return conversations;
       });
     });
+
+    ws?.on(
+      'update_mark_read',
+      (userId: number, conversationId: number, lastReadAt: string) => {
+        updateQuery('getPaginatedConversations', (conversations) => {
+          conversations?.forEach((c) => {
+            if (c.id !== conversationId) return;
+            c.members.forEach((m) => {
+              if (m.user.id === userId) {
+                m.lastReadAt = lastReadAt;
+              }
+            });
+          });
+          return conversations;
+        });
+      }
+    );
 
     ws?.on('new_user', (user) => {
       updateQuery('findAll', (users) => (users ? [user, ...users] : users));
@@ -205,6 +226,7 @@ export const useMainWsHandler = () => {
       ws?.off('toggle_offline');
       ws?.off('new_message');
       ws?.off('delete_message');
+      ws?.off('update_mark_read');
       ws?.off('new_user');
       ws?.off('new_conversation');
       ws?.off('delete_conversation');

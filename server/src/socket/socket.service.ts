@@ -103,4 +103,17 @@ export class SocketService {
         .emit('delete_message', messageId, conversationId);
     });
   }
+
+  async markReadMsg(meId: number, conversationId: number, lastReadAt: Date) {
+    const members = await this.memberRepository.find({
+      conversation: conversationId,
+    });
+
+    const users = members.map((m) => m.user).filter((u) => u.id !== meId);
+    users.forEach((u) => {
+      this.socket
+        .to(`${u.id}`)
+        .emit('update_mark_read', meId, conversationId, lastReadAt);
+    });
+  }
 }

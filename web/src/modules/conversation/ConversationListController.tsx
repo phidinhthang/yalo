@@ -4,6 +4,7 @@ import { useTypeSafeQuery } from '../../shared-hooks/useTypeSafeQuery';
 import { useIsDesktopScreen } from '../../shared-hooks/useIsDesktopScreen';
 import { Skeleton } from '../../ui/Skeleton';
 import { ConversationItem } from './ConversationItem';
+import { useWrappedConn } from '../conn/useConn';
 
 const MainSkeleton = () => {
   return (
@@ -22,12 +23,13 @@ const MainSkeleton = () => {
 };
 
 export const ConversationListController = () => {
-  const { setConversationOpened } = useChatStore();
+  const { setConversationOpened, setMessage } = useChatStore();
   const { data: conversations, isLoading: isConversationsLoading } =
     useTypeSafeQuery('getPaginatedConversations');
   const { data: me, isLoading: isMeLoading, isError } = useTypeSafeQuery('me');
   const isDesktopScreen = useIsDesktopScreen();
   const navigate = useNavigate();
+  const wConn = useWrappedConn();
 
   if (isConversationsLoading || isMeLoading) return <MainSkeleton />;
   if (isError) navigate('/login');
@@ -40,6 +42,8 @@ export const ConversationListController = () => {
           conversation={c}
           onOpened={(id: number) => {
             setConversationOpened(id);
+            setMessage('');
+            wConn.mutation.markReadMsg(id).then(() => {});
             if (!isDesktopScreen) navigate('/');
           }}
           me={me!}

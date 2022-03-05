@@ -158,6 +158,29 @@ export class ConversationService {
     return true;
   }
 
+  async markReadMsg(meId: number, conversationId: number) {
+    const member = await this.memberRepository.findOne({
+      user: meId,
+      conversation: conversationId,
+    });
+    if (!member) {
+      throw new BadRequestException({
+        errors: {
+          member: ['member do not exists'],
+        },
+      });
+    }
+    member.lastReadAt = new Date();
+    await this.memberRepository.persistAndFlush(member);
+    await this.socketService.markReadMsg(
+      meId,
+      conversationId,
+      member.lastReadAt!,
+    );
+
+    return true;
+  }
+
   async paginated(meId: number) {
     const members = await this.memberRepository.find({ user: meId });
     const conversationIds = members.map((m) => m.conversation.id);

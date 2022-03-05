@@ -37,6 +37,7 @@ export type Member = {
   conversation: number;
   user: User;
   joinedAt: string;
+  lastReadAt?: string;
 };
 
 export type Conversation = {

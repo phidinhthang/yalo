@@ -58,6 +58,10 @@ export const wrap = (connection: Connection) => ({
       }),
     deleteMessage: (messageId: number) =>
       connection.send(`/message/${messageId}`, { method: 'DELETE' }),
+    markReadMsg: (conversationId: number) =>
+      connection.send(`/conversation/member/mark_read/${conversationId}`, {
+        method: 'PATCH',
+      }),
     createGroupConversation: (data: {
       title: string;
       memberIds: number[];

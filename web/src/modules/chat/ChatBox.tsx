@@ -25,6 +25,7 @@ import { SvgSolidInfo } from '../../icons/SolidInfo';
 import { ChatInfo } from './ChatInfo';
 import { useOnClickOutside } from '../../shared-hooks/useOnClickOutside';
 import { SvgSolidTrash } from '../../icons/SolidTrash';
+import { ChatInput } from './ChatInput';
 
 const MainSkeleton = () => {
   const genHeight = () => randomNumber(3, 8) * 12;
@@ -315,7 +316,7 @@ export const ChatBox = () => {
         {hasNextPage ? <div ref={ref} className='pb-1'></div> : null}
       </div>
       <form
-        className='flex bg-white'
+        className='flex items-start relative text-gray-900 bg-gray-50 rounded-lg border-2 border-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white p-2.5'
         onSubmit={(e) => {
           e.preventDefault();
           mutate([{ conversationId: conversationOpened, text: message }], {
@@ -344,13 +345,7 @@ export const ChatBox = () => {
           });
         }}
       >
-        <Input
-          placeholder='type message...'
-          size='lg'
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-        />
-        <Button type='submit'>{t('pages.main.sendMsg')}</Button>
+        <ChatInput />
       </form>
     </div>
   );

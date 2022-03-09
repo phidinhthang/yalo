@@ -6,9 +6,11 @@ import { UserListController } from '../user/UserListController';
 import { ConversationListController } from '../conversation/ConversationListController';
 import { MainLayout } from '../../ui/MainLayout';
 import { CreateGroupConversationWidget } from '../conversation/CreateGroupConversationWidget';
+import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
 
 export const MainPage = () => {
   const navigate = useNavigate();
+  const { t } = useTypeSafeTranslation();
   const { isError } = useTypeSafeQuery('me');
 
   if (isError) {
@@ -20,7 +22,7 @@ export const MainPage = () => {
         leftPanel={
           <div className='flex flex-col h-full'>
             <div className='pb-1 pl-2 pt-4 flex justify-between'>
-              <p>Conversations</p>
+              <p>{t('common.conversations')}</p>
               <CreateGroupConversationWidget />
             </div>
             <div className='overflow-y-auto'>
@@ -28,7 +30,7 @@ export const MainPage = () => {
                 <ConversationListController />
               </div>
               <div>
-                <p className='pb-1 pl-2'>Users</p>
+                <p className='pb-1 pl-2'>{t('common.users')}</p>
                 <UserListController />
               </div>
             </div>

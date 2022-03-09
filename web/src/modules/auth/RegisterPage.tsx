@@ -40,7 +40,7 @@ export const RegisterPage = () => {
                 cache('me', (x) => {
                   return data.user;
                 });
-                toast.success('Register successfully!');
+                toast.success(t('pages.register.success'));
               },
             });
           }}

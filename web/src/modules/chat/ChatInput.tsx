@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   Editor,
   Transforms,
@@ -15,7 +16,6 @@ import {
   ReactEditor,
   withReact,
   RenderElementProps,
-  useSlateStatic,
   RenderLeafProps,
 } from 'slate-react';
 import { Prism } from '../../utils/Prism';
@@ -24,10 +24,17 @@ import { CustomEmote, CustomText, MentionElement } from '../../global';
 import { Portal } from '../../ui/Portal';
 import { css } from '@emotion/css';
 import { Button } from '../../ui/Button';
-import { emojiData } from './EmojiData';
+import { emojiData } from './emojiData';
 import { EmojiPicker } from './EmojiPicker';
 import { useTypeSafeQuery } from '../../shared-hooks/useTypeSafeQuery';
 import { useChatStore } from './useChatStore';
+import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
+import { SvgSolidHappy } from '../../icons/SolidHappy';
+import { SvgSolidPaperAirplane } from '../../icons/SolidPaperAirplane';
+import {
+  useTypeSafeUpdateInfiniteQuery,
+  useTypeSafeUpdateQuery,
+} from '../../shared-hooks/useTypeSafeUpdateQuery';
 
 const initialValue = [{ type: 'paragraph', children: [{ text: '' }] }];
 
@@ -35,14 +42,18 @@ export const ChatInput = () => {
   const ref = React.useRef<HTMLDivElement>(null);
   const [value, setValue] = React.useState<Descendant[]>(initialValue as any);
   const [target, setTarget] = React.useState<Range | undefined>();
+  const { mutate: createMessage } = useTypeSafeMutation('createMessage');
+  const updateQuery = useTypeSafeUpdateQuery();
+  const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
   const [index, setIndex] = React.useState(0);
   const [search, setSearch] = React.useState('');
   const [isEmojiPickerOpen, setEmojiPickerOpen] = React.useState(false);
   const { data: conversations } = useTypeSafeQuery('getPaginatedConversations');
-  const { conversationOpened, message, setMessage } = useChatStore();
+  const { conversationOpened } = useChatStore();
   const conversation = conversations?.find((c) => c.id === conversationOpened);
   const members = conversation?.members;
   const { data: me } = useTypeSafeQuery('me');
+  const location = useLocation();
   const renderElement = React.useCallback(
     (props) => <Element {...props} />,
     []
@@ -118,13 +129,19 @@ export const ChatInput = () => {
           el.style.left = `${rect.left + window.pageXOffset}px`;
         }
       }
-    } catch (e) {
-      console.log('hello ', e);
-    }
+    } catch {}
   }, [chars?.length, editor, index, search, target]);
+
+  React.useEffect(() => {
+    clearMsg();
+  }, [conversationOpened]);
+
+  React.useEffect(() => {
+    return () => clearMsg();
+  }, [location]);
+
   const onKeyDown = React.useCallback(
     (event: React.KeyboardEvent, editor: ReactEditor) => {
-      const { selection } = editor;
       if (target && chars) {
         switch (event.key) {
           case 'ArrowDown':
@@ -157,6 +174,43 @@ export const ChatInput = () => {
   );
 
   return (
+    <form
+      className='flex items-start relative text-gray-900 bg-gray-50 rounded-lg border-2 border-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white p-2.5'
+      onSubmit={(e) => {
+        e.preventDefault();
+        const message = serialize(editor as any);
+
+        if (!message.length) return;
+
+        createMessage(
+          [{ conversationId: conversationOpened!, text: message }],
+          {
+            onSuccess: (data) => {
+              if (!('id' in data)) return;
+              updateInfiniteQuery(
+                ['getPaginatedMessages', conversationOpened!],
+                (messages) => {
+                  if (!messages) return messages;
+                  messages.pages[0].data.unshift(data);
+                  return messages;
+                }
+              );
+              updateQuery('getPaginatedConversations', (conversations) => {
+                conversations
+                  ?.filter((c) => c.id === data.conversation)
+                  .map((c) => {
+                    c.lastMessage = data;
+                    return c;
+                  });
+
+                return conversations;
+              });
+              clearMsg();
+            },
+          }
+        );
+      }}
+    >
       <Slate
         editor={editor}
         value={value}
@@ -269,11 +323,13 @@ export const ChatInput = () => {
         <div className='relative'>
           <Button
             onClick={() => {
-              setEmojiPickerOpen(true);
+              setEmojiPickerOpen((o) => !o);
             }}
             size='sm'
+            type='button'
+            variant='secondary'
           >
-            add
+            <SvgSolidHappy fill='yellow' />
           </Button>
           {isEmojiPickerOpen ? (
             <div className='absolute bottom-full right-0 w-80'>
@@ -294,6 +350,7 @@ export const ChatInput = () => {
           ) : null}
         </div>
         <Button
+          type='submit'
           size='sm'
           className='ml-2'
           onClick={() => {
@@ -302,9 +359,13 @@ export const ChatInput = () => {
             console.log('serialized ', serialized);
           }}
         >
-          save
+          <SvgSolidPaperAirplane
+            fill='white'
+            style={{ transform: 'rotate(45deg)' }}
+          />
         </Button>
       </Slate>
+    </form>
   );
 };
 
@@ -330,6 +391,42 @@ const insertMention = (editor: Editor, character: string) => {
   };
   Transforms.insertNodes(editor, mention);
   Transforms.move(editor);
+};
+
+const withImages = (editor: Editor) => {
+  const { isVoid, isInline } = editor;
+
+  editor.isVoid = (element) => {
+    return element.type === 'emote' ? true : isVoid(element);
+  };
+  editor.isInline = (element) => {
+    return element.type === 'emote' ? true : isInline(element);
+  };
+
+  return editor;
+};
+
+const serialize = (node: RenderElementProps['element'] | CustomText) => {
+  if (Text.isText(node)) {
+    let string = node.text;
+    return string;
+  }
+
+  const children = (node as any)?.children
+    ?.filter((n: any) => typeof n.text === 'undefined' || n.text !== '')
+    ?.map((n: any) => serialize(n))
+    .join(' ');
+
+  switch (node.type) {
+    case 'emote':
+      return `:${node.name}:`;
+    case 'paragraph':
+      return `${children}`;
+    case 'mention':
+      return `@${node.character}`;
+    default:
+      return `${children}`;
+  }
 };
 
 const Element = (props: RenderElementProps) => {
@@ -454,40 +551,4 @@ const Mention = ({ attributes, children, element }: RenderElementProps) => {
       {children}
     </span>
   );
-};
-
-const withImages = (editor: Editor) => {
-  const { isVoid, isInline } = editor;
-
-  editor.isVoid = (element) => {
-    return element.type === 'emote' ? true : isVoid(element);
-  };
-  editor.isInline = (element) => {
-    return element.type === 'emote' ? true : isInline(element);
-  };
-
-  return editor;
-};
-
-const serialize = (node: RenderElementProps['element'] | CustomText) => {
-  if (Text.isText(node)) {
-    let string = node.text;
-    return string;
-  }
-
-  const children = (node as any)?.children
-    ?.filter((n: any) => typeof n.text === 'undefined' || n.text !== '')
-    ?.map((n: any) => serialize(n))
-    .join(' ');
-
-  switch (node.type) {
-    case 'emote':
-      return `:${node.name}:`;
-    case 'paragraph':
-      return `${children}`;
-    case 'mention':
-      return `@${node.character}`;
-    default:
-      return `${children}`;
-  }
 };

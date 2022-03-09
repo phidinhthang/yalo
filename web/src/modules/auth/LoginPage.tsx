@@ -42,7 +42,7 @@ export const LoginPage = () => {
                 updateQuery('me', (x) => {
                   return data.user;
                 });
-                toast.success('Login successfully!');
+                toast.success(t('pages.login.success'));
               },
             });
           }}

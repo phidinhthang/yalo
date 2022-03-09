@@ -66,3 +66,7 @@ export const emojiData = [
 ];
 
 export type EmojiType = typeof emojiData[number];
+
+export const emojiMap: Record<string, EmojiType> = {};
+
+emojiData.forEach((e) => (emojiMap[e.name] = e));

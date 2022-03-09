@@ -8,9 +8,11 @@ import { Avatar } from '../../ui/Avatar';
 import { Button } from '../../ui/Button';
 import { Modal } from '../../ui/Modal';
 import { SvgOutlineUserGroup } from '../../icons/OutlineUserGroup';
+import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
 
 export const CreateGroupConversationWidget = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const { t } = useTypeSafeTranslation();
   const [title, setTitle] = React.useState('');
   const { data: users } = useTypeSafeQuery('findAll');
   const { data: me } = useTypeSafeQuery('me');
@@ -34,7 +36,7 @@ export const CreateGroupConversationWidget = () => {
         <SvgOutlineUserGroup className='h-4 w-4' />
       </button>
       <Modal
-        title='Create Group'
+        title={t('conversation.create.label')}
         isOpen={isModalOpen}
         onRequestClose={() => {
           setIsModalOpen(false);
@@ -55,24 +57,24 @@ export const CreateGroupConversationWidget = () => {
                         return [data, ...conversations];
                       }
                     );
-                    toast.success('Create group successfully!');
+                    toast.success(t('conversation.create.success'));
                     setIsModalOpen(false);
                     clearModalState();
                   },
                   onError: (error) => {
                     console.log('conversation err ', error);
-                    toast.error('Create group failure!');
+                    toast.error(t('conversation.create.failure'));
                   },
                 });
               }}
             >
-              Create group
+              {t('conversation.create.label')}
             </Button>
           </div>
         }
       >
         <Input
-          placeholder='Enter group name...'
+          placeholder={t('conversation.create.placeholder')}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />

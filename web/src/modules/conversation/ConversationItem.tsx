@@ -75,7 +75,7 @@ export const ConversationItem = ({
             {lastMessageSentByMe ? 'You: ' : ''}
             {c.lastMessage?.isDeleted ? (
               <span className='italic text-gray-500'>
-                message has been deleted
+                {t('message.deleted')}
               </span>
             ) : (
               c.lastMessage?.text
@@ -106,7 +106,7 @@ export const ConversationItem = ({
                         e.stopPropagation();
                         leaveGroupConversation([c.id], {
                           onSuccess: (_) => {
-                            toast.success('left conversation successfully!');
+                            toast.success(t('conversation.left.success'));
                             updateQuery(
                               'getPaginatedConversations',
                               (conversations) => {
@@ -123,7 +123,7 @@ export const ConversationItem = ({
                       }}
                       href='#'
                     >
-                      Leave group
+                      {t('conversation.left.label')}
                     </a>
                   </li>
                   <li className='block py-2 px-4 text-gray-700 bg-white hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'>
@@ -156,7 +156,7 @@ export const ConversationItem = ({
                       }}
                       href='#'
                     >
-                      Delete group
+                      {t('conversation.delete')}
                     </a>
                   </li>
                 </>

@@ -1,4 +1,4 @@
-import { emojiData, EmojiType } from './EmojiData';
+import { emojiData, EmojiType } from './emojiData';
 
 interface EmojiPickerProps {
   onPicked: (emoji: EmojiType) => void;

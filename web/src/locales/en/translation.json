@@ -8,17 +8,41 @@
     "register": "Register",
     "logout": "Logout",
     "hello": "hello",
+    "conversations": "Conversations",
+    "users": "Users",
     "ago": "{{ time, ago }}"
   },
   "pages": {
     "login": {
-      "dontHaveAccount": "don't have an account?"
+      "dontHaveAccount": "don't have an account?",
+      "success": "Login successfully!"
     },
     "register": {
-      "haveAccount": "already have an account?"
+      "haveAccount": "already have an account?",
+      "success": "Register successfully!"
     },
     "main": {
       "sendMsg": "Send"
     }
+  },
+  "conversation": {
+    "create": {
+      "label": "Create group",
+      "success": "Create group successfully!",
+      "failure": "Create group failure!",
+      "placeholder": "Enter group name..."
+    },
+    "delete": "Delete group",
+    "added": "You were added to group conversation \"{{ title }}\"",
+    "deleted": "Group conversation \"{{ title }} has been deleted\"",
+    "left": {
+      "label": "Leave group",
+      "success": "Left conversation successfully!",
+      "adminLeft": "Group conversation \"{{ title }}\" has been deleted because admin has left",
+      "minimum": "Group conversation \"{{ title}}\" has been deleted because number of members is <= 2"
+    }
+  },
+  "message": {
+    "deleted": "message has been deleted"
   }
 }

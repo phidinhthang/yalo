@@ -26,6 +26,7 @@ import { ChatInfo } from './ChatInfo';
 import { useOnClickOutside } from '../../shared-hooks/useOnClickOutside';
 import { SvgSolidTrash } from '../../icons/SolidTrash';
 import { ChatInput } from './ChatInput';
+import { ChatMessageText } from './ChatMessageText';
 
 const MainSkeleton = () => {
   const genHeight = () => randomNumber(3, 8) * 12;
@@ -70,7 +71,6 @@ export const ChatBox = () => {
   const [ref, inView] = useInView();
   const isDesktopScreen = useIsDesktopScreen();
   const navigate = useNavigate();
-  const { mutate } = useTypeSafeMutation('createMessage');
   const updateQuery = useTypeSafeUpdateQuery();
   const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
   const { t } = useTypeSafeTranslation();
@@ -239,6 +239,7 @@ export const ChatBox = () => {
                     username={memberMap[m.creator].user.username}
                   />
                 </div>
+                
                 <div
                   className={`bg-white break-all rounded-lg relative p-2 group ${
                     isMsgSentByMe ? 'text-right' : ''
@@ -251,7 +252,7 @@ export const ChatBox = () => {
                         message has been deleted
                       </span>
                     ) : (
-                      m.text
+                      <ChatMessageText text={m.text} />
                     )}
                   </p>
                   <div className='flex'>
@@ -315,38 +316,7 @@ export const ChatBox = () => {
         )}
         {hasNextPage ? <div ref={ref} className='pb-1'></div> : null}
       </div>
-      <form
-        className='flex items-start relative text-gray-900 bg-gray-50 rounded-lg border-2 border-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white p-2.5'
-        onSubmit={(e) => {
-          e.preventDefault();
-          mutate([{ conversationId: conversationOpened, text: message }], {
-            onSuccess: (data) => {
-              if (!('id' in data)) return;
-              updateInfiniteQuery(
-                ['getPaginatedMessages', conversationOpened],
-                (messages) => {
-                  if (!messages) return messages;
-                  messages.pages[0].data.unshift(data);
-                  return messages;
-                }
-              );
-              updateQuery('getPaginatedConversations', (conversations) => {
-                conversations
-                  ?.filter((c) => c.id === data.conversation)
-                  .map((c) => {
-                    c.lastMessage = data;
-                    return c;
-                  });
-
-                return conversations;
-              });
-              setMessage('');
-            },
-          });
-        }}
-      >
-        <ChatInput />
-      </form>
+      <ChatInput />
     </div>
   );
 };

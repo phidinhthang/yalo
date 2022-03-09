@@ -7,17 +7,41 @@
     "login": "Đăng nhập",
     "register": "Đăng kí",
     "logout": "Đăng xuất",
+    "conversations": "Cuộc hội thoại",
+    "users": "Người dùng",
     "ago": "{{ time, ago }}"
   },
   "pages": {
     "login": {
-      "dontHaveAccount": "Chưa có tài khoản ?"
+      "dontHaveAccount": "Chưa có tài khoản ?",
+      "success": "Đăng nhập thành công!"
     },
     "register": {
-      "haveAccount": "Đã có tài khoản ?"
+      "haveAccount": "Đã có tài khoản ?",
+      "success": "Đăng kí thành công!"
     },
     "main": {
       "sendMsg": "Gửi"
     }
+  },
+  "conversation": {
+    "create": {
+      "label": "Tạo nhóm",
+      "success": "Tạo nhóm thành công!",
+      "failure": "Tạo nhóm thất bại!",
+      "placeholder": "Nhập tên nhóm..."
+    },
+    "delete": "Xóa nhóm",
+    "added": "Bạn đã được thêm vào nhóm \"{{ title }}\"",
+    "deleted": "Nhóm \"{{ title }} đã bị xóa\"",
+    "left": {
+      "label": "Rời nhóm",
+      "success": "Rời nhóm thành công!",
+      "adminLeft": "Nhóm \"{{ title }}\" đã bị xóa vì trưởng nhóm rời nhóm",
+      "minimum": "Nhóm \"{{ title}}\" đã bị xóa vì số lượng thành viên <= 2"
+    }
+  },
+  "message": {
+    "deleted": "Tin nhắn đã bị xóa"
   }
 }

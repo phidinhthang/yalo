@@ -12,6 +12,7 @@ import {
 } from './useTypeSafeUpdateQuery';
 import { useWrappedConn } from '../modules/conn/useConn';
 import { useTypeSafeGetQuery } from './useTypeSafeGetQuery';
+import { useTypeSafeTranslation } from './useTypeSafeTranslation';
 import { useChatStore } from '../modules/chat/useChatStore';
 
 export const useMainWsHandler = () => {
@@ -22,6 +23,7 @@ export const useMainWsHandler = () => {
   const getQuery = useTypeSafeGetQuery();
   const accessToken = useTokenStore().accessToken;
   const wConn = useWrappedConn();
+  const { t } = useTypeSafeTranslation();
 
   React.useEffect(() => {
     if (accessToken) {
@@ -166,7 +168,7 @@ export const useMainWsHandler = () => {
 
     ws?.on('new_conversation', (conversation) => {
       toast.info(
-        `You were added to group conversation "${conversation.title}"`,
+        t('conversation.added', { title: conversation.title } as any),
         { position: 'bottom-left' }
       );
       updateQuery('getPaginatedConversations', (conversations) =>
@@ -176,7 +178,7 @@ export const useMainWsHandler = () => {
 
     ws?.on('delete_conversation', (conversation: Conversation) => {
       toast.info(
-        `Group conversation "${conversation.title} has been deleted"`,
+        t('conversation.deleted', { title: conversation.title } as any),
         { position: 'bottom-left' }
       );
       updateQuery('getPaginatedConversations', (conversations) =>
@@ -198,13 +200,17 @@ export const useMainWsHandler = () => {
         updateQuery('getPaginatedConversations', (conversations) => {
           if (conversationDeletedReason === 'admin_leave') {
             toast.info(
-              `Group conversation "${conversation.title}" has been deleted because admin has left`,
+              t('conversation.left.adminLeft', {
+                title: conversation.title,
+              } as any),
               { position: 'bottom-left' }
             );
           }
           if (conversationDeletedReason === 'member_count') {
             toast.info(
-              `Group conversation "${conversation.title}" has been deleted because number of members is <= 2`,
+              t('conversation.left.minimum', {
+                title: conversation.title,
+              } as any),
               { position: 'bottom-left' }
             );
           }

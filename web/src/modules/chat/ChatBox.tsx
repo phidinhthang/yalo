@@ -149,7 +149,7 @@ export const ChatBox = () => {
 
   return (
     <div className='relative flex flex-col h-full w-full'>
-      <div className='border-b-2 px-2 py-3 flex w-full items-center justify-between'>
+      <div className='border-b-2 dark:border-gray-700 px-2 py-3 flex w-full items-center justify-between'>
         <div className='flex items-center'>
           {!isDesktopScreen ? (
             <button
@@ -202,7 +202,7 @@ export const ChatBox = () => {
           </div>
         </div>
       </div>
-      <div className='flex-auto overflow-y-auto flex flex-col-reverse px-2 bg-gray-100'>
+      <div className='flex-auto overflow-y-auto flex flex-col-reverse px-2 bg-gray-100 dark:bg-dark-300'>
         <div ref={endRef} style={{ float: 'left', clear: 'both' }}></div>
         {messages?.pages.map((page, p_idx) =>
           page.data.map((m, m_idx) => {
@@ -239,9 +239,9 @@ export const ChatBox = () => {
                     username={memberMap[m.creator].user.username}
                   />
                 </div>
-                
+
                 <div
-                  className={`bg-white break-all rounded-lg relative p-2 group ${
+                  className={`bg-white dark:bg-dark-200 break-all rounded-lg relative p-2 group ${
                     isMsgSentByMe ? 'text-right' : ''
                   }`}
                   style={{ maxWidth: 'calc(100% - 132px)' }}

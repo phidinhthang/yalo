@@ -7,11 +7,11 @@ interface EmojiPickerProps {
 export const EmojiPicker = ({ onPicked }: EmojiPickerProps) => {
   console.log('e ', emojiData);
   return (
-    <div className='flex w-full flex-wrap p-2 border-2 border-blue-500 rounded-lg bg-gray-100'>
+    <div className='flex w-full flex-wrap p-2 border-2 border-blue-500 rounded-lg bg-gray-100 dark:bg-dark-500'>
       {emojiData.map((e) => (
         <div className='w-10 h-10 m-1'>
           <button
-            className='w-10 h-10 rounded-md bg-white hover:bg-blue-200 flex items-center justify-center'
+            className='w-10 h-10 rounded-md bg-white dark:bg-gray-500 hover:bg-blue-200 flex items-center justify-center'
             onClick={() => {
               onPicked(e);
             }}

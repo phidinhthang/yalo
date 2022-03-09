@@ -26,9 +26,9 @@ export const RegisterPage = () => {
 
   return (
     <>
-      <div>
+      <div className='w-screen h-screen flex items-center justify-center flex-col'>
         <form
-          className='w-full px-4 max-w-[480px] m-auto'
+          className='w-full px-4 max-w-[480px] mx-auto'
           onSubmit={(e) => {
             e.preventDefault();
             mutate([{ username, password }], {
@@ -112,6 +112,24 @@ export const RegisterPage = () => {
             {t('common.register')}
           </Button>
         </form>
+        <div className='flex gap-8 mt-8'>
+          <button
+            className='underline text-sm'
+            onClick={() => {
+              i18n.changeLanguage('vi');
+            }}
+          >
+            Tiếng Việt
+          </button>
+          <button
+            className='underline text-sm'
+            onClick={() => {
+              i18n.changeLanguage('en');
+            }}
+          >
+            English
+          </button>
+        </div>
       </div>
     </>
   );

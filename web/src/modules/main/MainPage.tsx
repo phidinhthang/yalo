@@ -20,7 +20,7 @@ export const MainPage = () => {
     <div>
       <MainLayout
         leftPanel={
-          <div className='flex flex-col h-full'>
+          <div className='flex flex-col h-full dark:bg-dark-500'>
             <div className='pb-1 pl-2 pt-4 flex justify-between'>
               <p>{t('common.conversations')}</p>
               <CreateGroupConversationWidget />
@@ -37,7 +37,7 @@ export const MainPage = () => {
           </div>
         }
       >
-        <div className='h-full border-l-2'>
+        <div className='h-full border-l-2 dark:border-gray-700'>
           <ChatBox />
         </div>
       </MainLayout>

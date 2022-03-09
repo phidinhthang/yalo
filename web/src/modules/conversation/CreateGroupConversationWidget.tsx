@@ -85,7 +85,7 @@ export const CreateGroupConversationWidget = () => {
               <label
                 key={u.id}
                 htmlFor={`member__${u.id}`}
-                className='flex items-center gap-3 p-2 hover:bg-gray-100 hover:cursor-pointer'
+                className='flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-600 hover:cursor-pointer'
               >
                 <input
                   id={`member__${u.id}`}

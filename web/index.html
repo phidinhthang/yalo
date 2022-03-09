@@ -2,9 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/src/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/img/yalo96.png" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/img/yalo64.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/yalo32.png" />
     <title>Yalo App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
       content="Explore the best features to support your work and allow you to chat with your friends and family. All are optimized for your computer!"
@@ -14,10 +19,11 @@
       property="og:description"
       content="Explore the best features to support your work and allow you to chat with your friends and family. All are optimized for your computer!"
     />
-    <meta property="og:url" content="https:yalo.vercel.app" />
+    <meta property="og:url" content="https://yalo.vercel.app" />
   </head>
   <body>
     <div id="root"></div>
+    <script src="/tw-theme.js"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

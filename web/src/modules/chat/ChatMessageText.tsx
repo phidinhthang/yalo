@@ -20,7 +20,7 @@ export const ChatMessageText = ({ text }: ChatMessageTextProps) => {
         if (v in emojiMap) {
           acc.push(
             `<span style="width: 36px; height: 36px; display: inline-block; margin: 0 4px; border-radius: 4px;">
-              <img src="${e(emojiMap[v].imageUrl)}" alt="${e(
+              <img src="/emotes${e(emojiMap[v].imageUrl)}" alt="${e(
               emojiMap[v].name
             )}" style="width: 36px; height: 36px; object-fit: cover"/></span>`
           );
@@ -29,10 +29,15 @@ export const ChatMessageText = ({ text }: ChatMessageTextProps) => {
         }
       } else if (t === 'mention') {
         acc.push(`@${e(v)}`);
-      }  else if ( t === 'link'){
-        acc.push(`<a href="${e(v)}" style="color: blue; text-decoration: underline" target="_blank">${e(v)}</a>`)
-      }
-      else {
+      } else if (t === 'link') {
+        acc.push(
+          `<a href="${e(
+            v
+          )}" style="color: blue; text-decoration: underline" target="_blank">${e(
+            v
+          )}</a>`
+        );
+      } else {
         acc.push(e(v));
       }
     });

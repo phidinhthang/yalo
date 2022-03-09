@@ -1,0 +1,21 @@
+{
+  "name": "Yalo",
+  "short_name": "Yalo",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "white",
+  "theme_color": "white",
+  "icons": [
+    {
+      "src": "/img/yalo256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/yalo512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

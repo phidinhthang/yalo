@@ -17,7 +17,7 @@ export const EmojiPicker = ({ onPicked }: EmojiPickerProps) => {
             }}
           >
             <img
-              src={`/public${e.imageUrl}`}
+              src={`/emotes${e.imageUrl}`}
               alt={e.name}
               className='w-8 h-8 object-cover'
             />

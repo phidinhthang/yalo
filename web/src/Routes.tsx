@@ -4,7 +4,6 @@ import { LoginPage } from './modules/auth/LoginPage';
 import { RegisterPage } from './modules/auth/RegisterPage';
 import { ConversationPage } from './modules/conversation/ConversationPage';
 import { MainPage } from './modules/main/MainPage';
-import { Switch } from './ui/Switch';
 import { useDarkMode } from './shared-hooks/useDarkMode';
 
 export const Routers = React.memo(() => {
@@ -15,16 +14,7 @@ export const Routers = React.memo(() => {
       <Route path='/login' element={<LoginPage />} />
       <Route path='/register' element={<RegisterPage />} />
       <Route path='/conversations' element={<ConversationPage />} />
-      <Route
-        path='test'
-        element={
-          <Switch
-            onClick={(on) => {
-              if (typeof setEnabled === 'function') setEnabled(on);
-            }}
-          />
-        }
-      />
+      <Route path='test' element={<div>test page</div>} />
     </Routes>
   );
 });

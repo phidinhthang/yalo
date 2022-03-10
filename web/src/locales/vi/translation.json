@@ -6,7 +6,15 @@
     "passwordPlaceholder": "Nhập mật khẩu...",
     "login": "Đăng nhập",
     "register": "Đăng kí",
-    "logout": "Đăng xuất",
+    "logout": {
+      "label": "Đăng xuất",
+      "success": "Đăng xuất thành công!",
+      "confirm": "Bạn có chắc muốn đăng xuất không ?"
+    },
+    "welcome": {
+      "to": "Chào mừng đến với",
+      "description1": "Khám phá những tiện ích hỗ trợ làm việc và trò chuyện cùng người thân, bạn bè được tối ưu hóa cho máy tính của bạn."
+    },
     "conversations": "Cuộc hội thoại",
     "users": "Người dùng",
     "ago": "{{ time, ago }}"
@@ -14,7 +22,17 @@
   "pages": {
     "login": {
       "dontHaveAccount": "Chưa có tài khoản ?",
-      "success": "Đăng nhập thành công!"
+      "success": "Đăng nhập thành công!",
+      "errors": {
+        "username": {
+          "length": "Tên tài khoản bao gồm tối thiểu 3 kí tự và tối đa 255 kí tự.",
+          "empty": "Tên tài khoản không được bỏ trống."
+        },
+        "password": {
+          "length": "Mật khẩu bao gồm tối thiểu 3 kí tự và tối đa 255 kí tự.",
+          "empty": "Mật khẩu không được bỏ trống."
+        }
+      }
     },
     "register": {
       "haveAccount": "Đã có tài khoản ?",
@@ -29,7 +47,15 @@
       "label": "Tạo nhóm",
       "success": "Tạo nhóm thành công!",
       "failure": "Tạo nhóm thất bại!",
-      "placeholder": "Nhập tên nhóm..."
+      "placeholder": "Nhập tên nhóm...",
+      "errors": {
+        "title": {
+          "empty": "Tên nhóm không được bỏ trống."
+        },
+        "memberIds": {
+          "minSize": "Nhóm phải bao gồm ít nhất 2 thành viên."
+        }
+      }
     },
     "delete": "Xóa nhóm",
     "added": "Bạn đã được thêm vào nhóm \"{{ title }}\"",

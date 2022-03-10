@@ -1,17 +1,18 @@
 import React from 'react';
 
 interface SwitchProps {
-  onClick: (isOn: boolean) => void;
+  onClick?: (isOn: boolean) => void;
+  initialValue?: boolean;
 }
 
-export const Switch = ({ onClick }: SwitchProps) => {
-  const [onMode, setOnMode] = React.useState(false);
+export const Switch = ({ onClick, initialValue }: SwitchProps) => {
+  const [onMode, setOnMode] = React.useState(initialValue);
   const toggleClass = ' transform translate-x-6';
   return (
     <div
       className='md:w-14 md:h-7 w-12 h-6 flex items-center bg-gray-200 dark:bg-dark-300 rounded-full p-1 cursor-pointer'
       onClick={() => {
-        onClick(!onMode);
+        onClick?.(!onMode);
         setOnMode((on) => !on);
       }}
     >

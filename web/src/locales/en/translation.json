@@ -6,7 +6,15 @@
     "passwordPlaceholder": "Enter your password...",
     "login": "Login",
     "register": "Register",
-    "logout": "Logout",
+    "logout": {
+      "label": "Logout",
+      "success": "Logout successfully!",
+      "confirm": "Are you sure to logout ?"
+    },
+    "welcome": {
+      "to": "Welcome to",
+      "description1": "Explore the best features to support your work and allow you to chat with your friends and family. All are optimized for your computer!"
+    },
     "hello": "hello",
     "conversations": "Conversations",
     "users": "Users",
@@ -15,7 +23,17 @@
   "pages": {
     "login": {
       "dontHaveAccount": "don't have an account?",
-      "success": "Login successfully!"
+      "success": "Login successfully!",
+      "errors": {
+        "username": {
+          "length": "username must be longer than or equal to 3 characters and less than or equal 255 characters",
+          "empty": "username should not be empty"
+        },
+        "password": {
+          "length": "password must be longer than or equal to 3 characters and less than or euqal to 255 characters",
+          "empty": "username should not be empty"
+        }
+      }
     },
     "register": {
       "haveAccount": "already have an account?",
@@ -30,7 +48,15 @@
       "label": "Create group",
       "success": "Create group successfully!",
       "failure": "Create group failure!",
-      "placeholder": "Enter group name..."
+      "placeholder": "Enter group name...",
+      "errors": {
+        "title": {
+          "empty": "title should not be empty."
+        },
+        "memberIds": {
+          "minSize": "conversation must contains at least 2 members."
+        }
+      }
     },
     "delete": "Delete group",
     "added": "You were added to group conversation \"{{ title }}\"",

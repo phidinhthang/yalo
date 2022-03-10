@@ -7,7 +7,7 @@ import { useTypeSafeUpdateQuery } from '../../shared-hooks/useTypeSafeUpdateQuer
 import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
 import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
-import { useTranslation } from 'react-i18next';
+import { useDocumentTitle } from '../../shared-hooks/useDocumentTitle';
 
 export const LoginPage = () => {
   const hasTokens = useTokenStore((s) => !!(s.accessToken && s.refreshToken));
@@ -15,16 +15,17 @@ export const LoginPage = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const { mutate, error, isLoading } = useTypeSafeMutation('login');
+  const { mutate: login, error, isLoading } = useTypeSafeMutation('login');
   const updateQuery = useTypeSafeUpdateQuery();
-  const { t } = useTypeSafeTranslation();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTypeSafeTranslation();
 
   useEffect(() => {
     if (hasTokens) {
       navigate('/');
     }
   }, [hasTokens, navigate]);
+
+  useDocumentTitle(`Yalo - ${t('common.login')}`);
 
   return (
     <>
@@ -33,7 +34,7 @@ export const LoginPage = () => {
           className='w-full px-4 max-w-[480px] mx-auto'
           onSubmit={(e) => {
             e.preventDefault();
-            mutate([{ username, password }], {
+            login([{ username, password }], {
               onSuccess: (data) => {
                 setTokens({
                   accessToken: data.token.access,
@@ -68,7 +69,9 @@ export const LoginPage = () => {
                   className='mt-1 text-sm text-red-600 dark:text-red-500'
                   key={idx}
                 >
-                  {e}
+                  {i18n.exists(`pages.login.errors.username.${e}`)
+                    ? t(`pages.login.errors.username.${e}` as any)
+                    : e}
                 </p>
               ))}
             </div>
@@ -93,7 +96,9 @@ export const LoginPage = () => {
                 className='mt-1 text-sm text-red-600 dark:text-red-500'
                 key={idx}
               >
-                {e}
+                {i18n.exists(`pages.login.errors.password.${e}`)
+                  ? t(`pages.login.errors.password.${e}` as any)
+                  : e}
               </p>
             ))}
           </div>

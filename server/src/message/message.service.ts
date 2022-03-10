@@ -20,6 +20,9 @@ export class MessageService {
     conversationId: number,
     createMessageDto: CreateMessageDto,
   ) {
+    if (createMessageDto.text && createMessageDto.text.length === 0) {
+      return false;
+    }
     await this.memberService.isMemberOrThrow(senderId, conversationId);
     const message = this.messageRepository.create({
       creator: senderId,

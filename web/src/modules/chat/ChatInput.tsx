@@ -140,6 +140,37 @@ export const ChatInput = () => {
     return () => clearMsg();
   }, [location]);
 
+  const sendMessage = () => {
+    const message = serialize(editor as any);
+
+    if (!message.length) return;
+
+    createMessage([{ conversationId: conversationOpened!, text: message }], {
+      onSuccess: (data) => {
+        if (!('id' in data)) return;
+        updateInfiniteQuery(
+          ['getPaginatedMessages', conversationOpened!],
+          (messages) => {
+            if (!messages) return messages;
+            messages.pages[0].data.unshift(data);
+            return messages;
+          }
+        );
+        updateQuery('getPaginatedConversations', (conversations) => {
+          conversations
+            ?.filter((c) => c.id === data.conversation)
+            .map((c) => {
+              c.lastMessage = data;
+              return c;
+            });
+
+          return conversations;
+        });
+        clearMsg();
+      },
+    });
+  };
+
   const onKeyDown = React.useCallback(
     (event: React.KeyboardEvent, editor: ReactEditor) => {
       if (target && chars) {
@@ -168,7 +199,10 @@ export const ChatInput = () => {
         }
       }
 
-      if (event.key === 'Enter') event.preventDefault();
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        sendMessage();
+      }
     },
     [index, search, target]
   );
@@ -178,37 +212,7 @@ export const ChatInput = () => {
       className='flex items-start relative text-gray-900 bg-gray-50 rounded-lg border-2 border-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white p-2.5'
       onSubmit={(e) => {
         e.preventDefault();
-        const message = serialize(editor as any);
-
-        if (!message.length) return;
-
-        createMessage(
-          [{ conversationId: conversationOpened!, text: message }],
-          {
-            onSuccess: (data) => {
-              if (!('id' in data)) return;
-              updateInfiniteQuery(
-                ['getPaginatedMessages', conversationOpened!],
-                (messages) => {
-                  if (!messages) return messages;
-                  messages.pages[0].data.unshift(data);
-                  return messages;
-                }
-              );
-              updateQuery('getPaginatedConversations', (conversations) => {
-                conversations
-                  ?.filter((c) => c.id === data.conversation)
-                  .map((c) => {
-                    c.lastMessage = data;
-                    return c;
-                  });
-
-                return conversations;
-              });
-              clearMsg();
-            },
-          }
-        );
+        sendMessage();
       }}
     >
       <Slate

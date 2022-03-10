@@ -12,12 +12,12 @@ import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslatio
 
 export const CreateGroupConversationWidget = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const { t } = useTypeSafeTranslation();
+  const { t, i18n } = useTypeSafeTranslation();
   const [title, setTitle] = React.useState('');
   const { data: users } = useTypeSafeQuery('findAll');
   const { data: me } = useTypeSafeQuery('me');
   const [memberIds, setMemberIds] = React.useState<number[]>([]);
-  const { mutate: createGroupConversation } = useTypeSafeMutation(
+  const { mutate: createGroupConversation, error } = useTypeSafeMutation(
     'createGroupConversation'
   );
   const clearModalState = () => {
@@ -73,6 +73,28 @@ export const CreateGroupConversationWidget = () => {
           </div>
         }
       >
+        <div>
+          {error?.errors.title?.map((e, idx) => (
+            <p
+              key={idx}
+              className='mt-1 text-sm text-red-600 dark:text-red-500'
+            >
+              {i18n.exists(`conversation.create.errors.title.${e}`)
+                ? t(`conversation.create.errors.title.${e}` as any)
+                : e}
+            </p>
+          ))}
+          {error?.errors.memberIds?.map((e, idx) => (
+            <p
+              key={idx}
+              className='mt-1 text-sm text-red-600 dark:text-red-500'
+            >
+              {i18n.exists(`conversation.create.errors.memberIds.${e}`)
+                ? t(`conversation.create.errors.memberIds.${e}` as any)
+                : e}
+            </p>
+          ))}
+        </div>
         <Input
           placeholder={t('conversation.create.placeholder')}
           value={title}

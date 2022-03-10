@@ -47,7 +47,7 @@ export const ChatMessageText = ({ text }: ChatMessageTextProps) => {
 
   return (
     <div
-      className='inline-block'
+      className='inline-block dark:text-white'
       dangerouslySetInnerHTML={{ __html: content }}
     />
   );

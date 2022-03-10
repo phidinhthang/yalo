@@ -130,11 +130,10 @@ export const ChatBox = () => {
       <div className='h-full flex items-center justify-center text-center'>
         <div>
           <h2 className='text-2xl mb-3'>
-            Welcome to <b>yalo!</b>
+            {t('common.welcome.to' as any)} <b>yalo!</b>
           </h2>
           <p className='w-full px-2 max-w-[480px] mx-auto'>
-            Explore the best features to support your work and allow you to chat
-            with your friends and family. All are optimized for your computer!
+            {t('common.welcome.description1' as any)}
           </p>
         </div>
       </div>
@@ -248,8 +247,8 @@ export const ChatBox = () => {
                 >
                   <p>
                     {m.isDeleted ? (
-                      <span className='italic text-gray-500'>
-                        message has been deleted
+                      <span className='italic text-gray-500 dark:text-white'>
+                        {t('message.deleted')}
                       </span>
                     ) : (
                       <ChatMessageText text={m.text} />
@@ -257,7 +256,7 @@ export const ChatBox = () => {
                   </p>
                   <div className='flex'>
                     <div className='flex-grow'></div>
-                    <p className='text-sm italic text-gray-500'>
+                    <p className='text-sm italic text-gray-500 dark:text-gray-300'>
                       {formatDistanceToNow(new Date(m.createdAt))}
                     </p>
                     {seenText && p_idx === 0 && m_idx === 0 ? (
@@ -273,7 +272,7 @@ export const ChatBox = () => {
                   >
                     <div>
                       <button
-                        className='w-6 h-6 rounded-full flex items-center justify-center bg-white border hover:bg-gray-100'
+                        className='w-6 h-6 rounded-full flex items-center justify-center bg-white dark:bg-dark-500 border dark:border-dark-900 hover:bg-gray-100'
                         onClick={() => {
                           deleteMessage([m.id], {
                             onSuccess: () => {

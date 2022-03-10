@@ -11,6 +11,7 @@ import { useChatStore } from '../chat/useChatStore';
 import { useWsStore } from '../auth/useWsStore';
 import { Modal } from '../../ui/Modal';
 import { Button } from '../../ui/Button';
+import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
 
 export const AvatarMenu = () => {
   const [isOpenDropdown, setIsOpenDropdown] = React.useState(false);
@@ -23,6 +24,7 @@ export const AvatarMenu = () => {
   const { data: me } = useTypeSafeQuery('me');
   const { ws } = useWsStore();
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const { t } = useTypeSafeTranslation();
 
   useOnClickOutside(dropdownRef, () => {
     setIsOpenDropdown(false);
@@ -34,7 +36,7 @@ export const AvatarMenu = () => {
     navigate('/login');
     queryClient.clear();
     setConversationOpened(null);
-    toast.success('Logout successfully!');
+    toast.success(t('common.logout.success'));
   };
 
   React.useEffect(() => {
@@ -64,13 +66,13 @@ export const AvatarMenu = () => {
               }}
               href='#'
             >
-              logout
+              {t('common.logout.label')}
             </a>
           </li>
         </div>
       </div>
       <Modal
-        title='Logout'
+        title={t('common.logout.label')}
         isOpen={isModalOpen}
         onRequestClose={(e) => {
           setIsModalOpen(false);
@@ -84,7 +86,7 @@ export const AvatarMenu = () => {
           </div>
         }
       >
-        Are you sure to logout ?
+        {t('common.logout.confirm')}
       </Modal>
     </>
   );

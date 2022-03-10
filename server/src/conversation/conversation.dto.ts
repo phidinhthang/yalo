@@ -6,9 +6,9 @@ export class FindOrCreatePrivateConversationDto {
 }
 
 export class CreateGroupConversationDto {
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'empty' })
   title: string;
 
-  @ArrayMinSize(2)
+  @ArrayMinSize(2, { message: 'minSize' })
   memberIds: number[];
 }

@@ -11,9 +11,10 @@ interface DateTranslationType {
 }
 
 export const useTypeSafeTranslation = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   t('fdasf', {});
   return {
     t: (s: TranslationKeys, f?: DateTranslationType) => t(s, f),
+    i18n,
   };
 };

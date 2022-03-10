@@ -1,5 +1,5 @@
-import { formatDistanceToNow } from 'date-fns';
 import { User } from '../../lib/entities';
+import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
 import { Avatar } from '../../ui/Avatar';
 
 interface UserItemProps {
@@ -13,6 +13,7 @@ export const UserItem: React.FC<UserItemProps> = ({
   onClick,
   className = '',
 }) => {
+  const { t } = useTypeSafeTranslation();
   return (
     <div onClick={onClick} className={`flex ${className}`}>
       <Avatar
@@ -25,9 +26,7 @@ export const UserItem: React.FC<UserItemProps> = ({
         <div>{user.username}</div>
         <div className='text-sm text-gray-500 italic'>
           {!user.isOnline && user.lastLoginAt
-            ? formatDistanceToNow(new Date(user.lastLoginAt), {
-                addSuffix: true,
-              })
+            ? t('common.ago', { time: new Date(user.lastLoginAt) })
             : null}
         </div>
       </div>

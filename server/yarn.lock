@@ -132,22 +132,22 @@
     mikro-orm "^5.0.0"
     reflect-metadata "0.1.13"
 
-"@mikro-orm/knex@^5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@mikro-orm/knex/-/knex-5.0.2.tgz#6a197900089bb7cbd9098cea78d0bc2aa3543d64"
-  integrity sha512-C1uq5qNctpFgBZ630UlCO6xML/TwfAWo7VYGBQPxW1Zg/13XHc0Y22GZg0xT0tzsA/lw9U6GlZ2wVHMqYnm4CQ==
+"@mikro-orm/knex@^5.0.2", "@mikro-orm/knex@^5.0.5":
+  version "5.0.5"
+  resolved "https://registry.yarnpkg.com/@mikro-orm/knex/-/knex-5.0.5.tgz#baf3273e405cfcde3ec5d95b444899bc41afb34a"
+  integrity sha512-dhdqpd0MbaCpVFAeJeQsrskx/djaWGq/DVIn4tpo9xD8DF0b+FU4ejWpU4DdLlWNakvVRt4zfp8tw1WH27BusQ==
   dependencies:
-    fs-extra "10.0.0"
+    fs-extra "10.0.1"
     knex "1.0.3"
     sqlstring "2.3.2"
 
-"@mikro-orm/migrations@^5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@mikro-orm/migrations/-/migrations-5.0.2.tgz#41315a8c20a77b98f2196433fcf3664504f7b66d"
-  integrity sha512-CNuRCzhilc8VgP+e2vpFUAGit/NTt8qpEVNRy/C93V7Vtj/homwauDNGkR5y8Z3ZEP7y8dEapv3Ykv4jTfzLZw==
+"@mikro-orm/migrations@^5.0.5":
+  version "5.0.5"
+  resolved "https://registry.yarnpkg.com/@mikro-orm/migrations/-/migrations-5.0.5.tgz#cac55741635ca4cf5575f61f89eae2d0453a5ff2"
+  integrity sha512-75cui50nFYR9OWUnCsZogwk2ORJPB6ScsjUpACImu0WGhpTls2JGGNVB5bHJkM2x+zs0I5KJUCofTsrd9OcQZg==
   dependencies:
-    "@mikro-orm/knex" "^5.0.2"
-    fs-extra "10.0.0"
+    "@mikro-orm/knex" "^5.0.5"
+    fs-extra "10.0.1"
     knex "1.0.3"
     umzug "3.0.0"
 
@@ -1727,6 +1727,15 @@ fs-extra@10.0.0:
   version "10.0.0"
   resolved "https://registry.npmjs.org/fs-extra/-/fs-extra-10.0.0.tgz"
   integrity sha512-C5owb14u9eJwizKGdchcDUQeFtlSHHthBk8pbX9Vc1PFZrLombudjDnNns88aYslCyF6IY5SUw3Roz6xShcEIQ==
+  dependencies:
+    graceful-fs "^4.2.0"
+    jsonfile "^6.0.1"
+    universalify "^2.0.0"
+
+fs-extra@10.0.1:
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-10.0.1.tgz#27de43b4320e833f6867cc044bfce29fdf0ef3b8"
+  integrity sha512-NbdoVMZso2Lsrn/QwLXOy6rm0ufY2zEOKCDzJR/0kBsb0E6qed0P3iYK+Ath3BfvXEeu4JhEtXLgILx5psUfag==
   dependencies:
     graceful-fs "^4.2.0"
     jsonfile "^6.0.1"

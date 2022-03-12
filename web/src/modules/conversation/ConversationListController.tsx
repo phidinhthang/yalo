@@ -23,7 +23,7 @@ const MainSkeleton = () => {
 };
 
 export const ConversationListController = () => {
-  const { setConversationOpened, setMessage } = useChatStore();
+  const { setConversationOpened } = useChatStore();
   const { data: conversations, isLoading: isConversationsLoading } =
     useTypeSafeQuery('getPaginatedConversations');
   const { data: me, isLoading: isMeLoading, isError } = useTypeSafeQuery('me');
@@ -42,7 +42,6 @@ export const ConversationListController = () => {
           conversation={c}
           onOpened={(id: number) => {
             setConversationOpened(id);
-            setMessage('');
             wConn.mutation.markReadMsg(id).then(() => {});
             if (!isDesktopScreen) navigate('/');
           }}

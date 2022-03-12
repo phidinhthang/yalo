@@ -66,8 +66,7 @@ const MainSkeleton = () => {
 };
 
 export const ChatBox = () => {
-  const { conversationOpened, setConversationOpened, message, setMessage } =
-    useChatStore();
+  const { conversationOpened, setConversationOpened, typings } = useChatStore();
   const [ref, inView] = useInView();
   const isDesktopScreen = useIsDesktopScreen();
   const navigate = useNavigate();
@@ -156,7 +155,6 @@ export const ChatBox = () => {
               onClick={() => {
                 navigate('/conversations');
                 setConversationOpened(null);
-                setMessage('');
               }}
             >
               <SvgSolidArrowLeft />
@@ -315,7 +313,17 @@ export const ChatBox = () => {
         )}
         {hasNextPage ? <div ref={ref} className='pb-1'></div> : null}
       </div>
-      <ChatInput />
+      <div>
+        <div className=''>
+          <div>
+            {typings[conversationOpened]?.length
+              ? `${typings[conversationOpened].join(', ')} is typing...`
+              : null}
+          </div>
+          <div className='border h-12'></div>
+        </div>
+        <ChatInput />
+      </div>
     </div>
   );
 };

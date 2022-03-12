@@ -1,5 +1,6 @@
 import { UseGuards } from '@nestjs/common';
 import {
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
@@ -68,10 +69,9 @@ export class AppGateway
     }
   }
 
-  // @UseGuards(WsAuthGuard)
-  // @SubscribeMessage('toggle_online')
-  // toggleOnline(@MeId() userId: number) {
-  //   console.log('toggle online userId ', userId);
-  //   this.socketService.toggleOnlineStatus(userId);
-  // }
+  @UseGuards(WsAuthGuard)
+  @SubscribeMessage('typing')
+  typingMessage(@MeId() userId: number, @MessageBody() conversationId: number) {
+    return this.socketService.typingMessage(userId, conversationId);
+  }
 }

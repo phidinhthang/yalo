@@ -2,6 +2,7 @@ import { Server } from 'socket.io';
 import { EntityManager } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common/decorators';
 import { User } from 'src/user/user.entity';
+import { Member } from 'src/member/member.entity'
 import { MemberRepository } from 'src/member/member.repository';
 import { Conversation } from 'src/conversation/conversation.entity';
 
@@ -44,6 +45,24 @@ export class SocketService {
     console.log('member ids ', users);
     users.forEach((u) => {
       this.socket.to(`${u.id}`).emit('new_message', message);
+    });
+  }
+
+  async typingMessage(meId: number, conversationId: number) {
+    const typingUser = await this.em.fork().findOneOrFail(User, meId);
+    const members = await this.em.fork().find(Member, {
+      conversation: conversationId,
+    });
+    const isUserMember = members?.find(m => m.user.id === meId)
+    if (!isUserMember) {
+      return false
+    }
+    const users = members?.map((m) => m.user).filter((u) => u.id !== meId);
+    users?.forEach((u) => {
+      this.socket.to(`${u.id}`).emit('user_typing', {
+        conversationId: conversationId,
+        user: typingUser,
+      });
     });
   }
 

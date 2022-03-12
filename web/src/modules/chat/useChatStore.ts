@@ -5,12 +5,30 @@ export const useChatStore = create(
   combine(
     {
       conversationOpened: null as null | number,
-      message: '',
+      typings: {} as Record<string, string[]>,
     },
-    (set) => ({
-      setMessage: (message: string) => set({ message }),
+    (set, get) => ({
       setConversationOpened: (conversationId: number | null) =>
         set({ conversationOpened: conversationId }),
+      addTyping: (conversationId: number, username: string) => {
+        const typings = { ...get().typings };
+        if (typings[conversationId] && Array.isArray(typings[conversationId])) {
+          typings[conversationId] = typings[conversationId].filter(
+            (u) => u !== username
+          );
+          typings[conversationId].push(username);
+        } else {
+          typings[conversationId] = [username];
+        }
+        set({ typings });
+        setTimeout(() => {
+          const typings = { ...get().typings };
+          typings[conversationId] = typings[conversationId].filter(
+            (u) => u !== username
+          );
+          set({ typings });
+        }, 4000);
+      },
     })
   )
 );

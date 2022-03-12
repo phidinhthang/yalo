@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { io } from 'socket.io-client';
 import { toast } from 'react-toastify';
-import { Message, Conversation } from '../lib/entities';
+import { Message, Conversation, User } from '../lib/entities';
 import { useRefreshToken } from '../modules/auth/useRefreshToken';
 import { useTokenStore } from '../modules/auth/useTokenStore';
 import { useWsStore } from '../modules/auth/useWsStore';
@@ -80,6 +80,20 @@ export const useMainWsHandler = () => {
         return conversations;
       });
     });
+
+    ws?.on(
+      'user_typing',
+      ({
+        conversationId,
+        user,
+      }: {
+        conversationId: number;
+        user: Omit<User, 'password'>;
+      }) => {
+        const addTyping = useChatStore.getState().addTyping;
+        addTyping(conversationId, user.username);
+      }
+    );
 
     ws?.on('new_message', async (message: Message) => {
       console.log('new_message', message);
@@ -230,6 +244,7 @@ export const useMainWsHandler = () => {
     return () => {
       ws?.off('toggle_online');
       ws?.off('toggle_offline');
+      ws?.off('user_typing');
       ws?.off('new_message');
       ws?.off('delete_message');
       ws?.off('update_mark_read');

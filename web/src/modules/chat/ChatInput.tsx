@@ -18,6 +18,7 @@ import {
   RenderElementProps,
   RenderLeafProps,
 } from 'slate-react';
+import throttle from 'lodash.throttle';
 import { Prism } from '../../utils/Prism';
 
 import { CustomEmote, CustomText, MentionElement } from '../../global';
@@ -35,6 +36,7 @@ import {
   useTypeSafeUpdateInfiniteQuery,
   useTypeSafeUpdateQuery,
 } from '../../shared-hooks/useTypeSafeUpdateQuery';
+import { useWsStore } from '../auth/useWsStore';
 
 const initialValue = [{ type: 'paragraph', children: [{ text: '' }] }];
 
@@ -54,6 +56,7 @@ export const ChatInput = () => {
   const members = conversation?.members;
   const { data: me } = useTypeSafeQuery('me');
   const location = useLocation();
+  const ws = useWsStore().ws;
   const renderElement = React.useCallback(
     (props) => <Element {...props} />,
     []
@@ -140,6 +143,13 @@ export const ChatInput = () => {
     return () => clearMsg();
   }, [location]);
 
+  const newTyping = throttle(() => {
+    console.log('typing...')
+    if (conversationOpened) {
+      ws?.emit('typing', conversationOpened);
+    }
+  }, 2000);
+
   const sendMessage = () => {
     const message = serialize(editor as any);
 
@@ -173,6 +183,7 @@ export const ChatInput = () => {
 
   const onKeyDown = React.useCallback(
     (event: React.KeyboardEvent, editor: ReactEditor) => {
+      newTyping();
       if (target && chars) {
         switch (event.key) {
           case 'ArrowDown':

@@ -6,14 +6,12 @@ import { ConversationType } from './conversation.entity';
 import { CreateGroupConversationDto } from './conversation.dto';
 import { UserRepository } from 'src/user/user.repository';
 import { SocketService } from 'src/socket/socket.service';
-import { MemberService } from '../member/member.service';
 import { MemberRepository } from '../member/member.repository';
 
 @Injectable()
 export class ConversationService {
   constructor(
     private readonly conversationRepository: ConversationRepository,
-    private readonly memberService: MemberService,
     private readonly memberRepository: MemberRepository,
     private readonly userRepository: UserRepository,
     private readonly orm: MikroORM,
@@ -101,7 +99,7 @@ export class ConversationService {
 
   async leaveGroupConversation(meId: number, conversationId: number) {
     let conversationDeletedReason: undefined | 'admin_leave' | 'member_count';
-    await this.memberService.isMemberOrThrow(meId, conversationId);
+    await this.memberRepository.isMemberOrThrow(meId, conversationId);
     const conversation = await this.conversationRepository.findOne(
       { id: conversationId, type: ConversationType.GROUP },
       { populate: ['members'] },
@@ -136,7 +134,7 @@ export class ConversationService {
   }
 
   async deleteGroupConversation(meId: number, conversationId: number) {
-    await this.memberService.isMemberOrThrow(meId, conversationId);
+    await this.memberRepository.isMemberOrThrow(meId, conversationId);
     const conversation = await this.conversationRepository.findOne(
       { admin: meId, type: ConversationType.GROUP, id: conversationId },
       { populate: ['members'] },

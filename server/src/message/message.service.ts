@@ -2,15 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { CreateMessageDto } from './message.dto';
 import { MessageRepository } from './message.repository';
 import { ConversationRepository } from '../conversation/conversation.repository';
-import { MemberService } from 'src/member/member.service';
 import { SocketService } from 'src/socket/socket.service';
 import { BadRequestException } from '@nestjs/common';
+import { MemberRepository } from 'src/member/member.repository';
 
 @Injectable()
 export class MessageService {
   constructor(
     private readonly messageRepository: MessageRepository,
-    private readonly memberService: MemberService,
+    private readonly memberRepository: MemberRepository,
     private readonly conversationRepository: ConversationRepository,
     private readonly socketService: SocketService,
   ) {}
@@ -23,7 +23,7 @@ export class MessageService {
     if (createMessageDto.text && createMessageDto.text.length === 0) {
       return false;
     }
-    await this.memberService.isMemberOrThrow(senderId, conversationId);
+    await this.memberRepository.isMemberOrThrow(senderId, conversationId);
     const message = this.messageRepository.create({
       creator: senderId,
       conversation: conversationId,
@@ -64,7 +64,7 @@ export class MessageService {
   ) {
     limit = Math.min(limit || 3, 20);
     const limitPlusOne = limit + 1;
-    await this.memberService.isMemberOrThrow(meId, conversationId);
+    await this.memberRepository.isMemberOrThrow(meId, conversationId);
     const opts = nextCursor
       ? {
           createdAt: { $lte: nextCursor },

@@ -13,6 +13,10 @@ import { CreateMessageDto } from './message.dto';
 import { HttpAuthGuard } from 'src/common/guards/httpAuth.guard';
 import { MeId } from 'src/common/decorators/meId.decorator';
 import { Delete } from '@nestjs/common';
+import { UseInterceptors } from '@nestjs/common';
+import { FilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
+import { FilesToBodyInterceptor } from 'src/common/file.interceptor';
+import { ApiConsumes } from '@nestjs/swagger';
 
 @Controller('message')
 export class MessageController {
@@ -20,6 +24,8 @@ export class MessageController {
 
   @UseGuards(HttpAuthGuard)
   @Post('create/:conversationId')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FilesInterceptor('images'), FilesToBodyInterceptor)
   async create(
     @MeId() userId: number,
     @Param('conversationId', new ParseIntPipe()) conversationId: number,

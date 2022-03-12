@@ -51,11 +51,20 @@ export const wrap = (connection: Connection) => ({
       | ErrorResponse<'username' | 'password'>
     > => connection.send('/users/register', { body: JSON.stringify(data) }),
     createMessage: (
-      data: Pick<Message, 'text'> & { conversationId: number }
-    ): Promise<Message | ErrorResponse> =>
-      connection.send(`/message/create/${data.conversationId}`, {
-        body: JSON.stringify(data),
-      }),
+      data: Pick<Message, 'text'> & { conversationId: number } & {
+        images?: File[];
+      }
+    ): Promise<Message | ErrorResponse> => {
+      const formData = new FormData();
+      console.log('data ', data);
+      if (data.text) formData.append('text', data.text);
+      data.images?.forEach((i, idx) => formData.append(`images`, i));
+
+      console.log('form data', Array.from(formData));
+      return connection.send(`/message/create/${data.conversationId}`, {
+        body: formData,
+      });
+    },
     deleteMessage: (messageId: number) =>
       connection.send(`/message/${messageId}`, { method: 'DELETE' }),
     markReadMsg: (conversationId: number) =>

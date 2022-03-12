@@ -92,6 +92,7 @@ export const ChatBox = () => {
   );
   const { data: me } = useTypeSafeQuery('me');
   const { mutate: deleteMessage } = useTypeSafeMutation('deleteMessage');
+  const { mutate: createMessage } = useTypeSafeMutation('createMessage');
   const chatInfoRef = React.useRef<HTMLDivElement | null>(null);
 
   useOnClickOutside(chatInfoRef, () => {
@@ -116,6 +117,8 @@ export const ChatBox = () => {
   const partner = members?.[0].user;
   const isGroup = conversation?.type === 'group';
   const memberMap: Record<number, Member> = {};
+  const uploadFileInputRef = React.useRef<HTMLInputElement>(null);
+  const emptyInputRef = React.useRef<HTMLInputElement>(null);
 
   conversation?.members.forEach((m) => {
     memberMap[m.user.id] = m;
@@ -248,9 +251,16 @@ export const ChatBox = () => {
                       <span className='italic text-gray-500 dark:text-white'>
                         {t('message.deleted')}
                       </span>
-                    ) : (
-                      <ChatMessageText text={m.text} />
-                    )}
+                    ) : m.text ? (
+                      <ChatMessageText text={m.text!} />
+                    ) : null}
+                    {m.images ? (
+                      <div className='flex gap-2'>
+                        {m.images.map((i, idx) => (
+                          <img src={i.url} className='w-52 object-cover' />
+                        ))}
+                      </div>
+                    ) : null}
                   </p>
                   <div className='flex'>
                     <div className='flex-grow'></div>
@@ -320,7 +330,44 @@ export const ChatBox = () => {
               ? `${typings[conversationOpened].join(', ')} is typing...`
               : null}
           </div>
-          <div className='border h-12'></div>
+          <div className='border h-12'>
+            <div>
+              <input
+                hidden
+                ref={uploadFileInputRef}
+                type='file'
+                multiple
+                onChange={(e) => {
+                  console.log('e.target.files', e.target.files);
+                  if (e.target.files?.length) {
+                    createMessage(
+                      [
+                        {
+                          images: Array.from(e.target.files),
+                          conversationId: conversationOpened,
+                        },
+                      ],
+                      {
+                        onSettled: () => {
+                          e.target.files = emptyInputRef.current!.files;
+                        },
+                      }
+                    );
+                  }
+                }}
+              />
+              <input hidden ref={emptyInputRef} multiple />
+              <Button
+                variant='secondary'
+                size='sm'
+                onClick={() => {
+                  uploadFileInputRef.current?.click();
+                }}
+              >
+                upload
+              </Button>
+            </div>
+          </div>
         </div>
         <ChatInput />
       </div>

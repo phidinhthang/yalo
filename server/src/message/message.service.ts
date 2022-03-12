@@ -5,6 +5,8 @@ import { ConversationRepository } from '../conversation/conversation.repository'
 import { SocketService } from 'src/socket/socket.service';
 import { BadRequestException } from '@nestjs/common';
 import { MemberRepository } from 'src/member/member.repository';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { Image } from './message.entity';
 
 @Injectable()
 export class MessageService {
@@ -13,6 +15,7 @@ export class MessageService {
     private readonly memberRepository: MemberRepository,
     private readonly conversationRepository: ConversationRepository,
     private readonly socketService: SocketService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async create(
@@ -20,14 +23,34 @@ export class MessageService {
     conversationId: number,
     createMessageDto: CreateMessageDto,
   ) {
-    if (createMessageDto.text && createMessageDto.text.length === 0) {
+    console.log('create message dto ', createMessageDto);
+
+    if (
+      (createMessageDto.text && createMessageDto.text.length === 0) ||
+      (!createMessageDto.text && !createMessageDto.images?.length)
+    ) {
       return false;
     }
+
+    const uploadPromises = createMessageDto.images?.map(async (imageFile) => {
+      const uploadResponse = await this.cloudinaryService.uploadImage(
+        imageFile,
+      );
+      return uploadResponse;
+    });
+
+    const uploadResponses = await Promise.all(uploadPromises ?? []);
+
+    const images: Image[] = uploadResponses?.map((r) => ({ url: r.url }));
+
+    console.log('images ', images);
+
     await this.memberRepository.isMemberOrThrow(senderId, conversationId);
     const message = this.messageRepository.create({
       creator: senderId,
       conversation: conversationId,
       text: createMessageDto.text,
+      images: images,
     });
     await this.messageRepository.persistAndFlush(message);
     await this.conversationRepository.nativeUpdate(conversationId, {
@@ -46,6 +69,7 @@ export class MessageService {
       throw new BadRequestException();
     }
     message.text = '';
+    message.images = null;
     message.isDeleted = true;
     await this.messageRepository.persistAndFlush(message);
     await this.socketService.deleteMessage(

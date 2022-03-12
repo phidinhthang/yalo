@@ -63,13 +63,19 @@ export const connect = ({ url = apiUrl }: { url?: string }): Connection => {
     send: async (endpoint, init?: RequestInit) => {
       const accessToken = getState().accessToken;
       refresh(accessToken);
-      console.log('body ', init?.body);
+      console.log('body ', init?.body instanceof FormData);
+      const headers = {
+        Authorization: `Bearer ${accessToken}`,
+      };
+      if (!(init?.body instanceof FormData)) {
+        // @ts-ignore
+        headers['Content-Type'] = 'application/json';
+      }
       const r = await fetch(`${url}${endpoint}`, {
         method: init?.method ? init.method : 'POST',
         body: init?.body,
         headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
+          ...headers,
           ...(init?.headers || {}),
         },
       });

@@ -6,6 +6,7 @@ import { Message } from './message.entity';
 import { Conversation } from '../conversation/conversation.entity';
 import { SocketModule } from 'src/socket/socket.module';
 import { Member } from 'src/member/member.entity';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 
 @Module({
   controllers: [MessageController],
@@ -13,6 +14,7 @@ import { Member } from 'src/member/member.entity';
   imports: [
     MikroOrmModule.forFeature({ entities: [Message, Conversation, Member] }),
     SocketModule,
+    CloudinaryModule,
   ],
 })
 export class MessageModule {}

@@ -30,7 +30,8 @@ export type Message = {
   creator: number;
   conversation: number;
   isDeleted: boolean;
-  text: string;
+  text?: string;
+  images?: Array<{ url: string }>;
 };
 
 export type Member = {

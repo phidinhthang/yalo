@@ -144,7 +144,7 @@ export const ChatInput = () => {
   }, [location]);
 
   const newTyping = throttle(() => {
-    console.log('typing...')
+    console.log('typing...');
     if (conversationOpened) {
       ws?.emit('typing', conversationOpened);
     }
@@ -157,6 +157,7 @@ export const ChatInput = () => {
 
     createMessage([{ conversationId: conversationOpened!, text: message }], {
       onSuccess: (data) => {
+        if (typeof data === 'boolean') return;
         if (!('id' in data)) return;
         updateInfiniteQuery(
           ['getPaginatedMessages', conversationOpened!],
@@ -488,7 +489,7 @@ const Emote = ({ attributes, element, children }: RenderElementProps) => {
       >
         <img
           style={{ objectFit: 'cover', width: 32, height: 32 }}
-          src={element.imageUrl}
+          src={`/emotes${element.imageUrl}`}
           alt=''
         />
       </div>

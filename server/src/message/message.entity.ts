@@ -4,6 +4,8 @@ import {
   Entity,
   ManyToOne,
   EntityRepositoryType,
+  Embeddable,
+  Embedded,
 } from '@mikro-orm/core';
 import { User } from '../user/user.entity';
 import { Conversation } from '../conversation/conversation.entity';
@@ -22,12 +24,21 @@ export class Message {
   @ManyToOne(() => Conversation, { onDelete: 'cascade' })
   conversation: Conversation;
 
-  @Property()
-  text: string;
+  @Property({ nullable: true })
+  text?: string;
+
+  @Embedded(() => Image, { nullable: true, object: true, array: true })
+  images?: Image[];
 
   @Property({ default: false, defaultRaw: 'false' })
   isDeleted: boolean = false;
 
   @Property({ defaultRaw: 'CURRENT_TIMESTAMP' })
   createdAt: Date = new Date();
+}
+
+@Embeddable()
+export class Image {
+  @Property({ columnType: 'text' })
+  url: string;
 }

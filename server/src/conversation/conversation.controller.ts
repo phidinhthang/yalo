@@ -13,7 +13,7 @@ import {
 import { MeId } from 'src/common/decorators/meId.decorator';
 import { HttpAuthGuard } from 'src/common/guards/httpAuth.guard';
 import { ValidationPipe } from 'src/common/validation.pipe';
-import { CreateGroupConversationDto } from './conversation.dto';
+import { ChangeTitleDto, CreateGroupConversationDto } from './conversation.dto';
 import { ConversationService } from './conversation.service';
 
 @Controller('conversation')
@@ -40,6 +40,40 @@ export class ConversationController {
       meId,
       createGroupConversationDto,
     );
+  }
+
+  @UseGuards(HttpAuthGuard)
+  @Patch('/:conversationId/title')
+  async changeTitle(
+    @MeId() meId: number,
+    @Param('conversationId', new ParseIntPipe()) conversationId: number,
+    @Body() changeTitleDto: ChangeTitleDto,
+  ) {
+    return this.conversationService.changeTitle(
+      meId,
+      conversationId,
+      changeTitleDto,
+    );
+  }
+
+  @UseGuards(HttpAuthGuard)
+  @Post('/:conversationId/add-members')
+  async addMember(
+    @MeId() meId: number,
+    @Param('conversationId', new ParseIntPipe()) conversationId: number,
+    @Body() userIds: number[],
+  ) {
+    return this.conversationService.addMember(meId, userIds, conversationId);
+  }
+
+  @UseGuards(HttpAuthGuard)
+  @Delete('/:conversationId/:memberId/kick-member')
+  async kickMember(
+    @MeId() meId: number,
+    @Param('conversationId', new ParseIntPipe()) conversationId: number,
+    @Param('memberId', new ParseIntPipe()) memberId: number,
+  ) {
+    return this.conversationService.kickMember(meId, memberId, conversationId);
   }
 
   @UseGuards(HttpAuthGuard)

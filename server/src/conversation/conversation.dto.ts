@@ -12,3 +12,8 @@ export class CreateGroupConversationDto {
   @ArrayMinSize(2, { message: 'minSize' })
   memberIds: number[];
 }
+
+export class ChangeTitleDto {
+  @IsNotEmpty()
+  title: string;
+}

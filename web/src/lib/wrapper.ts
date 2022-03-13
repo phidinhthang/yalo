@@ -1,6 +1,7 @@
 import {
   Conversation,
   ErrorResponse,
+  Member,
   Message,
   Paginated,
   Tokens,
@@ -84,5 +85,9 @@ export const wrap = (connection: Connection) => ({
       conversationId: number
     ): Promise<boolean | ErrorResponse<'conversationId'>> =>
       connection.send(`/conversation/${conversationId}`, { method: 'DELETE' }),
+    addMember: (conversationId: number, userIds: number[]): Promise<Member[]> =>
+      connection.send(`/conversation/${conversationId}/add-members`, {
+        body: JSON.stringify(userIds),
+      }),
   },
 });

@@ -27,6 +27,8 @@ import { useOnClickOutside } from '../../shared-hooks/useOnClickOutside';
 import { SvgSolidTrash } from '../../icons/SolidTrash';
 import { ChatInput } from './ChatInput';
 import { ChatMessageText } from './ChatMessageText';
+import { SvgOutlineUserAdd } from '../../icons/OutlineUserAdd';
+import { Modal } from '../../ui/Modal';
 
 const MainSkeleton = () => {
   const genHeight = () => randomNumber(3, 8) * 12;
@@ -74,6 +76,8 @@ export const ChatBox = () => {
   const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
   const { t } = useTypeSafeTranslation();
   const [isChatInfoBoxOpen, setIsChatInfoBoxOpen] = React.useState(false);
+  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = React.useState(false);
+  const [selectedUserIds, setSelectedUserIds] = React.useState<number[]>([]);
   const {
     data: messages,
     isLoading,
@@ -91,6 +95,8 @@ export const ChatBox = () => {
     [{ conversationId: conversationOpened! }]
   );
   const { data: me } = useTypeSafeQuery('me');
+  const { data: users } = useTypeSafeQuery('findAll');
+  const { mutate: addMember } = useTypeSafeMutation('addMember');
   const { mutate: deleteMessage } = useTypeSafeMutation('deleteMessage');
   const { mutate: createMessage } = useTypeSafeMutation('createMessage');
   const chatInfoRef = React.useRef<HTMLDivElement | null>(null);
@@ -189,7 +195,110 @@ export const ChatBox = () => {
           </div>
         </div>
         <div>
-          <div>
+          <div className='flex items-center gap-2'>
+            {conversation.type === 'group' ? (
+              <button
+                className='w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-50'
+                onClick={() => setIsAddMemberModalOpen((o) => !o)}
+              >
+                <SvgOutlineUserAdd />
+              </button>
+            ) : null}
+            <Modal
+              title='Add member'
+              isOpen={isAddMemberModalOpen}
+              onRequestClose={() => {
+                setIsAddMemberModalOpen(false);
+                setSelectedUserIds([]);
+              }}
+              footer={
+                <div className='flex flex-row-reverse w-full gap-3'>
+                  <Button
+                    onClick={() => {
+                      addMember([conversation.id, selectedUserIds], {
+                        onSuccess: (newMembers) => {
+                          console.log('new members', newMembers);
+                          updateQuery(
+                            'getPaginatedConversations',
+                            (conversations) => {
+                              const conversation = conversations?.find(
+                                (c) => c.id === conversationOpened
+                              );
+                              conversation?.members.push(...newMembers);
+                              return conversations;
+                            }
+                          );
+                        },
+                        onSettled: () => {
+                          setIsAddMemberModalOpen(false);
+                          setSelectedUserIds([]);
+                        },
+                      });
+                    }}
+                    disabled={selectedUserIds.length === 0}
+                  >
+                    Confirm
+                  </Button>
+                  <Button
+                    variant='secondary'
+                    onClick={() => {
+                      setIsAddMemberModalOpen(false);
+                      setSelectedUserIds([]);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              }
+            >
+              <div className='max-h-96 overflow-y-auto'>
+                {users
+                  ?.filter((u) => u.id !== me?.id)
+                  .map((u) => {
+                    const isMember = conversation.members.some(
+                      (m) => m.user.id === u.id
+                    );
+                    return (
+                      <label
+                        key={u.id}
+                        htmlFor={`add__member__${u.id}`}
+                        className='flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-600 hover:cursor-pointer'
+                      >
+                        <input
+                          id={`add__member__${u.id}`}
+                          type='checkbox'
+                          checked={
+                            selectedUserIds.some((uId) => uId === u.id) ||
+                            isMember
+                          }
+                          onChange={(e) => {
+                            if (isMember) return;
+                            if (e.target.checked) {
+                              setSelectedUserIds((uIds) => [...uIds, u.id]);
+                            } else {
+                              setSelectedUserIds((uIds) =>
+                                uIds.filter((id) => id !== u.id)
+                              );
+                            }
+                          }}
+                          className='w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+                        ></input>
+                        <Avatar
+                          size='sm'
+                          src={u.avatarUrl}
+                          username={u.username}
+                        />
+                        <div>
+                          <div>{u.username}</div>
+                          {isMember ? (
+                            <p className='text-gray-500 text-sm'>Đã tham gia</p>
+                          ) : null}
+                        </div>
+                      </label>
+                    );
+                  })}
+              </div>
+            </Modal>
             <button
               onClick={() => {
                 setIsChatInfoBoxOpen((o) => !o);

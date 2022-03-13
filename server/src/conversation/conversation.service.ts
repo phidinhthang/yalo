@@ -3,7 +3,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { User } from 'src/user/user.entity';
 import { ConversationRepository } from './conversation.repository';
 import { ConversationType } from './conversation.entity';
-import { CreateGroupConversationDto } from './conversation.dto';
+import { CreateGroupConversationDto, ChangeTitleDto } from './conversation.dto';
 import { UserRepository } from 'src/user/user.repository';
 import { SocketService } from 'src/socket/socket.service';
 import { MemberRepository } from '../member/member.repository';
@@ -97,6 +97,27 @@ export class ConversationService {
     return conversation;
   }
 
+  async changeTitle(
+    meId: number,
+    conversationId: number,
+    changeTitleDto: ChangeTitleDto,
+  ) {
+    await this.memberRepository.isMemberOrThrow(meId, conversationId);
+    const conversation = await this.conversationRepository.findOne(
+      conversationId,
+    );
+    if (conversation.type === ConversationType.PRIVATE) {
+      conversation.title = changeTitleDto.title;
+    } else if (
+      conversation.type === ConversationType.GROUP &&
+      conversation.admin.id === meId
+    ) {
+      conversation.title = changeTitleDto.title;
+    }
+
+    await this.conversationRepository.persistAndFlush(conversation);
+  }
+
   async leaveGroupConversation(meId: number, conversationId: number) {
     let conversationDeletedReason: undefined | 'admin_leave' | 'member_count';
     await this.memberRepository.isMemberOrThrow(meId, conversationId);
@@ -154,6 +175,46 @@ export class ConversationService {
     await this.socketService.deleteConversation(meId, conversation);
 
     return true;
+  }
+
+  async kickMember(meId: number, userId: number, conversationId: number) {
+    await this.memberRepository.isMemberOrThrow(userId, conversationId);
+    await this.conversationRepository.findOneOrFail({
+      id: conversationId,
+      type: ConversationType.GROUP,
+      admin: meId,
+    });
+    await this.memberRepository.nativeDelete({
+      user: userId,
+      conversation: conversationId,
+    });
+  }
+
+  async addMember(meId: number, userIds: number[], conversationId: number) {
+    await this.memberRepository.isMemberOrThrow(meId, conversationId);
+    const members = await this.memberRepository.find({
+      conversation: conversationId,
+    });
+    const userIdsToAdd = userIds.filter(
+      (uId) => !members.some((m) => m.user.id === uId),
+    );
+
+    const newMembers = userIdsToAdd.map((uId) =>
+      this.memberRepository.create({
+        user: uId,
+        conversation: conversationId,
+      }),
+    );
+
+    await this.memberRepository.persistAndFlush(newMembers);
+    const _newMembers = await this.memberRepository.find(
+      {
+        conversation: conversationId,
+        user: { $in: userIdsToAdd },
+      },
+      { populate: ['user'] },
+    );
+    return _newMembers;
   }
 
   async markReadMsg(meId: number, conversationId: number) {

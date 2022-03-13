@@ -106,6 +106,7 @@ export class ConversationService {
     const conversation = await this.conversationRepository.findOne(
       conversationId,
     );
+    if (conversation.title === changeTitleDto.title) return true;
     if (conversation.type === ConversationType.PRIVATE) {
       conversation.title = changeTitleDto.title;
     } else if (
@@ -116,6 +117,8 @@ export class ConversationService {
     }
 
     await this.conversationRepository.persistAndFlush(conversation);
+
+    return true;
   }
 
   async leaveGroupConversation(meId: number, conversationId: number) {

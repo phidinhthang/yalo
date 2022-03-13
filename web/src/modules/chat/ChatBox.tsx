@@ -1,6 +1,7 @@
 import { formatDistanceToNow } from 'date-fns';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { Avatar, AvatarGroup } from '../../ui/Avatar';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 import {
@@ -29,6 +30,7 @@ import { ChatInput } from './ChatInput';
 import { ChatMessageText } from './ChatMessageText';
 import { SvgOutlineUserAdd } from '../../icons/OutlineUserAdd';
 import { Modal } from '../../ui/Modal';
+import { SvgOutlinePencil } from '../../icons/OutlinePencil';
 
 const MainSkeleton = () => {
   const genHeight = () => randomNumber(3, 8) * 12;
@@ -77,6 +79,10 @@ export const ChatBox = () => {
   const { t } = useTypeSafeTranslation();
   const [isChatInfoBoxOpen, setIsChatInfoBoxOpen] = React.useState(false);
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = React.useState(false);
+  const [
+    isChangeConversationTitleModalOpen,
+    setIsChangeConversationTitleModalOpen,
+  ] = React.useState(false);
   const [selectedUserIds, setSelectedUserIds] = React.useState<number[]>([]);
   const {
     data: messages,
@@ -96,10 +102,22 @@ export const ChatBox = () => {
   );
   const { data: me } = useTypeSafeQuery('me');
   const { data: users } = useTypeSafeQuery('findAll');
+  const { data: conversations } = useTypeSafeQuery('getPaginatedConversations');
+  const conversation = conversations?.find((c) => c.id === conversationOpened);
   const { mutate: addMember } = useTypeSafeMutation('addMember');
   const { mutate: deleteMessage } = useTypeSafeMutation('deleteMessage');
   const { mutate: createMessage } = useTypeSafeMutation('createMessage');
+  const { mutate: changeTitle, isLoading: isChangeTitleLoading } =
+    useTypeSafeMutation('changeConversationTitle');
   const chatInfoRef = React.useRef<HTMLDivElement | null>(null);
+
+  const [newTitle, setNewTitle] = React.useState<string>(
+    conversation?.title || ''
+  );
+
+  React.useEffect(() => {
+    setNewTitle(conversation?.title || '');
+  }, [conversationOpened]);
 
   useOnClickOutside(chatInfoRef, () => {
     setIsChatInfoBoxOpen(false);
@@ -117,8 +135,6 @@ export const ChatBox = () => {
     }
   }, [endRef.current, conversationOpened, isLoading]);
 
-  const { data: conversations } = useTypeSafeQuery('getPaginatedConversations');
-  const conversation = conversations?.find((c) => c.id === conversationOpened);
   const members = conversation?.members.filter((m) => m.user.id !== me?.id);
   const partner = members?.[0].user;
   const isGroup = conversation?.type === 'group';
@@ -181,7 +197,92 @@ export const ChatBox = () => {
               )) || []}
             </AvatarGroup>
             <div className='ml-2'>
-              <p>{isGroup ? conversation.title : partner?.username}</p>
+              <p className='flex items-center gap-2 group h-6'>
+                <b>{isGroup ? conversation.title : partner?.username}</b>
+                <button
+                  className='w-8 h-8 rounded-full hidden group-hover:flex items-center justify-center bg-gray-100'
+                  onClick={() =>
+                    setIsChangeConversationTitleModalOpen((o) => !o)
+                  }
+                >
+                  <SvgOutlinePencil />
+                </button>
+                {
+                  <Modal
+                    isOpen={isChangeConversationTitleModalOpen}
+                    title={'Set group name'}
+                    onRequestClose={() => {
+                      setIsChangeConversationTitleModalOpen(false);
+                      setNewTitle(conversation?.title || '');
+                    }}
+                    footer={
+                      <div className='flex flex-row-reverse w-full gap-3'>
+                        <Button
+                          onClick={() => {
+                            changeTitle(
+                              [conversationOpened!, { title: newTitle }],
+                              {
+                                onSuccess: (data) => {
+                                  if (data) {
+                                    console.log(
+                                      'change conversation title ',
+                                      data
+                                    );
+                                  }
+                                  toast(
+                                    'Change conversation title successfully!',
+                                    { type: 'success' }
+                                  );
+                                  updateQuery(
+                                    'getPaginatedConversations',
+                                    (conversations) => {
+                                      const conversation = conversations.find(
+                                        (c) => c.id === conversationOpened
+                                      );
+                                      conversation!.title = newTitle;
+                                      return conversations;
+                                    }
+                                  );
+                                  setIsChangeConversationTitleModalOpen(false);
+                                },
+                                onError: (error) => {
+                                  console.log(
+                                    'change conversation title error ',
+                                    error
+                                  );
+                                  toast(error.errors.title, { type: 'error' });
+                                },
+                              }
+                            );
+                          }}
+                          disabled={newTitle.length === 0}
+                          loading={isChangeTitleLoading}
+                        >
+                          Confirm
+                        </Button>
+                        <Button
+                          variant='secondary'
+                          onClick={() => {
+                            setIsChangeConversationTitleModalOpen(false);
+                            setNewTitle(conversation?.title || '');
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    }
+                  >
+                    <p>
+                      Are you sure you want to rename this group, a new group
+                      name will be visible with all members
+                    </p>
+                    <Input
+                      value={newTitle}
+                      onChange={(e) => setNewTitle(e.target.value)}
+                    />
+                  </Modal>
+                }
+              </p>
               <p>
                 {isGroup
                   ? `${conversation.members.length} members`

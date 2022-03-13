@@ -89,5 +89,13 @@ export const wrap = (connection: Connection) => ({
       connection.send(`/conversation/${conversationId}/add-members`, {
         body: JSON.stringify(userIds),
       }),
+    changeConversationTitle: (
+      conversationId: number,
+      data: { title: string }
+    ): Promise<boolean | ErrorResponse<'title'>> =>
+      connection.send(`/conversation/${conversationId}/title`, {
+        body: JSON.stringify(data),
+        method: 'PATCH',
+      }),
   },
 });

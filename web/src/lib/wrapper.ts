@@ -97,5 +97,12 @@ export const wrap = (connection: Connection) => ({
         body: JSON.stringify(data),
         method: 'PATCH',
       }),
+    kickMember: (conversationId: number, memberId: number) =>
+      connection.send(
+        `/conversation/${conversationId}/${memberId}/kick-member`,
+        {
+          method: 'DELETE',
+        }
+      ),
   },
 });

@@ -1,10 +1,170 @@
-import { forwardRef } from 'react';
+import React from 'react';
+import { SvgOutlineUserAdd } from '../../icons/OutlineUserAdd';
+import { SvgSolidArrowLeft } from '../../icons/SolidArrowLeft';
+import { SvgSolidDots } from '../../icons/SolidDots';
+import { Conversation, Member, User } from '../../lib/entities';
+import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
+import { useTypeSafeQuery } from '../../shared-hooks/useTypeSafeQuery';
+import { useTypeSafeUpdateQuery } from '../../shared-hooks/useTypeSafeUpdateQuery';
+import { Avatar, AvatarGroup } from '../../ui/Avatar';
+import { IconButton } from '../../ui/IconButton';
 
-export const ChatInfo = forwardRef<HTMLDivElement>((_, ref) => {
+interface ChatInfoProps {
+  conversation: Conversation;
+  innerRef: React.LegacyRef<HTMLDivElement>;
+}
+
+export const ChatInfo = ({ conversation, innerRef }: ChatInfoProps) => {
+  const [isMemberInfoSectionOpen, setIsMemberInfoSectionOpen] =
+    React.useState(false);
+  const { data: me } = useTypeSafeQuery('me');
+  const admin = conversation.admin;
+
+  if (conversation.type === 'private') return <></>;
+
+  const body = !isMemberInfoSectionOpen ? (
+    <>
+      <div className='text-center text-xl font-semibold pt-3 pb-5 border-b dark:border-gray-700'>
+        Group Info
+      </div>
+      <div className='flex flex-col gap-3 items-center p-3 border-b dark:border-gray-700'>
+        <AvatarGroup>
+          {conversation.members.map((m) => (
+            <Avatar
+              src={m.user.avatarUrl}
+              username={m.user.username}
+              key={m.user.id}
+            />
+          ))}
+        </AvatarGroup>
+        <p className='font-bold'>{conversation.title}</p>
+      </div>
+      <div className='p-4 border-b dark:border-gray-700'>
+        <div className='flex justify-between'>
+          <p
+            className='hover:cursor-pointer hover:underline'
+            onClick={() => {
+              setIsMemberInfoSectionOpen(true);
+            }}
+          >
+            {conversation.members.length} members
+          </p>
+          <IconButton>
+            <SvgOutlineUserAdd />
+          </IconButton>
+        </div>
+      </div>
+    </>
+  ) : (
+    <>
+      <div className='flex gap-2 items-center p-3'>
+        <IconButton
+          onClick={() => {
+            setIsMemberInfoSectionOpen(false);
+          }}
+        >
+          <SvgSolidArrowLeft />
+        </IconButton>
+        <p>Members</p>
+      </div>
+      <div className='flex flex-col'>
+        {conversation.members.map((m) => (
+          <MemberItem m={m} me={me!} key={m.user.id} admin={admin! as any} />
+        ))}
+      </div>
+    </>
+  );
+
   return (
     <div
-      className='fixed top-0 right-0 bottom-0 w-80 bg-red-100 z-50'
-      ref={ref}
-    ></div>
+      className='fixed top-0 right-0 bottom-0 w-[336px] z-50 border dark:border-gray-700 bg-white dark:bg-dark-900'
+      ref={innerRef as any}
+    >
+      {body}
+    </div>
   );
-});
+};
+
+const MemberItem = ({
+  m,
+  me,
+  admin,
+}: {
+  m: Member;
+  me: Omit<User, 'password'>;
+  admin: { id: number };
+}) => {
+  const { mutate: kickMember } = useTypeSafeMutation('kickMember');
+  const updateQuery = useTypeSafeUpdateQuery();
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const isMe = m.user.id === me.id;
+  const isAdmin = m.user.id === admin.id;
+  const canKick = me.id === admin.id && m.user.id !== me.id;
+
+  return (
+    <div className='flex py-2 px-3 hover:bg-gray-50 dark:hover:bg-dark-500 group'>
+      <Avatar
+        size='md'
+        src={m.user.avatarUrl || ''}
+        username={m.user.username}
+      />
+      <div className='ml-3 flex-1'>
+        <div>
+          {m.user.username} {isMe ? '(You)' : null}
+        </div>
+        <div>{isAdmin ? 'admin' : 'member'}</div>
+      </div>
+      <div className='relative self-start'>
+        <button
+          className='opacity-0 group-hover:opacity-100 overflow-auto'
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsMenuOpen((o) => !o);
+          }}
+        >
+          <SvgSolidDots />
+        </button>
+        <div
+          className={`absolute top-full z-50 right-0 w-44 text-base list-none bg-white dark:bg-gray-700 rounded divide-y divide-gray-100 shadow ${
+            isMenuOpen ? 'block' : 'hidden'
+          }`}
+        >
+          {canKick ? (
+            <li className='block py-2 px-4 w-full h-full text-gray-700 bg-white dark:bg-dark-500 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200 dark:hover:text-white'>
+              <a
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  kickMember([m.conversation, m.user.id], {
+                    onSuccess: () => {
+                      updateQuery(
+                        'getPaginatedConversations',
+                        (conversations) => {
+                          conversations.forEach((c) => {
+                            if (c.id !== m.conversation) return;
+                            c.members = c.members.filter(
+                              (_m) => m.user.id !== m.user.id
+                            );
+                          });
+                          return conversations;
+                        }
+                      );
+                    },
+                    onSettled: () => setIsMenuOpen(false),
+                  });
+                }}
+              >
+                kick user
+              </a>
+            </li>
+          ) : null}
+          {isMe ? (
+            <li className='block py-2 px-4 w-full h-full text-gray-700 bg-white dark:bg-dark-500 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200 dark:hover:text-white'>
+              <a>leave group</a>
+            </li>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+};

@@ -45,7 +45,7 @@ export type Conversation = {
   id: number;
   title: null | string;
   type: 'private' | 'group';
-  admin: null | string;
+  admin: null | Omit<User, 'password'>;
   lastMessage: null | Message;
   createdAt: string;
   members: Member[];

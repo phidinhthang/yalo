@@ -191,6 +191,8 @@ export class ConversationService {
       user: userId,
       conversation: conversationId,
     });
+
+    return true;
   }
 
   async addMember(meId: number, userIds: number[], conversationId: number) {

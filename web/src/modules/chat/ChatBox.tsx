@@ -31,6 +31,7 @@ import { ChatMessageText } from './ChatMessageText';
 import { SvgOutlineUserAdd } from '../../icons/OutlineUserAdd';
 import { Modal } from '../../ui/Modal';
 import { SvgOutlinePencil } from '../../icons/OutlinePencil';
+import { IconButton } from '../../ui/IconButton';
 
 const MainSkeleton = () => {
   const genHeight = () => randomNumber(3, 8) * 12;
@@ -175,15 +176,14 @@ export const ChatBox = () => {
       <div className='border-b-2 dark:border-gray-700 px-2 py-3 flex w-full items-center justify-between'>
         <div className='flex items-center'>
           {!isDesktopScreen ? (
-            <button
-              className='w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-50 mr-2'
+            <IconButton
               onClick={() => {
                 navigate('/conversations');
                 setConversationOpened(null);
               }}
             >
               <SvgSolidArrowLeft />
-            </button>
+            </IconButton>
           ) : null}
           <div className='flex'>
             <AvatarGroup>
@@ -199,14 +199,13 @@ export const ChatBox = () => {
             <div className='ml-2'>
               <p className='flex items-center gap-2 group h-6'>
                 <b>{isGroup ? conversation.title : partner?.username}</b>
-                <button
-                  className='w-8 h-8 rounded-full hidden group-hover:flex items-center justify-center bg-gray-100'
+                <IconButton
                   onClick={() =>
                     setIsChangeConversationTitleModalOpen((o) => !o)
                   }
                 >
                   <SvgOutlinePencil />
-                </button>
+                </IconButton>
                 {
                   <Modal
                     isOpen={isChangeConversationTitleModalOpen}
@@ -298,12 +297,9 @@ export const ChatBox = () => {
         <div>
           <div className='flex items-center gap-2'>
             {conversation.type === 'group' ? (
-              <button
-                className='w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-50'
-                onClick={() => setIsAddMemberModalOpen((o) => !o)}
-              >
+              <IconButton onClick={() => setIsAddMemberModalOpen((o) => !o)}>
                 <SvgOutlineUserAdd />
-              </button>
+              </IconButton>
             ) : null}
             <Modal
               title='Add member'
@@ -400,15 +396,16 @@ export const ChatBox = () => {
                   })}
               </div>
             </Modal>
-            <button
+            <IconButton
               onClick={() => {
                 setIsChatInfoBoxOpen((o) => !o);
               }}
-              className='w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-50'
             >
               <SvgSolidInfo className='w-6 h-6' />
-            </button>
-            {isChatInfoBoxOpen ? <ChatInfo ref={chatInfoRef} /> : null}
+            </IconButton>
+            {isChatInfoBoxOpen ? (
+              <ChatInfo innerRef={chatInfoRef} conversation={conversation!} />
+            ) : null}
           </div>
         </div>
       </div>
@@ -540,8 +537,8 @@ export const ChatBox = () => {
               ? `${typings[conversationOpened].join(', ')} is typing...`
               : null}
           </div>
-          <div className='border h-12'>
-            <div>
+          <div className='border h-12 dark:border-gray-700'>
+            <div className='h-full flex items-center'>
               <input
                 hidden
                 ref={uploadFileInputRef}

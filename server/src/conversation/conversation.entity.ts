@@ -33,6 +33,9 @@ export class Conversation {
   @ManyToOne(() => User, { nullable: true })
   admin?: User;
 
+  @Property({ nullable: true })
+  inviteLinkToken?: string;
+
   @OneToMany(() => Member, (member) => member.conversation)
   members = new Collection<Member>(this);
 

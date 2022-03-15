@@ -121,6 +121,15 @@
           "nullable": true,
           "mappedType": "integer"
         },
+        "invite_link_token": {
+          "name": "invite_link_token",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "string"
+        },
         "last_message_id": {
           "name": "last_message_id",
           "type": "int",

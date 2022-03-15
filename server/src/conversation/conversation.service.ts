@@ -1,5 +1,6 @@
 import { MikroORM } from '@mikro-orm/core';
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { nanoid } from 'nanoid';
 import { User } from 'src/user/user.entity';
 import { ConversationRepository } from './conversation.repository';
 import { ConversationType } from './conversation.entity';
@@ -7,6 +8,7 @@ import { CreateGroupConversationDto, ChangeTitleDto } from './conversation.dto';
 import { UserRepository } from 'src/user/user.repository';
 import { SocketService } from 'src/socket/socket.service';
 import { MemberRepository } from '../member/member.repository';
+import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class ConversationService {
@@ -81,6 +83,7 @@ export class ConversationService {
       title,
       admin: meId,
       type: ConversationType.GROUP,
+      inviteLinkToken: nanoid(9),
     });
     memberIds.forEach((mId) => {
       const member = this.memberRepository.create({ user: mId, conversation });
@@ -95,6 +98,51 @@ export class ConversationService {
     await this.socketService.newConversation(meId, conversation);
 
     return conversation;
+  }
+
+  async getGroupPreview(inviteLinkToken: string) {
+    const conversation = await this.conversationRepository.findOne({
+      inviteLinkToken,
+    }, {populate: ['admin', 'lastMessage', 'members', 'members.user']});
+
+    if (!conversation) {
+      throw new NotFoundException({
+        errors: {
+          conversation: ['conversation not found'],
+        },
+      });
+    }
+
+    return conversation;
+  }
+
+  async joinGroupByLink(userId: number, inviteLinkToken: string) {
+    const conversation = await this.conversationRepository.findOne({
+      inviteLinkToken,
+    });
+    if (!conversation) {
+      throw new NotFoundException({
+        errors: {
+          conversation: ['conversation not found'],
+        },
+      });
+    }
+    const memberExisted = await this.memberRepository.findOne({
+      user: userId,
+      conversation: conversation.id,
+    });
+
+    if (memberExisted) {
+      return true;
+    }
+
+    const newMember = this.memberRepository.create({
+      user: userId,
+      conversation: conversation.id,
+    });
+
+    await this.memberRepository.persistAndFlush(newMember);
+    return newMember;
   }
 
   async changeTitle(

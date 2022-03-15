@@ -27,6 +27,8 @@ export const wrap = (connection: Connection) => ({
       connection.fetch(
         `/message/${data.conversationId}?${new URLSearchParams(ctx)}`
       ),
+    getGroupPreview: (inviteLinkToken: string): Promise<Conversation> =>
+      connection.fetch(`/conversation/${inviteLinkToken}/preview`),
   },
   mutation: {
     refreshToken: (data: {
@@ -104,5 +106,7 @@ export const wrap = (connection: Connection) => ({
           method: 'DELETE',
         }
       ),
+    joinGroupByLink: (inviteLinkToken: string): Promise<Member | boolean> =>
+      connection.send(`/conversation/${inviteLinkToken}/join-group`),
   },
 });

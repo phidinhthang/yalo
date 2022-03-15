@@ -555,6 +555,15 @@ export const ChatBox = () => {
                         },
                       ],
                       {
+                        onSuccess: (message) => {
+                          updateInfiniteQuery(
+                            ['getPaginatedMessages', conversation.id],
+                            (messages) => {
+                              messages.pages[0].data.unshift(message);
+                              return messages;
+                            }
+                          );
+                        },
                         onSettled: () => {
                           e.target.files = emptyInputRef.current!.files;
                         },

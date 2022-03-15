@@ -1,8 +1,10 @@
 import React from 'react';
+import { SvgOutlineDuplicate } from '../../icons/OutlineDuplicate';
 import { SvgOutlineUserAdd } from '../../icons/OutlineUserAdd';
 import { SvgSolidArrowLeft } from '../../icons/SolidArrowLeft';
 import { SvgSolidDots } from '../../icons/SolidDots';
 import { Conversation, Member, User } from '../../lib/entities';
+import { useCopyToClipboard } from '../../shared-hooks/useCopyToClipboard';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 import { useTypeSafeQuery } from '../../shared-hooks/useTypeSafeQuery';
 import { useTypeSafeUpdateQuery } from '../../shared-hooks/useTypeSafeUpdateQuery';
@@ -19,6 +21,19 @@ export const ChatInfo = ({ conversation, innerRef }: ChatInfoProps) => {
     React.useState(false);
   const { data: me } = useTypeSafeQuery('me');
   const admin = conversation.admin;
+  const inviteLink = `${window.location.host}/g/${conversation.inviteLinkToken}`;
+  const [copied, copyInviteLink] = useCopyToClipboard();
+  const [showCopiedTooltip, setShowCopiedTooltip] = React.useState(false);
+  const [clickedCount, setClickCount] = React.useState<number>(0);
+
+  React.useEffect(() => {
+    if (copied && clickedCount) {
+      setShowCopiedTooltip(true);
+      setTimeout(() => {
+        setShowCopiedTooltip(false);
+      }, 1000);
+    }
+  }, [copied, clickedCount]);
 
   if (conversation.type === 'private') return <></>;
 
@@ -39,7 +54,7 @@ export const ChatInfo = ({ conversation, innerRef }: ChatInfoProps) => {
         </AvatarGroup>
         <p className='font-bold'>{conversation.title}</p>
       </div>
-      <div className='p-4 border-b dark:border-gray-700'>
+      <div className='p-4 border-b dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-dark-300 cursor-pointer'>
         <div className='flex justify-between'>
           <p
             className='hover:cursor-pointer hover:underline'
@@ -52,6 +67,27 @@ export const ChatInfo = ({ conversation, innerRef }: ChatInfoProps) => {
           <IconButton>
             <SvgOutlineUserAdd />
           </IconButton>
+        </div>
+      </div>
+      <div className='p-4 border-b dark:border-gray-700 flex justify-between hover:bg-gray-100 dark:hover:bg-dark-300 cursor-pointer'>
+        <div>
+          <p>Group link</p>
+          <p className='text-blue-500 text-sm'>{inviteLink}</p>
+        </div>
+        <div className='relative'>
+          <IconButton
+            onClick={() => {
+              copyInviteLink(inviteLink);
+              setClickCount((c) => c + 1);
+            }}
+          >
+            <SvgOutlineDuplicate />
+          </IconButton>
+          {showCopiedTooltip ? (
+            <div className='bg-dark-500 text-white rounded-md px-3 py-2 absolute top-full right-0'>
+              Copied
+            </div>
+          ) : null}
         </div>
       </div>
     </>

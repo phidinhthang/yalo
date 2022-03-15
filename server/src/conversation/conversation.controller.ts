@@ -42,6 +42,19 @@ export class ConversationController {
     );
   }
 
+  @Get('/:inviteLinkToken/preview')
+  async getGroupPreview(@Param('inviteLinkToken') inviteLinkToken: string) {
+    return this.conversationService.getGroupPreview(inviteLinkToken);
+  }
+
+  @Post('/:inviteLinkToken/join-group')
+  async joinGroupByLink(
+    @Param('inviteLinkToken') inviteLinkToken: string,
+    @MeId() meId: number,
+  ) {
+    return this.conversationService.joinGroupByLink(meId, inviteLinkToken);
+  }
+
   @UseGuards(HttpAuthGuard)
   @Patch('/:conversationId/title')
   async changeTitle(

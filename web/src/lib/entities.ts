@@ -46,6 +46,7 @@ export type Conversation = {
   title: null | string;
   type: 'private' | 'group';
   admin: null | Omit<User, 'password'>;
+  inviteLinkToken?: string;
   lastMessage: null | Message;
   createdAt: string;
   members: Member[];

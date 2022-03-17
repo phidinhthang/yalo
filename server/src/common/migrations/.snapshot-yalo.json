@@ -399,6 +399,136 @@
           "updateRule": "cascade"
         }
       }
+    },
+    {
+      "columns": {
+        "requester_id": {
+          "name": "requester_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "recipient_id": {
+          "name": "recipient_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        }
+      },
+      "name": "friend_requests",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "friend_requests_pkey",
+          "columnNames": [
+            "requester_id",
+            "recipient_id"
+          ],
+          "composite": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "friend_requests_requester_id_foreign": {
+          "constraintName": "friend_requests_requester_id_foreign",
+          "columnNames": [
+            "requester_id"
+          ],
+          "localTableName": "public.friend_requests",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        },
+        "friend_requests_recipient_id_foreign": {
+          "constraintName": "friend_requests_recipient_id_foreign",
+          "columnNames": [
+            "recipient_id"
+          ],
+          "localTableName": "public.friend_requests",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        }
+      }
+    },
+    {
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "friend_id": {
+          "name": "friend_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        }
+      },
+      "name": "user_friends",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "user_friends_pkey",
+          "columnNames": [
+            "user_id",
+            "friend_id"
+          ],
+          "composite": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "user_friends_user_id_foreign": {
+          "constraintName": "user_friends_user_id_foreign",
+          "columnNames": [
+            "user_id"
+          ],
+          "localTableName": "public.user_friends",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        },
+        "user_friends_friend_id_foreign": {
+          "constraintName": "user_friends_friend_id_foreign",
+          "columnNames": [
+            "friend_id"
+          ],
+          "localTableName": "public.user_friends",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        }
+      }
     }
   ]
 }

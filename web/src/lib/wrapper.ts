@@ -1,6 +1,7 @@
 import {
   Conversation,
   ErrorResponse,
+  FriendRequest,
   Member,
   Message,
   Paginated,
@@ -16,6 +17,9 @@ export const wrap = (connection: Connection) => ({
     me: (): Promise<_Omit<User, 'password'>> => connection.fetch('/users/me'),
     findAll: (): Promise<_Omit<User, 'password'>[]> =>
       connection.fetch('/users'),
+    getPaginatedFriends: (): Promise<User[]> => connection.fetch(`/friend`),
+    getPaginatedRequests: (): Promise<FriendRequest> =>
+      connection.fetch('/friend/requests'),
     getPrivateConversation: (data: { id: number }): Promise<Conversation> =>
       connection.fetch(`/conversation/private/${data.id}`),
     getPaginatedConversations: (): Promise<Conversation[]> =>
@@ -53,6 +57,14 @@ export const wrap = (connection: Connection) => ({
         }
       | ErrorResponse<'username' | 'password'>
     > => connection.send('/users/register', { body: JSON.stringify(data) }),
+    createFriendRequest: (targetId: number): Promise<FriendRequest> =>
+      connection.send(`/friend/${targetId}/request-friend`),
+    acceptFriendRequest: (targetId: number): Promise<boolean> =>
+      connection.send(`/friend/${targetId}/accept-friend`),
+    cancelFriendRequest: (targetId: number): Promise<boolean> =>
+      connection.send(`/friend/${targetId}/cancel-request`),
+    removeFriend: (targetId: number): Promise<boolean> =>
+      connection.send(`/friend/${targetId}/remove-friend`),
     createMessage: (
       data: Pick<Message, 'text'> & { conversationId: number } & {
         images?: File[];

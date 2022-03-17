@@ -13,6 +13,7 @@ import { config } from './common/config';
 import { ConversationModule } from './conversation/conversation.module';
 import { MessageModule } from './message/message.module';
 import { MemberModule } from './member/member.module';
+import { FriendModule } from './friend/friend.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { MemberModule } from './member/member.module';
     ConversationModule,
     MessageModule,
     UsersModule,
+    FriendModule,
     SocketModule,
   ],
 })

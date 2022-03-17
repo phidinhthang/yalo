@@ -41,6 +41,13 @@ export type Member = {
   lastReadAt?: string;
 };
 
+export type FriendRequest = {
+  id: number;
+  username: string;
+  avatarUrl: string;
+  type: 0 | 1;
+};
+
 export type Conversation = {
   id: number;
   title: null | string;

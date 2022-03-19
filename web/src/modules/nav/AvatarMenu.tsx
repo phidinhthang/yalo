@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQueryClient } from 'react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useIsDesktopScreen } from '../../shared-hooks/useIsDesktopScreen';
 import { useOnClickOutside } from '../../shared-hooks/useOnClickOutside';
@@ -25,6 +25,7 @@ export const AvatarMenu = () => {
   const { ws } = useWsStore();
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const { t } = useTypeSafeTranslation();
+  const location = useLocation();
 
   useOnClickOutside(dropdownRef, () => {
     setIsOpenDropdown(false);
@@ -40,10 +41,10 @@ export const AvatarMenu = () => {
   };
 
   React.useEffect(() => {
-    if (!conversationOpened && !isDesktopScreen) {
+    if (!conversationOpened && !isDesktopScreen && location.pathname === '/') {
       setTimeout(() => navigate('/conversations'), 200);
     }
-  }, [conversationOpened, isDesktopScreen, navigate]);
+  }, [conversationOpened, isDesktopScreen, navigate, location]);
   return (
     <>
       <div

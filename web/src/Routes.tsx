@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import FriendAnchorPage from './modules/friend/FriendAnchorPage';
 import { ScreenLoader } from './ui/ScreenLoader';
 const LoginPage = React.lazy(() => import('./modules/auth/LoginPage'));
 const RegisterPage = React.lazy(() => import('./modules/auth/RegisterPage'));
@@ -18,6 +19,7 @@ export const Routers = React.memo(() => {
       <Routes>
         <Route path='/' element={<MainPage />} />
         <Route path='/f' element={<FriendPage />} />
+        <Route path='/@f' element={<FriendAnchorPage />} />
         <Route path='/login' element={<LoginPage />} />
         <Route path='/register' element={<RegisterPage />} />
         <Route path='/conversations' element={<ConversationPage />} />

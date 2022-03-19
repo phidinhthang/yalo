@@ -146,9 +146,12 @@ export const ChatBox = () => {
   conversation?.members.forEach((m) => {
     memberMap[m.user.id] = m;
   });
-  if (!conversationOpened && !isDesktopScreen) {
-    navigate('/conversations');
-  }
+
+  React.useEffect(() => {
+    if (!conversationOpened && !isDesktopScreen) {
+      navigate('/conversations');
+    }
+  }, [conversationOpened, isDesktopScreen, navigate]);
 
   if (!conversationOpened) {
     return (

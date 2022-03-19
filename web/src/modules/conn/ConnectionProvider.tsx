@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { connect, Connection } from '../../lib/raw';
+import { connect, Connection } from '../../lib/api/raw';
 import { useTokenStore } from '../auth/useTokenStore';
 
 export const ConnectionContext = React.createContext<{

@@ -10,7 +10,7 @@ import { Switch } from '../../ui/Switch';
 import { CreateGroupConversationWidget } from '../conversation/CreateGroupConversationWidget';
 import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
 
-export const MainPage = () => {
+const MainPage = () => {
   const navigate = useNavigate();
   const { t } = useTypeSafeTranslation();
   const { isError } = useTypeSafeQuery('me');
@@ -55,3 +55,5 @@ export const MainPage = () => {
     </div>
   );
 };
+
+export default MainPage;

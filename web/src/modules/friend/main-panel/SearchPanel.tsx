@@ -6,7 +6,7 @@ import { SearchBar } from '../../../ui/Search/SearchBar';
 import { SearchOverlay } from '../../../ui/Search/SearchOverlay';
 import { Avatar } from '../../../ui/Avatar';
 import { Button } from '../../../ui/Button';
-import { User } from '../../../lib/entities';
+import { User } from '../../../lib/api/entities';
 import { useTypeSafeUpdateQuery } from '../../../shared-hooks/useTypeSafeUpdateQuery';
 import { useTypeSafeMutation } from '../../../shared-hooks/useTypeSafeMutation';
 

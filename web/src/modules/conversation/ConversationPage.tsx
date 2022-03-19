@@ -8,7 +8,7 @@ import { UserListController } from '../user/UserListController';
 import { ConversationListController } from './ConversationListController';
 import { CreateGroupConversationWidget } from './CreateGroupConversationWidget';
 
-export const ConversationPage = () => {
+const ConversationPage = () => {
   const navigate = useNavigate();
   const isDesktopScreen = useIsDesktopScreen();
   const [enabled, setEnabled] = useDarkMode();
@@ -36,3 +36,5 @@ export const ConversationPage = () => {
     </MainLayout>
   );
 };
+
+export default ConversationPage;

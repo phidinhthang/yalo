@@ -9,7 +9,7 @@ import { FriendMainPanel } from './main-panel';
 import { SplittedLeftPanelWrapper } from './SplittedLeftPanelWrapper';
 import { useMainPanelOpenStore } from './useMainPanelOpenStore';
 
-export const FriendPage = () => {
+const FriendPage = () => {
   const { t } = useTypeSafeTranslation();
   const [enabled, setEnabled] = useDarkMode();
   const { data: friends } = useTypeSafeQuery('getPaginatedFriends');
@@ -100,3 +100,5 @@ export const FriendPage = () => {
     </MainLayout>
   );
 };
+
+export default FriendPage;

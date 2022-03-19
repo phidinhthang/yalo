@@ -1,4 +1,4 @@
-import { wrap } from '../../lib/wrapper';
+import { wrap } from '../../lib/api/wrapper';
 import { useContext } from 'react';
 import { ConnectionContext } from './ConnectionProvider';
 

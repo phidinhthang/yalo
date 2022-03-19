@@ -1,4 +1,4 @@
-import { User } from '../../lib/entities';
+import { User } from '../../lib/api/entities';
 import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
 import { Avatar } from '../../ui/Avatar';
 

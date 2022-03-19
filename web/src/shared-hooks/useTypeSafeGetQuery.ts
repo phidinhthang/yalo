@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { InfiniteData, useQuery, useQueryClient } from 'react-query';
-import { wrap } from '../lib/wrapper';
+import { wrap } from '../lib/api/wrapper';
 import { Await } from '../types/util-types';
 
 type Keys = keyof ReturnType<typeof wrap>['query'];

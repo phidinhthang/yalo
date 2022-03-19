@@ -1,6 +1,6 @@
 import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
 import { SvgSolidDots } from '../../icons/SolidDots';
-import { Conversation, User } from '../../lib/entities';
+import { Conversation, User } from '../../lib/api/entities';
 import { Avatar, AvatarGroup } from '../../ui/Avatar';
 import React from 'react';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';

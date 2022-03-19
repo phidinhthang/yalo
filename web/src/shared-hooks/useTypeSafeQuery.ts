@@ -1,4 +1,4 @@
-import { wrap } from '../lib/wrapper';
+import { wrap } from '../lib/api/wrapper';
 import {
   useQuery,
   UseQueryOptions,

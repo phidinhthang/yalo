@@ -1,4 +1,4 @@
-import { wrap } from '../lib/wrapper';
+import { wrap } from '../lib/api/wrapper';
 import { useCallback, useContext } from 'react';
 import { useQueryClient } from 'react-query';
 import { ConnectionContext } from '../modules/conn/ConnectionProvider';

@@ -14,7 +14,7 @@ import {
 } from '../../shared-hooks/useTypeSafeUpdateQuery';
 import { useIsDesktopScreen } from '../../shared-hooks/useIsDesktopScreen';
 import { useChatStore } from './useChatStore';
-import { Member } from '../../lib/entities';
+import { Member } from '../../lib/api/entities';
 import React from 'react';
 import { Skeleton } from '../../ui/Skeleton';
 import { randomNumber } from '../../utils/randomNumber';

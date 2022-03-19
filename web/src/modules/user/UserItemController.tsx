@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTypeSafeQuery } from '../../shared-hooks/useTypeSafeQuery';
 import { useTypeSafeUpdateQuery } from '../../shared-hooks/useTypeSafeUpdateQuery';
-import { User } from '../../lib/entities';
+import { User } from '../../lib/api/entities';
 import { UserItem } from './UserItem';
 import { useNavigate } from 'react-router-dom';
 import { useIsDesktopScreen } from '../../shared-hooks/useIsDesktopScreen';

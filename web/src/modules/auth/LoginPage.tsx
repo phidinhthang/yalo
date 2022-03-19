@@ -9,7 +9,7 @@ import { Button } from '../../ui/Button';
 import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
 import { useDocumentTitle } from '../../shared-hooks/useDocumentTitle';
 
-export const LoginPage = () => {
+const LoginPage = () => {
   const hasTokens = useTokenStore((s) => !!(s.accessToken && s.refreshToken));
   const setTokens = useTokenStore((s) => s.setTokens);
   const navigate = useNavigate();
@@ -139,3 +139,5 @@ export const LoginPage = () => {
     </>
   );
 };
+
+export default LoginPage;

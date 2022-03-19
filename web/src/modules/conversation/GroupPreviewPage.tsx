@@ -6,7 +6,7 @@ import { useTypeSafeQuery } from '../../shared-hooks/useTypeSafeQuery';
 import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
 import { Button } from '../../ui/Button';
 
-export const GroupPreviewPage = () => {
+const GroupPreviewPage = () => {
   const { i18n } = useTypeSafeTranslation();
   const language = i18n.language || window.localStorage.getItem('i18nextLng');
   const languageText =
@@ -67,3 +67,5 @@ export const GroupPreviewPage = () => {
     </div>
   );
 };
+
+export default GroupPreviewPage;

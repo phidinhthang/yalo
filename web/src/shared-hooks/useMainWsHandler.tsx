@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { io } from 'socket.io-client';
 import { toast } from 'react-toastify';
-import { Message, Conversation, User } from '../lib/entities';
+import { Message, Conversation, User } from '../lib/api/entities';
 import { useRefreshToken } from '../modules/auth/useRefreshToken';
 import { useTokenStore } from '../modules/auth/useTokenStore';
 import { useWsStore } from '../modules/auth/useWsStore';

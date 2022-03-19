@@ -1,5 +1,5 @@
 import jwtDecode from 'jwt-decode';
-import { useTokenStore } from '../modules/auth/useTokenStore';
+import { useTokenStore } from '../../modules/auth/useTokenStore';
 const apiUrl = import.meta.env.VITE_API_URL;
 type Token = string;
 

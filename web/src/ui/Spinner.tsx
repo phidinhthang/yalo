@@ -1,8 +1,19 @@
-export const Spinner: React.FC<{ className?: string }> = ({ className }) => {
+const sizeClassnames = {
+  sm: 'w-2 h-2',
+  md: 'w-4 h-4',
+  xxl: 'w-16 h-16',
+};
+
+interface SpinnerProps {
+  className?: string;
+  size?: keyof typeof sizeClassnames;
+}
+
+export const Spinner: React.FC<SpinnerProps> = ({ className, size = 'md' }) => {
   return (
     <svg
       role='status'
-      className={`text-white w-4 h-4 animate-spin ${className}`}
+      className={`text-white ${sizeClassnames[size]} animate-spin ${className}`}
       viewBox='0 0 100 101'
       fill='none'
       xmlns='http://www.w3.org/2000/svg'

@@ -1,5 +1,5 @@
 import React from 'react';
-import { User } from '../lib/entities';
+import { User } from '../lib/api/entities';
 
 export const avatarSizeMap = {
   default: '80px',

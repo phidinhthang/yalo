@@ -3,7 +3,7 @@ import { SvgOutlineDuplicate } from '../../icons/OutlineDuplicate';
 import { SvgOutlineUserAdd } from '../../icons/OutlineUserAdd';
 import { SvgSolidArrowLeft } from '../../icons/SolidArrowLeft';
 import { SvgSolidDots } from '../../icons/SolidDots';
-import { Conversation, Member, User } from '../../lib/entities';
+import { Conversation, Member, User } from '../../lib/api/entities';
 import { useCopyToClipboard } from '../../shared-hooks/useCopyToClipboard';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 import { useTypeSafeQuery } from '../../shared-hooks/useTypeSafeQuery';

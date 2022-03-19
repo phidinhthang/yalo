@@ -3,7 +3,7 @@ import React from 'react';
 const sizeClassnames = {
   lg: 'p-4 sm:text-md',
   md: 'p-2.5 text-sm',
-  sm: 'p- 2 sm:text-xs',
+  sm: 'p-2 sm:text-xs',
 };
 
 interface InputProps

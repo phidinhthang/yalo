@@ -14,6 +14,8 @@ import { useWrappedConn } from '../modules/conn/useConn';
 import { useTypeSafeGetQuery } from './useTypeSafeGetQuery';
 import { useTypeSafeTranslation } from './useTypeSafeTranslation';
 import { useChatStore } from '../modules/chat/useChatStore';
+import { Button } from '../ui/Button';
+import { useTypeSafePrefetch } from './useTypeSafePrefetch';
 
 export const useMainWsHandler = () => {
   const { ws, setWs } = useWsStore();
@@ -24,6 +26,21 @@ export const useMainWsHandler = () => {
   const accessToken = useTokenStore().accessToken;
   const wConn = useWrappedConn();
   const { t } = useTypeSafeTranslation();
+  const prefetchQuery = useTypeSafePrefetch();
+
+  const updateRelationship = async (
+    userId: number,
+    field: 'isFriend' | 'meRequestFriend' | 'userRequestFriend',
+    value: boolean
+  ) => {
+    await prefetchQuery(['getUserInfo', userId!]);
+    updateQuery(['getUserInfo', userId!], (user) => {
+      if (user) {
+        user[field] = value;
+      }
+      return user;
+    });
+  };
 
   React.useEffect(() => {
     if (accessToken) {
@@ -79,6 +96,29 @@ export const useMainWsHandler = () => {
           });
         return conversations;
       });
+    });
+
+    ws?.on('new_friend_request', async (requester: Omit<User, 'password'>) => {
+      toast.info(
+        <div>
+          {requester.username} send a friend request <Button>Accept</Button>
+        </div>
+      );
+      await updateRelationship(requester.id, 'userRequestFriend', true);
+    });
+
+    ws?.on('friend_accepted', async (recipient: User) => {
+      toast.info(`${recipient.username} accept friend request`);
+      await updateRelationship(recipient.id, 'isFriend', true);
+    });
+
+    ws?.on('request_cancelled', async (recipient: User) => {
+      await updateRelationship(recipient.id, 'meRequestFriend', false);
+      await updateRelationship(recipient.id, 'userRequestFriend', false);
+    });
+
+    ws?.on('friend_removed', async (oldFriend: User) => {
+      await updateRelationship(oldFriend.id, 'isFriend', false);
     });
 
     ws?.on(
@@ -244,6 +284,10 @@ export const useMainWsHandler = () => {
     return () => {
       ws?.off('toggle_online');
       ws?.off('toggle_offline');
+      ws?.off('new_friend_request');
+      ws?.off('friend_accepted');
+      ws?.off('request_cancelled');
+      ws?.off('friend_removed');
       ws?.off('user_typing');
       ws?.off('new_message');
       ws?.off('delete_message');

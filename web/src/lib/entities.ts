@@ -41,6 +41,15 @@ export type Member = {
   lastReadAt?: string;
 };
 
+export type GetUserInfoResponse = {
+  id: number;
+  username: string;
+  avatarUrl?: string;
+  isFriend: boolean;
+  userRequestFriend: boolean;
+  meRequestFriend: boolean;
+};
+
 export type FriendRequest = {
   id: number;
   username: string;

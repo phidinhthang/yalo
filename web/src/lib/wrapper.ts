@@ -5,6 +5,7 @@ import {
   Member,
   Message,
   Paginated,
+  GetUserInfoResponse,
   Tokens,
   User,
 } from './entities';
@@ -17,7 +18,14 @@ export const wrap = (connection: Connection) => ({
     me: (): Promise<_Omit<User, 'password'>> => connection.fetch('/users/me'),
     findAll: (): Promise<_Omit<User, 'password'>[]> =>
       connection.fetch('/users'),
-    getPaginatedFriends: (): Promise<User[]> => connection.fetch(`/friend`),
+    searchUser: (
+      queriedUsernameStartsWith: string
+    ): Promise<_Omit<User, 'password'>[]> =>
+      connection.fetch(`/friend/search-user/?q=${queriedUsernameStartsWith}`),
+    getUserInfo: (userId: number): Promise<GetUserInfoResponse> =>
+      connection.fetch(`/friend/user/${userId}/info`),
+    getPaginatedFriends: (): Promise<_Omit<User, 'password'>[]> =>
+      connection.fetch(`/friend`),
     getPaginatedRequests: (): Promise<FriendRequest> =>
       connection.fetch('/friend/requests'),
     getPrivateConversation: (data: { id: number }): Promise<Conversation> =>
@@ -60,11 +68,15 @@ export const wrap = (connection: Connection) => ({
     createFriendRequest: (targetId: number): Promise<FriendRequest> =>
       connection.send(`/friend/${targetId}/request-friend`),
     acceptFriendRequest: (targetId: number): Promise<boolean> =>
-      connection.send(`/friend/${targetId}/accept-friend`),
+      connection.send(`/friend/${targetId}/accept-request`),
     cancelFriendRequest: (targetId: number): Promise<boolean> =>
-      connection.send(`/friend/${targetId}/cancel-request`),
+      connection.send(`/friend/${targetId}/cancel-request`, {
+        method: 'DELETE',
+      }),
     removeFriend: (targetId: number): Promise<boolean> =>
-      connection.send(`/friend/${targetId}/remove-friend`),
+      connection.send(`/friend/${targetId}/remove-friend`, {
+        method: 'DELETE',
+      }),
     createMessage: (
       data: Pick<Message, 'text'> & { conversationId: number } & {
         images?: File[];

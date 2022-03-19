@@ -2,6 +2,7 @@ import { Get } from '@nestjs/common';
 import { UseGuards } from '@nestjs/common';
 import { Post } from '@nestjs/common';
 import { ParseIntPipe } from '@nestjs/common';
+import { Query } from '@nestjs/common';
 import { Delete } from '@nestjs/common';
 import { Param } from '@nestjs/common';
 import { Controller } from '@nestjs/common';
@@ -20,9 +21,27 @@ export class FriendController {
   }
 
   @UseGuards(HttpAuthGuard)
+  @Get('/search-user')
+  searchUser(
+    @MeId() meId: number,
+    @Query('q') queriedUsernameStartsWith: string,
+  ) {
+    return this.friendService.searchUser(meId, queriedUsernameStartsWith);
+  }
+
+  @UseGuards(HttpAuthGuard)
   @Get('/requests')
   paginatedRequests(@MeId() meId: number) {
     return this.friendService.paginatedRequests(meId);
+  }
+
+  @UseGuards(HttpAuthGuard)
+  @Get('/user/:userId/info')
+  getUserInfo(
+    @MeId() meId: number,
+    @Param('userId', new ParseIntPipe()) userId: number,
+  ) {
+    return this.friendService.getUserInfo(meId, userId);
   }
 
   @UseGuards(HttpAuthGuard)

@@ -20,6 +20,36 @@ export class FriendService {
     private readonly em: EntityManager,
   ) {}
 
+  async searchUser(meId: number, queriedUsernameStartsWith: string) {
+    const res = await this.em.getConnection('read').execute(
+      `select u.id, u.username, u.avatar_url as "avatarUrl"
+      from users u
+      where u.username ilike ?
+      order by u.username`,
+      [`${queriedUsernameStartsWith}%`],
+    );
+    return res;
+  }
+
+  async getUserInfo(meId: number, userId: number) {
+    const res = await this.em.getConnection('read').execute(
+      `select u.id, u.username, u.avatar_url as "avatarUrl",
+      case when uf.friend_id is not null then true else false end as "isFriend",
+      case when incoming_fr.requester_id is not null then true else false end as "userRequestFriend",
+      case when outgoing_fr.requester_id is not null then true else false end as "meRequestFriend"
+      from users u
+      left join user_friends uf on uf.user_id = ? and uf.friend_id = u.id
+      left join friend_requests incoming_fr on incoming_fr.requester_id = u.id and incoming_fr.recipient_id = ?
+      left join friend_requests outgoing_fr on outgoing_fr.requester_id = ? and outgoing_fr.recipient_id = u.id
+      where u.id = ?
+      order by u.username`,
+      [meId, meId, meId, userId],
+    );
+    if (!res?.[0]) return null;
+
+    return res[0];
+  }
+
   async paginatedFriends(meId: number): Promise<User[]> {
     const userFriends = await this.userFriendRepository.find(
       {

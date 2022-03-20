@@ -32,6 +32,7 @@ import { SvgOutlineUserAdd } from '../../icons/OutlineUserAdd';
 import { Modal } from '../../ui/Modal';
 import { SvgOutlinePencil } from '../../icons/OutlinePencil';
 import { IconButton } from '../../ui/IconButton';
+import { SvgOutlinePhotograph } from '../../icons/OutlinePhotograph';
 
 const MainSkeleton = () => {
   const genHeight = () => randomNumber(3, 8) * 12;
@@ -579,11 +580,12 @@ export const ChatBox = () => {
               <Button
                 variant='secondary'
                 size='sm'
+                className='ml-2'
                 onClick={() => {
                   uploadFileInputRef.current?.click();
                 }}
               >
-                upload
+                <SvgOutlinePhotograph />
               </Button>
             </div>
           </div>

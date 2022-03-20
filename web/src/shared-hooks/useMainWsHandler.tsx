@@ -16,6 +16,7 @@ import { useTypeSafeTranslation } from './useTypeSafeTranslation';
 import { useChatStore } from '../modules/chat/useChatStore';
 import { Button } from '../ui/Button';
 import { useTypeSafePrefetch } from './useTypeSafePrefetch';
+import { useUpdateRelationship } from '../lib/useUpdateRelationship';
 
 export const useMainWsHandler = () => {
   const { ws, setWs } = useWsStore();
@@ -28,19 +29,21 @@ export const useMainWsHandler = () => {
   const { t } = useTypeSafeTranslation();
   const prefetchQuery = useTypeSafePrefetch();
 
-  const updateRelationship = async (
-    userId: number,
-    field: 'isFriend' | 'meRequestFriend' | 'userRequestFriend',
-    value: boolean
-  ) => {
-    await prefetchQuery(['getUserInfo', userId!]);
-    updateQuery(['getUserInfo', userId!], (user) => {
-      if (user) {
-        user[field] = value;
-      }
-      return user;
-    });
-  };
+  const updateRelationship = useUpdateRelationship();
+
+  // const updateRelationship = async (
+  //   userId: number,
+  //   field: 'isFriend' | 'meRequestFriend' | 'userRequestFriend',
+  //   value: boolean
+  // ) => {
+  //   await prefetchQuery(['getUserInfo', userId!]);
+  //   updateQuery(['getUserInfo', userId!], (user) => {
+  //     if (user) {
+  //       user[field] = value;
+  //     }
+  //     return user;
+  //   });
+  // };
 
   React.useEffect(() => {
     if (accessToken) {
@@ -102,23 +105,62 @@ export const useMainWsHandler = () => {
       toast.info(
         <div>
           {requester.username} send a friend request <Button>Accept</Button>
-        </div>
+        </div>,
+        { position: 'bottom-left' }
       );
-      await updateRelationship(requester.id, 'userRequestFriend', true);
+      updateRelationship(
+        requester.id,
+        { userRequestFriend: true, isFriend: false },
+        {
+          ...requester,
+          userRequestFriend: true,
+          isFriend: false,
+          meRequestFriend: false,
+        }
+      );
     });
 
     ws?.on('friend_accepted', async (recipient: User) => {
-      toast.info(`${recipient.username} accept friend request`);
-      await updateRelationship(recipient.id, 'isFriend', true);
+      toast.info(`${recipient.username} accept friend request`, {
+        position: 'bottom-left',
+      });
+      updateRelationship(
+        recipient.id,
+        { isFriend: true, meRequestFriend: false, userRequestFriend: false },
+        {
+          ...recipient,
+          userRequestFriend: false,
+          meRequestFriend: false,
+          isFriend: true,
+        }
+      );
     });
 
     ws?.on('request_cancelled', async (recipient: User) => {
-      await updateRelationship(recipient.id, 'meRequestFriend', false);
-      await updateRelationship(recipient.id, 'userRequestFriend', false);
+      const defaultCache = {
+        ...recipient,
+        isFriend: false,
+        userRequestFriend: false,
+        meRequestFriend: false,
+      };
+      updateRelationship(
+        recipient.id,
+        { isFriend: false, userRequestFriend: false, meRequestFriend: false },
+        defaultCache
+      );
     });
 
     ws?.on('friend_removed', async (oldFriend: User) => {
-      await updateRelationship(oldFriend.id, 'isFriend', false);
+      updateRelationship(
+        oldFriend.id,
+        { isFriend: false, meRequestFriend: false, userRequestFriend: false },
+        {
+          ...oldFriend,
+          meRequestFriend: false,
+          isFriend: false,
+          userRequestFriend: false,
+        }
+      );
     });
 
     ws?.on(

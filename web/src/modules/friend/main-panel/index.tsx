@@ -1,4 +1,5 @@
 import { useMainPanelOpenStore } from '../useMainPanelOpenStore';
+import { FriendRequestPanel } from './RequestPanel';
 import { SearchPanel } from './SearchPanel';
 
 export const FriendMainPanel = () => {
@@ -6,8 +7,12 @@ export const FriendMainPanel = () => {
   return (
     <div>
       {open === 'friend-search' ? <SearchPanel /> : null}
-      {open === 'incoming-friend-request' ? 'incoming request' : null}
-      {open === 'outgoing-friend-request' ? 'outgoing request' : null}
+      {open === 'incoming-friend-request' ? (
+        <FriendRequestPanel type='incoming' />
+      ) : null}
+      {open === 'outgoing-friend-request' ? (
+        <FriendRequestPanel type='outgoing' />
+      ) : null}
     </div>
   );
 };

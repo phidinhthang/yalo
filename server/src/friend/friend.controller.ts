@@ -31,8 +31,11 @@ export class FriendController {
 
   @UseGuards(HttpAuthGuard)
   @Get('/requests')
-  paginatedRequests(@MeId() meId: number) {
-    return this.friendService.paginatedRequests(meId);
+  paginatedRequests(
+    @MeId() meId: number,
+    @Query('type') type: 'outgoing' | 'incoming',
+  ) {
+    return this.friendService.paginatedRequests(meId, type);
   }
 
   @UseGuards(HttpAuthGuard)

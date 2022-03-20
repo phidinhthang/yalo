@@ -1,7 +1,9 @@
 import { NavLink } from 'react-router-dom';
 import { SvgOutlineChat } from '../../icons/OutlineChat';
+import { SvgOutlineCog } from '../../icons/OutlineCog';
 import { SvgOutlineContact } from '../../icons/OutlineContact';
 import { SvgSolidChat } from '../../icons/SolidChat';
+import { SvgSolidCog } from '../../icons/SolidCog';
 import { SvgSolidContact } from '../../icons/SolidContact';
 import { useIsDesktopScreen } from '../../shared-hooks/useIsDesktopScreen';
 import { AvatarMenu } from './AvatarMenu';
@@ -24,21 +26,23 @@ export const SideBar = () => {
       >
         <SvgOutlineContact className='w-7 h-7' />
       </NavItem>
+      <NavItem to='/s' activeChildren={<SvgSolidCog className='w-7 h-7' />}>
+        <SvgOutlineCog className='w-7 h-7' />
+      </NavItem>
     </div>
   );
 };
 
-interface NavItemProps {
+interface NavItemProps extends React.ComponentPropsWithoutRef<'a'> {
   to: string;
   activeChildren: React.ReactNode;
-  onClick?: React.MouseEventHandler<HTMLAnchorElement>;
 }
 
 const NavItem: React.FC<NavItemProps> = ({
   children,
   activeChildren,
   to,
-  onClick,
+  ...props
 }) => {
   return (
     <NavLink
@@ -47,8 +51,8 @@ const NavItem: React.FC<NavItemProps> = ({
           ctx.isActive ? 'bg-blue-700 hover:bg-blue-700 dark:bg-gray-900' : ''
         }`
       }
-      onClick={onClick}
       to={to}
+      {...props}
     >
       {(ctx) => (ctx.isActive ? activeChildren : children)}
     </NavLink>

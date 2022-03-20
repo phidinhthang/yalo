@@ -7,12 +7,12 @@ import { SearchOverlay } from '../../../ui/Search/SearchOverlay';
 import { Avatar } from '../../../ui/Avatar';
 import { Button } from '../../../ui/Button';
 import { User } from '../../../lib/api/entities';
-import { useTypeSafeUpdateQuery } from '../../../shared-hooks/useTypeSafeUpdateQuery';
 import { useTypeSafeMutation } from '../../../shared-hooks/useTypeSafeMutation';
 import { useIsDesktopScreen } from '../../../shared-hooks/useIsDesktopScreen';
 import { IconButton } from '../../../ui/IconButton';
 import { SvgSolidArrowLeft } from '../../../icons/SolidArrowLeft';
 import { useMainPanelOpenStore } from '../useMainPanelOpenStore';
+import { useUpdateRelationship } from '../../../lib/useUpdateRelationship';
 
 export const SearchPanel = () => {
   const [rawText, setText] = React.useState('');
@@ -43,19 +43,7 @@ export const SearchPanel = () => {
     'acceptFriendRequest'
   );
   const { mutate: removeFriend } = useTypeSafeMutation('removeFriend');
-  const updateQuery = useTypeSafeUpdateQuery();
-
-  const updateRelationship = (
-    field: 'isFriend' | 'meRequestFriend' | 'userRequestFriend',
-    value: boolean
-  ) => {
-    updateQuery(['getUserInfo', selectedUserId!], (user) => {
-      if (user) {
-        user[field] = value;
-      }
-      return user;
-    });
-  };
+  const updateRelationship = useUpdateRelationship();
 
   return (
     <div className='flex gap-2 p-5'>
@@ -166,7 +154,11 @@ export const SearchPanel = () => {
                     onClick={() => {
                       createFriendRequest([selectedUser.id], {
                         onSuccess: () =>
-                          updateRelationship('meRequestFriend', true),
+                          updateRelationship(selectedUser.id, {
+                            isFriend: false,
+                            meRequestFriend: true,
+                            userRequestFriend: false,
+                          }),
                       });
                     }}
                   >
@@ -178,7 +170,13 @@ export const SearchPanel = () => {
                     variant='secondary'
                     onClick={() => {
                       removeFriend([selectedUser.id], {
-                        onSuccess: () => updateRelationship('isFriend', false),
+                        onSuccess: () => {
+                          updateRelationship(selectedUser.id, {
+                            isFriend: false,
+                            userRequestFriend: false,
+                            meRequestFriend: false,
+                          });
+                        },
                       });
                     }}
                   >
@@ -190,8 +188,13 @@ export const SearchPanel = () => {
                     variant='secondary'
                     onClick={() => {
                       cancelFriendRequest([selectedUser.id], {
-                        onSuccess: () =>
-                          updateRelationship('meRequestFriend', false),
+                        onSuccess: () => {
+                          updateRelationship(selectedUser.id, {
+                            isFriend: false,
+                            meRequestFriend: false,
+                            userRequestFriend: false,
+                          });
+                        },
                       });
                     }}
                   >
@@ -204,8 +207,11 @@ export const SearchPanel = () => {
                       onClick={() => {
                         acceptFriendRequest([selectedUser.id], {
                           onSuccess: () => {
-                            updateRelationship('isFriend', true);
-                            updateRelationship('userRequestFriend', false);
+                            updateRelationship(selectedUser.id, {
+                              isFriend: true,
+                              userRequestFriend: false,
+                              meRequestFriend: false,
+                            });
                           },
                         });
                       }}
@@ -216,8 +222,13 @@ export const SearchPanel = () => {
                       variant='secondary'
                       onClick={() =>
                         cancelFriendRequest([selectedUser.id], {
-                          onSuccess: () =>
-                            updateRelationship('userRequestFriend', false),
+                          onSuccess: () => {
+                            updateRelationship(selectedUser.id, {
+                              isFriend: false,
+                              meRequestFriend: false,
+                              userRequestFriend: false,
+                            });
+                          },
                         })
                       }
                     >

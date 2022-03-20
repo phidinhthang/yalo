@@ -50,11 +50,11 @@ export type GetUserInfoResponse = {
   meRequestFriend: boolean;
 };
 
-export type FriendRequest = {
+export type FriendRequest<T extends 'incoming' | 'outgoing'> = {
   id: number;
   username: string;
   avatarUrl: string;
-  type: 0 | 1;
+  type: T;
 };
 
 export type Conversation = {

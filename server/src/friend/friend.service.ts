@@ -63,20 +63,24 @@ export class FriendService {
     return friends;
   }
 
-  async paginatedRequests(meId: number): Promise<RequestResponse[]> {
-    const res = await this.em.getConnection('read').execute(
-      `
-			select u.id, u.username, u.avatar_url as "avatarUrl", 1 as "type" from users u
-			inner join friend_requests fr on u.id = fr."requester_id"
-			where fr."recipient_id" = $1
-			UNION
-			select u.id, u.username, u.avatar_url as "avatarUrl", 0 as "type" from users u
+  async paginatedRequests(
+    meId: number,
+    type: 'incoming' | 'outgoing',
+  ): Promise<RequestResponse[]> {
+    let query: string;
+    if (type === 'outgoing') {
+      query = `select u.id, u.username, u.avatar_url as "avatarUrl", 'outgoing' as "type" from users u
 			inner join friend_requests fr on u.id = fr."recipient_id"
-			where fr."requester_id" = $1
-			order by username
-		`,
-      [meId],
-    );
+			where fr."requester_id" = ?`;
+    } else if (type === 'incoming') {
+      query = `select u.id, u.username, u.avatar_url as "avatarUrl", 'incoming' as "type" from users u
+			inner join friend_requests fr on u.id = fr."requester_id"
+			where fr."recipient_id" = ?`;
+    } else {
+      return [];
+    }
+
+    const res = await this.em.getConnection('read').execute(query, [meId]);
 
     return res as any;
   }

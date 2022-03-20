@@ -26,8 +26,10 @@ export const wrap = (connection: Connection) => ({
       connection.fetch(`/friend/user/${userId}/info`),
     getPaginatedFriends: (): Promise<_Omit<User, 'password'>[]> =>
       connection.fetch(`/friend`),
-    getPaginatedRequests: (): Promise<FriendRequest> =>
-      connection.fetch('/friend/requests'),
+    getPaginatedRequests: (
+      type: 'incoming' | 'outgoing'
+    ): Promise<FriendRequest<typeof type>[]> =>
+      connection.fetch(`/friend/requests/?type=${type}`),
     getPrivateConversation: (data: { id: number }): Promise<Conversation> =>
       connection.fetch(`/conversation/private/${data.id}`),
     getPaginatedConversations: (): Promise<Conversation[]> =>
@@ -65,7 +67,7 @@ export const wrap = (connection: Connection) => ({
         }
       | ErrorResponse<'username' | 'password'>
     > => connection.send('/users/register', { body: JSON.stringify(data) }),
-    createFriendRequest: (targetId: number): Promise<FriendRequest> =>
+    createFriendRequest: (targetId: number): Promise<boolean> =>
       connection.send(`/friend/${targetId}/request-friend`),
     acceptFriendRequest: (targetId: number): Promise<boolean> =>
       connection.send(`/friend/${targetId}/accept-request`),

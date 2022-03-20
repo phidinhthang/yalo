@@ -70,5 +70,20 @@
   },
   "message": {
     "deleted": "message has been deleted"
+  },
+  "friend": {
+    "noResults": "No results",
+    "noFriends": "You have no friends yet.",
+    "search": "Search friend",
+    "friends": "Friends",
+    "remove": "Remove friend",
+    "requests": {
+      "label": "Friend Requests",
+      "outgoing": "Outgoing",
+      "incoming": "Incoming",
+      "cancel": "Cancel",
+      "accept": "Accept",
+      "send": "Send friend request"
+    }
   }
 }

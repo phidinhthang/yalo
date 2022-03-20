@@ -1,6 +1,7 @@
 import { useUpdateRelationship } from '../../../lib/useUpdateRelationship';
 import { useTypeSafeMutation } from '../../../shared-hooks/useTypeSafeMutation';
 import { useTypeSafeQuery } from '../../../shared-hooks/useTypeSafeQuery';
+import { useTypeSafeTranslation } from '../../../shared-hooks/useTypeSafeTranslation';
 import { Avatar } from '../../../ui/Avatar';
 import { Button } from '../../../ui/Button';
 
@@ -9,6 +10,7 @@ interface FriendRequestPanelProps {
 }
 
 export const FriendRequestPanel = ({ type }: FriendRequestPanelProps) => {
+  const { t } = useTypeSafeTranslation();
   const { data: requests, isLoading } = useTypeSafeQuery(
     ['getPaginatedRequests', type],
     {},
@@ -24,7 +26,7 @@ export const FriendRequestPanel = ({ type }: FriendRequestPanelProps) => {
   return (
     <div className='p-5 flex flex-wrap justify-center'>
       {!requests?.length && !isLoading ? (
-        <h4 className='font-bold text-xl'>No results</h4>
+        <h4 className='font-bold text-xl'>{t('friend.noResults')}</h4>
       ) : null}
       {requests?.map((r) => (
         <div className='flex gap-3 basis-11/12 md:basis-1/2'>
@@ -57,7 +59,7 @@ export const FriendRequestPanel = ({ type }: FriendRequestPanelProps) => {
                     });
                   }}
                 >
-                  Accept
+                  {t('friend.requests.accept')}
                 </Button>
               ) : null}
               <Button
@@ -83,7 +85,7 @@ export const FriendRequestPanel = ({ type }: FriendRequestPanelProps) => {
                   });
                 }}
               >
-                Cancel
+                {t('friend.requests.cancel')}
               </Button>
             </div>
           </div>

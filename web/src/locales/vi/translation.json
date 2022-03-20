@@ -69,5 +69,20 @@
   },
   "message": {
     "deleted": "Tin nhắn đã bị xóa"
+  },
+  "friend": {
+    "noResults": "Không có kết quả",
+    "noFriends": "Bạn có 0 người bạn.",
+    "search": "Tìm kiếm bạn bè",
+    "friends": "Bạn bè",
+    "remove": "Xoá bạn bè",
+    "requests": {
+      "label": "Yêu cầu kết bạn",
+      "outgoing": "Yêu cầu gửi đi",
+      "incoming": "Yêu cầu nhận được",
+      "cancel": "Từ chối",
+      "accept": "Chấp nhận",
+      "send": "Gửi yêu cầu kết bạn"
+    }
   }
 }

@@ -13,10 +13,12 @@ import { IconButton } from '../../../ui/IconButton';
 import { SvgSolidArrowLeft } from '../../../icons/SolidArrowLeft';
 import { useMainPanelOpenStore } from '../useMainPanelOpenStore';
 import { useUpdateRelationship } from '../../../lib/useUpdateRelationship';
+import { useTypeSafeTranslation } from '../../../shared-hooks/useTypeSafeTranslation';
 
 export const SearchPanel = () => {
   const [rawText, setText] = React.useState('');
   const text = useDebounce(rawText, 200);
+  const { t } = useTypeSafeTranslation();
   const { data, isLoading: searchUserLoading } = useTypeSafeQuery(
     ['searchUser', text],
     { enabled: !!text.length },
@@ -102,7 +104,7 @@ export const SearchPanel = () => {
                   >
                     {!data?.length && searchUserLoading ? (
                       <h5 className='font-bold text-lg text-center'>
-                        No results
+                        {t('friend.noResults')}
                       </h5>
                     ) : null}
                     {(data || []).map((user, index) => (
@@ -162,7 +164,7 @@ export const SearchPanel = () => {
                       });
                     }}
                   >
-                    Send friend request
+                    {t('friend.requests.send')}
                   </Button>
                 ) : null}
                 {selectedUser.isFriend ? (
@@ -180,7 +182,7 @@ export const SearchPanel = () => {
                       });
                     }}
                   >
-                    Remove friend
+                    {t('friend.remove')}
                   </Button>
                 ) : null}
                 {selectedUser.meRequestFriend ? (
@@ -198,7 +200,7 @@ export const SearchPanel = () => {
                       });
                     }}
                   >
-                    Cancel request
+                    {t('friend.requests.cancel')}
                   </Button>
                 ) : null}
                 {selectedUser.userRequestFriend ? (
@@ -216,7 +218,7 @@ export const SearchPanel = () => {
                         });
                       }}
                     >
-                      Accept
+                      {t('friend.requests.accept')}
                     </Button>
                     <Button
                       variant='secondary'
@@ -232,7 +234,7 @@ export const SearchPanel = () => {
                         })
                       }
                     >
-                      Cancel request
+                      {t('friend.requests.cancel')}
                     </Button>
                   </>
                 ) : null}

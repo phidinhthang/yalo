@@ -8,6 +8,7 @@ import {
   GetUserInfoResponse,
   Tokens,
   User,
+  Post,
 } from './entities';
 import { Connection } from './raw';
 import { _Omit } from './util-types';
@@ -30,6 +31,8 @@ export const wrap = (connection: Connection) => ({
       type: 'incoming' | 'outgoing'
     ): Promise<FriendRequest<typeof type>[]> =>
       connection.fetch(`/friend/requests/?type=${type}`),
+    getPaginatedPosts: (_: any, ctx: { nextParam?: string }) =>
+      connection.fetch(`/post?${new URLSearchParams(ctx)}`),
     getPrivateConversation: (data: { id: number }): Promise<Conversation> =>
       connection.fetch(`/conversation/private/${data.id}`),
     getPaginatedConversations: (): Promise<Conversation[]> =>
@@ -79,6 +82,12 @@ export const wrap = (connection: Connection) => ({
       connection.send(`/friend/${targetId}/remove-friend`, {
         method: 'DELETE',
       }),
+    reactsToPost: (postId: number, value: number) =>
+      connection.send(`/post/${postId}/reaction?value=${value}`),
+    createPost: (data: Pick<Post, 'text'>): Promise<Post> =>
+      connection.send(`/post/create`),
+    deletePost: (postId: number) =>
+      connection.send(`/post/${postId}`, { method: 'DELETE' }),
     createMessage: (
       data: Pick<Message, 'text'> & { conversationId: number } & {
         images?: File[];

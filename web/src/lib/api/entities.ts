@@ -34,6 +34,23 @@ export type Message = {
   images?: Array<{ url: string }>;
 };
 
+export type Post = {
+  id: number;
+  text: string;
+  creator: Omit<User, 'password'>;
+  numReactions: number;
+  reactions: Reaction[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Reaction = {
+  id: number;
+  user: Omit<User, 'password'>;
+  post: Post;
+  createdAt: string;
+};
+
 export type Member = {
   conversation: number;
   user: User;

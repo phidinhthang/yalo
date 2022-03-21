@@ -54,3 +54,9 @@ code {
 .overflow-y-auto::-webkit-scrollbar-thumb {
   border-radius: 0.25rem;
 }
+
+[contenteditable='true']:empty:before {
+  content: attr(placeholder);
+  display: block;
+  color: #aaa;
+}

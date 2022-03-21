@@ -1,8 +1,10 @@
 import { NavLink } from 'react-router-dom';
 import { SvgOutlineChat } from '../../icons/OutlineChat';
+import { SvgOutlineClock } from '../../icons/OutlineClock';
 import { SvgOutlineCog } from '../../icons/OutlineCog';
 import { SvgOutlineContact } from '../../icons/OutlineContact';
 import { SvgSolidChat } from '../../icons/SolidChat';
+import { SvgSolidClock } from '../../icons/SolidClock';
 import { SvgSolidCog } from '../../icons/SolidCog';
 import { SvgSolidContact } from '../../icons/SolidContact';
 import { useIsDesktopScreen } from '../../shared-hooks/useIsDesktopScreen';
@@ -25,6 +27,9 @@ export const SideBar = () => {
         activeChildren={<SvgSolidContact className='w-7 h-7' />}
       >
         <SvgOutlineContact className='w-7 h-7' />
+      </NavItem>
+      <NavItem to='/a' activeChildren={<SvgSolidClock className='w-7 h-7' />}>
+        <SvgOutlineClock className='w-7 h-7' />
       </NavItem>
       <NavItem to='/s' activeChildren={<SvgSolidCog className='w-7 h-7' />}>
         <SvgOutlineCog className='w-7 h-7' />

@@ -14,6 +14,7 @@ import { ConversationModule } from './conversation/conversation.module';
 import { MessageModule } from './message/message.module';
 import { MemberModule } from './member/member.module';
 import { FriendModule } from './friend/friend.module';
+import { PostModule } from './post/post.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { FriendModule } from './friend/friend.module';
     MessageModule,
     UsersModule,
     FriendModule,
+    PostModule,
     SocketModule,
   ],
 })

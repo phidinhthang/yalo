@@ -5,6 +5,7 @@ import { Member } from './member/member.entity';
 import { Conversation } from './conversation/conversation.entity';
 import { Message, Image } from './message/message.entity';
 import { FriendRequest, UserFriend } from './friend/friend.entity';
+import { Post, Reaction } from './post/post.entity';
 
 const config: Options = {
   type: 'postgresql',
@@ -17,6 +18,8 @@ const config: Options = {
     Image,
     FriendRequest,
     UserFriend,
+    Post,
+    Reaction,
   ],
   debug: true,
   loadStrategy: LoadStrategy.JOINED,

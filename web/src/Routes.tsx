@@ -12,6 +12,10 @@ const GroupPreviewPage = React.lazy(
 );
 const FriendPage = React.lazy(() => import('./modules/friend/FriendPage'));
 const MainPage = React.lazy(() => import('./modules/main/MainPage'));
+const SettingPage = React.lazy(
+  () => import('./modules/user-setting/SettingPage')
+);
+const AlbumPage = React.lazy(() => import('./modules/album/AlbumPage'));
 
 export const Routers = React.memo(() => {
   return (
@@ -20,9 +24,11 @@ export const Routers = React.memo(() => {
         <Route path='/' element={<MainPage />} />
         <Route path='/f' element={<FriendPage />} />
         <Route path='/@f' element={<FriendAnchorPage />} />
+        <Route path='/a' element={<AlbumPage />} />
         <Route path='/login' element={<LoginPage />} />
         <Route path='/register' element={<RegisterPage />} />
         <Route path='/conversations' element={<ConversationPage />} />
+        <Route path='/s' element={<SettingPage />} />
         <Route path='/g/:inviteLinkToken' element={<GroupPreviewPage />} />
         <Route path='test' element={<ScreenLoader />} />
       </Routes>

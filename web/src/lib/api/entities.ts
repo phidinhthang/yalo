@@ -40,6 +40,7 @@ export type Post = {
   creator: Omit<User, 'password'>;
   numReactions: number;
   reactions: Reaction[];
+  reacted?: boolean;
   createdAt: string;
   updatedAt: string;
 };

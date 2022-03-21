@@ -31,7 +31,10 @@ export const wrap = (connection: Connection) => ({
       type: 'incoming' | 'outgoing'
     ): Promise<FriendRequest<typeof type>[]> =>
       connection.fetch(`/friend/requests/?type=${type}`),
-    getPaginatedPosts: (_: any, ctx: { nextParam?: string }) =>
+    getPaginatedPosts: (
+      _: any,
+      ctx: { nextParam?: string }
+    ): Promise<Paginated<Post[]>> =>
       connection.fetch(`/post?${new URLSearchParams(ctx)}`),
     getPrivateConversation: (data: { id: number }): Promise<Conversation> =>
       connection.fetch(`/conversation/private/${data.id}`),
@@ -84,8 +87,13 @@ export const wrap = (connection: Connection) => ({
       }),
     reactsToPost: (postId: number, value: number) =>
       connection.send(`/post/${postId}/reaction?value=${value}`),
-    createPost: (data: Pick<Post, 'text'>): Promise<Post> =>
-      connection.send(`/post/create`),
+    createPost: (data: Pick<Post, 'text'>): Promise<Post> => {
+      const formData = new FormData();
+      if (data.text) formData.append('text', data.text);
+      console.log('create post data ', data);
+      console.log(formData);
+      return connection.send(`/post/create`, { body: formData });
+    },
     deletePost: (postId: number) =>
       connection.send(`/post/${postId}`, { method: 'DELETE' }),
     createMessage: (

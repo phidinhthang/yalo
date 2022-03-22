@@ -31,11 +31,12 @@ export const wrap = (connection: Connection) => ({
       type: 'incoming' | 'outgoing'
     ): Promise<FriendRequest<typeof type>[]> =>
       connection.fetch(`/friend/requests/?type=${type}`),
-    getPaginatedPosts: (
-      _: any,
-      ctx: { nextParam?: string }
-    ): Promise<Paginated<Post[]>> =>
+    getPaginatedPosts: (ctx: {
+      nextParam?: string;
+    }): Promise<Paginated<Post[]>> =>
       connection.fetch(`/post?${new URLSearchParams(ctx)}`),
+    getPost: (postId: number): Promise<Post> =>
+      connection.fetch(`/post/${postId}`),
     getPrivateConversation: (data: { id: number }): Promise<Conversation> =>
       connection.fetch(`/conversation/private/${data.id}`),
     getPaginatedConversations: (): Promise<Conversation[]> =>
@@ -47,6 +48,11 @@ export const wrap = (connection: Connection) => ({
       connection.fetch(
         `/message/${data.conversationId}?${new URLSearchParams(ctx)}`
       ),
+    getPaginatedComments: (
+      postId: number,
+      ctx: { nextParam?: string }
+    ): Promise<Paginated<Comment[]>> =>
+      connection.fetch(`/post/${postId}/comment?${new URLSearchParams(ctx)}`),
     getGroupPreview: (inviteLinkToken: string): Promise<Conversation> =>
       connection.fetch(`/conversation/${inviteLinkToken}/preview`),
   },
@@ -96,6 +102,12 @@ export const wrap = (connection: Connection) => ({
     },
     deletePost: (postId: number) =>
       connection.send(`/post/${postId}`, { method: 'DELETE' }),
+    createComment: (postId: number, data: { text: string }) =>
+      connection.send(`/post/${postId}/comment`, {
+        body: JSON.stringify(data),
+      }),
+    deleteComment: (commentId: number) =>
+      connection.send(`/post/${commentId}/comment`, { method: 'DELETE' }),
     createMessage: (
       data: Pick<Message, 'text'> & { conversationId: number } & {
         images?: File[];

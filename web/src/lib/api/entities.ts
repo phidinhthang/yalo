@@ -40,9 +40,19 @@ export type Post = {
   creator: Omit<User, 'password'>;
   numReactions: number;
   reactions: Reaction[];
+  numComments: number;
+  comments: Comment[];
   reacted?: boolean;
   createdAt: string;
   updatedAt: string;
+};
+
+export type Comment = {
+  id: number;
+  creator: Omit<User, 'password'>;
+  post: Post;
+  text: string;
+  createdAt: string;
 };
 
 export type Reaction = {

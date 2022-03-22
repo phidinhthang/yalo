@@ -8,7 +8,11 @@ import {
   EntityRepositoryType,
 } from '@mikro-orm/core';
 import { User } from '../user/user.entity';
-import { PostRepository, ReactionRepository } from './post.repository';
+import {
+  CommentRepository,
+  PostRepository,
+  ReactionRepository,
+} from './post.repository';
 
 @Entity({ tableName: 'posts', customRepository: () => PostRepository })
 export class Post {
@@ -29,6 +33,12 @@ export class Post {
   @OneToMany(() => Reaction, (reaction) => reaction.post)
   reactions = new Collection<Reaction>(this);
 
+  @Property({ default: 0 })
+  numComments: number = 0;
+
+  @OneToMany(() => Comment, (comment) => comment.post)
+  comments = new Collection<Comment>(this);
+
   @Property({ defaultRaw: 'CURRENT_TIMESTAMP' })
   createdAt: Date = new Date();
 
@@ -48,6 +58,26 @@ export class Reaction {
 
   @ManyToOne(() => Post, { onDelete: 'cascade' })
   post: Post;
+
+  @Property({ defaultRaw: 'CURRENT_TIMESTAMP' })
+  createdAt: Date = new Date();
+}
+
+@Entity({ tableName: 'comments', customRepository: () => CommentRepository })
+export class Comment {
+  [EntityRepositoryType]?: CommentRepository;
+
+  @PrimaryKey()
+  id: number;
+
+  @ManyToOne(() => User, { onDelete: 'cascade' })
+  creator: User;
+
+  @ManyToOne(() => Post, { onDelete: 'cascade' })
+  post: Post;
+
+  @Property()
+  text: string;
 
   @Property({ defaultRaw: 'CURRENT_TIMESTAMP' })
   createdAt: Date = new Date();

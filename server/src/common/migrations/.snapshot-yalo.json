@@ -529,6 +529,285 @@
           "updateRule": "cascade"
         }
       }
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "text": {
+          "name": "text",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
+        "creator_id": {
+          "name": "creator_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "num_reactions": {
+          "name": "num_reactions",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "0",
+          "mappedType": "integer"
+        },
+        "num_comments": {
+          "name": "num_comments",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "0",
+          "mappedType": "integer"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "CURRENT_TIMESTAMP",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "CURRENT_TIMESTAMP",
+          "mappedType": "datetime"
+        }
+      },
+      "name": "posts",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "posts_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "posts_creator_id_foreign": {
+          "constraintName": "posts_creator_id_foreign",
+          "columnNames": [
+            "creator_id"
+          ],
+          "localTableName": "public.posts",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        }
+      }
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "creator_id": {
+          "name": "creator_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "post_id": {
+          "name": "post_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "text": {
+          "name": "text",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "CURRENT_TIMESTAMP",
+          "mappedType": "datetime"
+        }
+      },
+      "name": "comments",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "comments_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "comments_creator_id_foreign": {
+          "constraintName": "comments_creator_id_foreign",
+          "columnNames": [
+            "creator_id"
+          ],
+          "localTableName": "public.comments",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        },
+        "comments_post_id_foreign": {
+          "constraintName": "comments_post_id_foreign",
+          "columnNames": [
+            "post_id"
+          ],
+          "localTableName": "public.comments",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.posts",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        }
+      }
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "post_id": {
+          "name": "post_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "CURRENT_TIMESTAMP",
+          "mappedType": "datetime"
+        }
+      },
+      "name": "reactions",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "reactions_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "reactions_user_id_foreign": {
+          "constraintName": "reactions_user_id_foreign",
+          "columnNames": [
+            "user_id"
+          ],
+          "localTableName": "public.reactions",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        },
+        "reactions_post_id_foreign": {
+          "constraintName": "reactions_post_id_foreign",
+          "columnNames": [
+            "post_id"
+          ],
+          "localTableName": "public.reactions",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.posts",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        }
+      }
     }
   ]
 }

@@ -14,7 +14,7 @@ export const SideBar = () => {
   const isDesktopScreen = useIsDesktopScreen();
 
   return (
-    <div className='w-16 h-full flex flex-col items-center shadow-md bg-blue-500 dark:bg-gray-800 text-white'>
+    <div className='w-16 h-full flex flex-col flex-shrink-0 items-center shadow-md bg-blue-500 dark:bg-gray-800 text-white'>
       <div className='flex items-center justify-center pt-3 mt-2 mb-3'>
         <AvatarMenu />
       </div>

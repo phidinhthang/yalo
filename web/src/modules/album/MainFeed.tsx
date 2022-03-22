@@ -1,9 +1,9 @@
-import { text } from 'express';
 import React from 'react';
 import ContentEditable from 'react-contenteditable';
 import { useInView } from 'react-intersection-observer';
 import { SvgOutlineHappy } from '../../icons/OutlineHappy';
 import { SvgOutlinePhotograph } from '../../icons/OutlinePhotograph';
+import { useElementSize } from '../../shared-hooks/useElementSize';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 import {
   useTypeSafeQuery,
@@ -18,8 +18,8 @@ import { PostController } from './PostController';
 export const MainFeed = () => {
   const { data: me } = useTypeSafeQuery('me');
   const [text, setText] = React.useState('');
-  const innerRef = React.useRef<HTMLElement>(null);
   const [ref, inView] = useInView();
+  const innerRef = React.useRef<HTMLElement>(null);
   const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
   const { mutate: createPost, isLoading: createPostLoading } =
     useTypeSafeMutation('createPost');
@@ -49,17 +49,22 @@ export const MainFeed = () => {
       </div>
       <div className='border-b'>
         <div className='flex gap-1 p-4'>
-          <Avatar src={me?.avatarUrl} username={me?.username} size='lg' />
-          <div className='flex-1'>
+          <Avatar
+            src={me?.avatarUrl}
+            username={me?.username}
+            size='lg'
+            className='flex-shrink-0'
+          />
+          <div className='flex-auto'>
             <div className='border-b'>
               <ContentEditable
                 html={text}
-                className='border-none outline-none px-2 py-3 text-2xl'
+                className='border-none outline-none px-2 py-3 text-2xl break-all min-w-[100px]'
                 placeholder='What happening ?'
+                innerRef={innerRef}
                 onChange={(e) => {
                   setText(e.target.value);
                 }}
-                innerRef={innerRef}
               />
             </div>
             <div className='flex justify-between items-center mt-4'>

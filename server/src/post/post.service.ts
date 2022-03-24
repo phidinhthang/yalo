@@ -1,6 +1,7 @@
 import { EntityManager } from '@mikro-orm/core';
 import { NotFoundException } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
+import { escape } from 'html-escaper';
 import { CreateCommentDto, CreatePostDto } from './post.dto';
 import { Post } from './post.entity';
 import {
@@ -19,8 +20,9 @@ export class PostService {
   ) {}
 
   async create(meId: number, createPostDto: CreatePostDto) {
+    const santiziedText = escape(createPostDto.text);
     const post = this.postRepository.create({
-      text: createPostDto.text,
+      text: santiziedText,
       creator: meId,
     });
     await this.postRepository.persistAndFlush(post);
@@ -74,7 +76,7 @@ export class PostService {
     const comment = this.commentRepository.create({
       creator: meId,
       post: postId,
-      text,
+      text: escape(text),
     });
 
     post.numComments += 1;

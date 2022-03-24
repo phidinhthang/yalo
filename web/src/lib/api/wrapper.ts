@@ -7,6 +7,7 @@ import {
   Paginated,
   GetUserInfoResponse,
   Tokens,
+  Comment,
   User,
   Post,
 } from './entities';
@@ -102,7 +103,7 @@ export const wrap = (connection: Connection) => ({
     },
     deletePost: (postId: number) =>
       connection.send(`/post/${postId}`, { method: 'DELETE' }),
-    createComment: (postId: number, data: { text: string }) =>
+    createComment: (postId: number, data: { text: string }): Promise<Comment> =>
       connection.send(`/post/${postId}/comment`, {
         body: JSON.stringify(data),
       }),

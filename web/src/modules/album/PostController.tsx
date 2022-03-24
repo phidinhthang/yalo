@@ -49,7 +49,7 @@ export const PostController = ({
         key={p.id}
         className={`flex flex-col px-4 py-3 ${isDetail ? '' : 'border-b'}`}
       >
-        <div className={`flex gap-3 ${isDetail ? 'border-b' : ''}`}>
+        <div className={`flex gap-3 ${isDetail ? 'border-b pb-2' : ''}`}>
           <Avatar
             size='md'
             src={p.creator.avatarUrl}
@@ -131,7 +131,7 @@ export const PostController = ({
                 </IconButton>
               </div>
             </div>
-            <div>{p.text}</div>
+            <div dangerouslySetInnerHTML={{ __html: p.text }} />
             <div className='flex gap-3 items-center mt-1'>
               <div className='flex gap-1 items-center'>
                 <IconButton
@@ -155,8 +155,9 @@ export const PostController = ({
                             posts.pages.forEach((page) =>
                               page.data.forEach((post) => {
                                 if (post.id === p.id) {
-                                  p.reacted = !p.reacted;
-                                  p.numReactions += p.reacted === true ? 1 : -1;
+                                  post.reacted = !post.reacted;
+                                  post.numReactions +=
+                                    post.reacted === true ? 1 : -1;
                                 }
                               })
                             );
@@ -164,13 +165,12 @@ export const PostController = ({
                           });
                         }
                         const post = getQuery(['getPost', p.id]);
-                        console.log('post ', post);
                         if (post) {
                           updateQuery(['getPost', p.id], (_post) => {
-                            console.log('_post', _post);
                             _post.reacted = !_post.reacted;
                             _post.numReactions +=
                               _post.reacted === true ? 1 : -1;
+                            console.log('_post after ', _post);
                             return _post;
                           });
                         }

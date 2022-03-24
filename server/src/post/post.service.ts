@@ -121,6 +121,10 @@ export class PostService {
     // @todo check if user has permission to view comments by meId and postId
     limit = Math.min(limit || 3, 20);
     const limitPlusOne = limit + 1;
+    const replacement =
+      typeof nextCursor === 'string'
+        ? [postId, nextCursor, limitPlusOne]
+        : [postId, limitPlusOne];
 
     const comments = await this.em.getConnection('read').execute(
       `select c.id,
@@ -136,15 +140,23 @@ export class PostService {
       from comments c
       inner join users u on u.id = c.creator_id
       where c.post_id = ? and ${
-        typeof nextCursor === 'string' ? `c.created_at < ?` : `1 = 1`
+        typeof nextCursor === 'string' ? `c.created_at <= ?` : `1 = 1`
       }
       order by c.created_at desc
       limit ?
       ;`,
-      [postId, nextCursor, limitPlusOne],
+      replacement,
     );
 
     let _nextCursor: string | undefined = undefined;
+    console.log(
+      'comments ',
+      comments,
+      'comments length',
+      comments.length,
+      'limit plus one ',
+      limitPlusOne,
+    );
     if (comments.length === limitPlusOne) {
       _nextCursor = comments[comments.length - 1]?.createdAt.toISOString();
     }
@@ -161,13 +173,10 @@ export class PostService {
   ) {
     limit = Math.min(limit || 3, 20);
     const limitPlusOne = limit + 1;
-    const replacement: Array<string | number> = [
-      meId,
-      meId,
-      meId,
-      nextCursor,
-      limitPlusOne,
-    ];
+    const replacement: Array<string | number> =
+      typeof nextCursor === 'string'
+        ? [meId, meId, meId, nextCursor, limitPlusOne]
+        : [meId, meId, meId, limitPlusOne];
     // @todo check if user can have permission to view posts
 
     const posts: Post[] = await this.em.getConnection('read').execute(

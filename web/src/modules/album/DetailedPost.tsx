@@ -3,6 +3,7 @@ import ContentEditable from 'react-contenteditable';
 import { useNavigate, useParams } from 'react-router-dom';
 import { SvgOutlineTrash } from '../../icons/OutlineTrash';
 import { SvgSolidArrowLeft } from '../../icons/SolidArrowLeft';
+import { useTypeSafeGetInfiniteQuery } from '../../shared-hooks/useTypeSafeGetQuery';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 import {
   useTypeSafeQuery,
@@ -30,6 +31,7 @@ export const DetailedPost = () => {
   const { data: me } = useTypeSafeQuery('me');
   const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
   const updateQuery = useTypeSafeUpdateQuery();
+  const getInfiniteQuery = useTypeSafeGetInfiniteQuery();
   const { mutate: createComment } = useTypeSafeMutation('createComment');
   const { mutate: deleteComment } = useTypeSafeMutation('deleteComment');
   const { t } = useTypeSafeTranslation();
@@ -70,7 +72,7 @@ export const DetailedPost = () => {
   }
 
   return (
-    <div className='border-l h-full w-full'>
+    <div className='border-l h-full w-full overflow-y-auto'>
       <div className='p-4 flex gap-3 items-center border-b'>
         <IconButton onClick={() => navigate('/a')}>
           <SvgSolidArrowLeft />
@@ -108,19 +110,23 @@ export const DetailedPost = () => {
                         post.numComments += 1;
                         return post;
                       });
-                      updateInfiniteQuery('getPaginatedPosts', (posts) => {
-                        posts.pages.forEach((page) => {
-                          page.data.forEach((post) => {
-                            if (post.id === postIdInt) {
-                              post.numComments += 1;
-                            }
+                      const posts = getInfiniteQuery('getPaginatedPosts');
+                      if (posts) {
+                        updateInfiniteQuery('getPaginatedPosts', (posts) => {
+                          posts.pages.forEach((page) => {
+                            page.data.forEach((post) => {
+                              if (post.id === postIdInt) {
+                                post.numComments += 1;
+                              }
+                            });
                           });
+                          return posts;
                         });
-                        return posts;
-                      });
+                      }
                       updateInfiniteQuery(
                         ['getPaginatedComments', postIdInt],
                         (comments) => {
+                          console.log('comment ', comment);
                           comment.creator = me!;
                           comments.pages[0].data.unshift(comment);
                           return comments;
@@ -135,7 +141,7 @@ export const DetailedPost = () => {
             </div>
           </div>
           <div>
-            <p className='border-b py-2 pl-4'>{post.numComments} comments</p>
+            <p className='border-b py-2 pl-4'>{post!.numComments} comments</p>
             {comments?.pages.map((page) =>
               page.data.map((c) => (
                 <div className='flex gap-3 px-4 py-3 border-b' key={c.id}>
@@ -170,20 +176,24 @@ export const DetailedPost = () => {
                                       return comments;
                                     }
                                   );
-                                  updateInfiniteQuery(
-                                    'getPaginatedPosts',
-                                    (posts) => {
-                                      posts.pages.forEach((page) => {
-                                        page.data.forEach((post) => {
-                                          if (post.id === postIdInt) {
-                                            post.numComments -= 1;
-                                          }
+                                  const posts =
+                                    getInfiniteQuery('getPaginatedPosts');
+                                  if (posts) {
+                                    updateInfiniteQuery(
+                                      'getPaginatedPosts',
+                                      (posts) => {
+                                        posts.pages.forEach((page) => {
+                                          page.data.forEach((post) => {
+                                            if (post.id === postIdInt) {
+                                              post.numComments -= 1;
+                                            }
+                                          });
                                         });
-                                      });
-                                      return posts;
-                                    }
-                                  );
-                                  updateQuery(['getPost', post.id], (post) => {
+                                        return posts;
+                                      }
+                                    );
+                                  }
+                                  updateQuery(['getPost', post!.id], (post) => {
                                     post.numComments -= 1;
                                     return post;
                                   });
@@ -201,6 +211,13 @@ export const DetailedPost = () => {
                 </div>
               ))
             )}
+            <div>
+              {hasNextPage ? (
+                <Button variant='secondary' onClick={() => fetchNextPage()}>
+                  load more
+                </Button>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>

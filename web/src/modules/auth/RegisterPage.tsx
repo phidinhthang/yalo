@@ -8,6 +8,7 @@ import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
 import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
 import { useDocumentTitle } from '../../shared-hooks/useDocumentTitle';
+import { testId } from '../../utils/testId';
 
 const RegisterPage = () => {
   const hasTokens = useTokenStore((s) => !!(s.accessToken && s.refreshToken));
@@ -67,7 +68,7 @@ const RegisterPage = () => {
                 value={username}
                 disabled={isLoading}
                 onChange={(e) => setUsername(e.target.value)}
-                data-testid='username-input'
+                {...testId('username-input')}
               />
               {error?.errors.username?.map((e, idx) => (
                 <p
@@ -96,7 +97,7 @@ const RegisterPage = () => {
                 value={password}
                 disabled={isLoading}
                 onChange={(e) => setPassword(e.target.value)}
-                data-testid='password-input'
+                {...testId('password-input')}
               />
               {error?.errors.password?.map((e, idx) => (
                 <p
@@ -121,7 +122,7 @@ const RegisterPage = () => {
             fullWidth
             disabled={isLoading}
             loading={isLoading}
-            data-testid='register-btn'
+            {...testId('register-btn')}
           >
             {t('common.register')}
           </Button>

@@ -13,6 +13,7 @@ import { Modal } from '../../ui/Modal';
 import { Button } from '../../ui/Button';
 import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
+import { testId } from '../../utils/testId';
 
 export const AvatarMenu = () => {
   const [isOpenDropdown, setIsOpenDropdown] = React.useState(false);
@@ -53,7 +54,7 @@ export const AvatarMenu = () => {
         className='hover:cursor-pointer relative'
         onClick={() => setIsOpenDropdown((o) => !o)}
         ref={dropdownRef}
-        data-testid='avatar-menu'
+        {...testId('avatar-menu')}
       >
         <Avatar username={me?.username} src={me?.avatarUrl} size='md' />
         <div
@@ -76,7 +77,7 @@ export const AvatarMenu = () => {
                   });
                 }}
                 href='#'
-                data-testid='delete-account'
+                {...testId('delete-account')}
               >
                 delete account
               </a>
@@ -90,7 +91,7 @@ export const AvatarMenu = () => {
                 setIsModalOpen(true);
               }}
               href='#'
-              data-testid='logout'
+              {...testId('logout')}
             >
               {t('common.logout.label')}
             </a>
@@ -109,7 +110,7 @@ export const AvatarMenu = () => {
             <Button
               onClick={(e) => logout()}
               className=''
-              data-testid='modal-confirm'
+              {...testId('modal-confirm')}
             >
               ok
             </Button>

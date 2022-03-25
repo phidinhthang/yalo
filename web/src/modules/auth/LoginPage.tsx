@@ -8,6 +8,7 @@ import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
 import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
 import { useDocumentTitle } from '../../shared-hooks/useDocumentTitle';
+import { testId } from '../../utils/testId';
 
 const LoginPage = () => {
   const hasTokens = useTokenStore((s) => !!(s.accessToken && s.refreshToken));
@@ -63,7 +64,7 @@ const LoginPage = () => {
                 value={username}
                 disabled={isLoading}
                 onChange={(e) => setUsername(e.target.value)}
-                data-testid='username-input'
+                {...testId('username-input')}
               />
               {error?.errors.username?.map((e, idx) => (
                 <p
@@ -91,7 +92,7 @@ const LoginPage = () => {
               value={password}
               disabled={isLoading}
               onChange={(e) => setPassword(e.target.value)}
-              data-testid='password-input'
+              {...testId('password-input')}
             />
             {error?.errors.password?.map((e, idx) => (
               <p
@@ -115,7 +116,7 @@ const LoginPage = () => {
             fullWidth
             loading={isLoading}
             disabled={isLoading}
-            data-testid='login-btn'
+            {...testId('login-btn')}
           >
             {t('common.login')}
           </Button>

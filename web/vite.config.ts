@@ -1,14 +1,10 @@
 import { defineConfig } from 'vite';
 // import prefresh from '@prefresh/vite';
 import react from '@vitejs/plugin-react';
-import VitePluginReactRemoveAttributes from 'vite-plugin-react-remove-attributes';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    VitePluginReactRemoveAttributes({ attributes: ['data-testid'] }),
-  ],
+  plugins: [react()],
   // esbuild: {
   //   jsxFactory: 'h',
   //   jsxFragment: 'Fragment',

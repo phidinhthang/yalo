@@ -18,6 +18,8 @@ import { MeId } from 'src/common/decorators/meId.decorator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto, RefreshTokenDto } from './user.dto';
 import { config } from '../common/config';
+import { DevGuard } from 'src/common/guards/dev.guard';
+import { Delete } from '@nestjs/common';
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -67,6 +69,13 @@ export class UsersController {
   @Post('login')
   login(@Body() createUserDto: CreateUserDto) {
     return this.usersService.login(createUserDto);
+  }
+
+  @UseGuards(DevGuard)
+  @UseGuards(HttpAuthGuard)
+  @Delete('/dev/delete-account')
+  devUnsafeDeleteAccount(@MeId() meId: number) {
+    return this.usersService.devUnsafeDeleteAccount(meId);
   }
 
   @Get()

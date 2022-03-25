@@ -67,6 +67,7 @@ const RegisterPage = () => {
                 value={username}
                 disabled={isLoading}
                 onChange={(e) => setUsername(e.target.value)}
+                data-testid='username-input'
               />
               {error?.errors.username?.map((e, idx) => (
                 <p
@@ -95,6 +96,7 @@ const RegisterPage = () => {
                 value={password}
                 disabled={isLoading}
                 onChange={(e) => setPassword(e.target.value)}
+                data-testid='password-input'
               />
               {error?.errors.password?.map((e, idx) => (
                 <p
@@ -119,6 +121,7 @@ const RegisterPage = () => {
             fullWidth
             disabled={isLoading}
             loading={isLoading}
+            data-testid='register-btn'
           >
             {t('common.register')}
           </Button>

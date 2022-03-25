@@ -6,6 +6,7 @@ import {
   OneToMany,
   Collection,
   EntityRepositoryType,
+  Index,
 } from '@mikro-orm/core';
 import { User } from '../user/user.entity';
 import {
@@ -47,6 +48,7 @@ export class Post {
 }
 
 @Entity({ tableName: 'reactions', customRepository: () => ReactionRepository })
+@Index({ properties: ['user', 'post'] })
 export class Reaction {
   [EntityRepositoryType]?: ReactionRepository;
 
@@ -59,6 +61,7 @@ export class Reaction {
   @ManyToOne(() => Post, { onDelete: 'cascade' })
   post: Post;
 
+  @Index()
   @Property({ defaultRaw: 'CURRENT_TIMESTAMP' })
   createdAt: Date = new Date();
 }
@@ -73,12 +76,14 @@ export class Comment {
   @ManyToOne(() => User, { onDelete: 'cascade' })
   creator: User;
 
+  @Index()
   @ManyToOne(() => Post, { onDelete: 'cascade' })
   post: Post;
 
   @Property()
   text: string;
 
+  @Index()
   @Property({ defaultRaw: 'CURRENT_TIMESTAMP' })
   createdAt: Date = new Date();
 }

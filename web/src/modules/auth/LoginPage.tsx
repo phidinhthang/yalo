@@ -63,6 +63,7 @@ const LoginPage = () => {
                 value={username}
                 disabled={isLoading}
                 onChange={(e) => setUsername(e.target.value)}
+                data-testid='username-input'
               />
               {error?.errors.username?.map((e, idx) => (
                 <p
@@ -90,6 +91,7 @@ const LoginPage = () => {
               value={password}
               disabled={isLoading}
               onChange={(e) => setPassword(e.target.value)}
+              data-testid='password-input'
             />
             {error?.errors.password?.map((e, idx) => (
               <p
@@ -113,6 +115,7 @@ const LoginPage = () => {
             fullWidth
             loading={isLoading}
             disabled={isLoading}
+            data-testid='login-btn'
           >
             {t('common.login')}
           </Button>

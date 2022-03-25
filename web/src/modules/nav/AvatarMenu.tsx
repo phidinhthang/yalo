@@ -12,6 +12,7 @@ import { useWsStore } from '../auth/useWsStore';
 import { Modal } from '../../ui/Modal';
 import { Button } from '../../ui/Button';
 import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
+import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 
 export const AvatarMenu = () => {
   const [isOpenDropdown, setIsOpenDropdown] = React.useState(false);
@@ -22,6 +23,7 @@ export const AvatarMenu = () => {
   const isDesktopScreen = useIsDesktopScreen();
   const navigate = useNavigate();
   const { data: me } = useTypeSafeQuery('me');
+  const { mutate: devDeleteAccount } = useTypeSafeMutation('deleteAccount');
   const { ws } = useWsStore();
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const { t } = useTypeSafeTranslation();
@@ -51,6 +53,7 @@ export const AvatarMenu = () => {
         className='hover:cursor-pointer relative'
         onClick={() => setIsOpenDropdown((o) => !o)}
         ref={dropdownRef}
+        data-testid='avatar-menu'
       >
         <Avatar username={me?.username} src={me?.avatarUrl} size='md' />
         <div
@@ -58,6 +61,27 @@ export const AvatarMenu = () => {
             isOpenDropdown ? '' : 'hidden'
           }`}
         >
+          {import.meta.env.VITE_ENV === 'development' ? (
+            <li className='block py-2 px-4 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'>
+              <a
+                className='block'
+                onClick={(e) => {
+                  e.preventDefault();
+                  devDeleteAccount([], {
+                    onSuccess: (isSuccess) => {
+                      if (isSuccess) {
+                        logout();
+                      }
+                    },
+                  });
+                }}
+                href='#'
+                data-testid='delete-account'
+              >
+                delete account
+              </a>
+            </li>
+          ) : null}
           <li className='block py-2 px-4 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'>
             <a
               className='block'
@@ -66,6 +90,7 @@ export const AvatarMenu = () => {
                 setIsModalOpen(true);
               }}
               href='#'
+              data-testid='logout'
             >
               {t('common.logout.label')}
             </a>
@@ -81,7 +106,11 @@ export const AvatarMenu = () => {
         footer={
           <div className='flex w-full'>
             <div className='flex-grow'></div>
-            <Button onClick={(e) => logout()} className=''>
+            <Button
+              onClick={(e) => logout()}
+              className=''
+              data-testid='modal-confirm'
+            >
               ok
             </Button>
           </div>

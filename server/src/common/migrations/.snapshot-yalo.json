@@ -362,6 +362,15 @@
       "schema": "public",
       "indexes": [
         {
+          "columnNames": [
+            "created_at"
+          ],
+          "composite": false,
+          "keyName": "messages_created_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
           "keyName": "messages_pkey",
           "columnNames": [
             "id"
@@ -383,6 +392,7 @@
             "id"
           ],
           "referencedTableName": "public.users",
+          "deleteRule": "cascade",
           "updateRule": "cascade"
         },
         "messages_conversation_id_foreign": {
@@ -686,6 +696,24 @@
       "schema": "public",
       "indexes": [
         {
+          "columnNames": [
+            "post_id"
+          ],
+          "composite": false,
+          "keyName": "comments_post_id_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "created_at"
+          ],
+          "composite": false,
+          "keyName": "comments_created_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
           "keyName": "comments_pkey",
           "columnNames": [
             "id"
@@ -769,6 +797,25 @@
       "name": "reactions",
       "schema": "public",
       "indexes": [
+        {
+          "columnNames": [
+            "created_at"
+          ],
+          "composite": false,
+          "keyName": "reactions_created_at_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "reactions_user_id_post_id_index",
+          "columnNames": [
+            "user_id",
+            "post_id"
+          ],
+          "composite": true,
+          "primary": false,
+          "unique": false
+        },
         {
           "keyName": "reactions_pkey",
           "columnNames": [

@@ -6,6 +6,7 @@ import {
   EntityRepositoryType,
   Embeddable,
   Embedded,
+  Index,
 } from '@mikro-orm/core';
 import { User } from '../user/user.entity';
 import { Conversation } from '../conversation/conversation.entity';
@@ -18,7 +19,7 @@ export class Message {
   @PrimaryKey()
   id: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'cascade' })
   creator: User;
 
   @ManyToOne(() => Conversation, { onDelete: 'cascade' })
@@ -33,6 +34,7 @@ export class Message {
   @Property({ default: false, defaultRaw: 'false' })
   isDeleted: boolean = false;
 
+  @Index()
   @Property({ defaultRaw: 'CURRENT_TIMESTAMP' })
   createdAt: Date = new Date();
 }

@@ -80,6 +80,8 @@ export const wrap = (connection: Connection) => ({
         }
       | ErrorResponse<'username' | 'password'>
     > => connection.send('/users/register', { body: JSON.stringify(data) }),
+    deleteAccount: (): Promise<boolean> =>
+      connection.send('/users/dev/delete-account', { method: 'DELETE' }),
     createFriendRequest: (targetId: number): Promise<boolean> =>
       connection.send(`/friend/${targetId}/request-friend`),
     acceptFriendRequest: (targetId: number): Promise<boolean> =>

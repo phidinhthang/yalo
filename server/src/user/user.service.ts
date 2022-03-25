@@ -80,6 +80,12 @@ export class UsersService {
     };
   }
 
+  async devUnsafeDeleteAccount(userId: number) {
+    const deletedRow = await this.userRepository.nativeDelete(userId);
+    console.log('deleted row ', deletedRow);
+    return !!deletedRow;
+  }
+
   findAll() {
     return this.userRepository.findAll();
   }

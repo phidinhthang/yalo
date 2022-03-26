@@ -29,10 +29,10 @@ export const UserListController = () => {
     conversations
       ?.filter((c) => c.type === 'private')
       .forEach((c) => {
-        c.members
-          .filter((m) => m.user.id !== me?.id)
+        c.membersPreview
+          .filter((m) => m.id !== me?.id)
           .forEach((m) => {
-            map[m.user.id] = true;
+            map[m.id] = true;
           });
       });
 

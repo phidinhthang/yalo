@@ -8,6 +8,8 @@ import {
   OneToOne,
   Enum,
   EntityRepositoryType,
+  Embeddable,
+  Embedded,
 } from '@mikro-orm/core';
 import { Message } from '../message/message.entity';
 import { User } from '../user/user.entity';
@@ -36,6 +38,9 @@ export class Conversation {
   @Property({ nullable: true })
   inviteLinkToken?: string;
 
+  @Embedded(() => MemberPreview, { array: true, object: true, nullable: true })
+  membersPreview: MemberPreview[];
+
   @OneToMany(() => Member, (member) => member.conversation)
   members = new Collection<Member>(this);
 
@@ -52,4 +57,16 @@ export class Conversation {
 export enum ConversationType {
   PRIVATE = 'private',
   GROUP = 'group',
+}
+
+@Embeddable()
+export class MemberPreview {
+  @Property()
+  id: number;
+
+  @Property()
+  username: string;
+
+  @Property({ nullable: true })
+  avatarUrl?: string;
 }

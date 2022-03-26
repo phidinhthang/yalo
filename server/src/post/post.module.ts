@@ -1,5 +1,6 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
+import { SocketModule } from 'src/socket/socket.module';
 import { User } from 'src/user/user.entity';
 import { PostController } from './post.controller';
 import { Post, Reaction, Comment } from './post.entity';
@@ -8,6 +9,7 @@ import { PostService } from './post.service';
 @Module({
   imports: [
     MikroOrmModule.forFeature({ entities: [User, Post, Reaction, Comment] }),
+    SocketModule,
   ],
   providers: [PostService],
   controllers: [PostController],

@@ -48,6 +48,7 @@ export class ConversationService {
     const conversation = this.conversationRepository.create({
       type: ConversationType.PRIVATE,
       members: [meMember, partnerMember],
+      membersPreview: [me, partner],
     });
 
     await this.orm.em.persistAndFlush([meMember, partnerMember, conversation]);
@@ -58,7 +59,16 @@ export class ConversationService {
     meId: number,
     { title, memberIds }: CreateGroupConversationDto,
   ) {
-    const memberCount = await this.userRepository.count({
+    if (memberIds.includes(meId)) {
+      throw new BadRequestException({
+        errors: {
+          memberIds: ['cannot contain yourself'],
+        },
+      });
+    }
+
+    memberIds.push(meId);
+    const [userToAdd, memberCount] = await this.userRepository.findAndCount({
       id: { $in: memberIds },
     });
     console.log('member count ', memberCount);
@@ -69,21 +79,13 @@ export class ConversationService {
         },
       });
     }
-    if (memberIds.includes(meId)) {
-      throw new BadRequestException({
-        errors: {
-          memberIds: ['cannot contain yourself'],
-        },
-      });
-    }
-
-    memberIds.push(meId);
 
     let conversation = this.conversationRepository.create({
       title,
       admin: meId,
       type: ConversationType.GROUP,
       inviteLinkToken: nanoid(9),
+      membersPreview: userToAdd.slice(0, 4),
     });
     memberIds.forEach((mId) => {
       const member = this.memberRepository.create({ user: mId, conversation });
@@ -101,9 +103,12 @@ export class ConversationService {
   }
 
   async getGroupPreview(inviteLinkToken: string) {
-    const conversation = await this.conversationRepository.findOne({
-      inviteLinkToken,
-    }, {populate: ['admin', 'lastMessage', 'members', 'members.user']});
+    const conversation = await this.conversationRepository.findOne(
+      {
+        inviteLinkToken,
+      },
+      { populate: ['admin', 'lastMessage', 'members', 'members.user'] },
+    );
 
     if (!conversation) {
       throw new NotFoundException({
@@ -127,8 +132,9 @@ export class ConversationService {
         },
       });
     }
+    const user = await this.userRepository.findOne(userId);
     const memberExisted = await this.memberRepository.findOne({
-      user: userId,
+      user: user,
       conversation: conversation.id,
     });
 
@@ -141,7 +147,15 @@ export class ConversationService {
       conversation: conversation.id,
     });
 
-    await this.memberRepository.persistAndFlush(newMember);
+    if (conversation.membersPreview.length < 4) {
+      conversation.membersPreview.push({
+        id: user.id,
+        avatarUrl: user.avatarUrl,
+        username: user.username,
+      });
+      await this.conversationRepository.persistAndFlush([conversation]);
+    }
+    await this.memberRepository.persistAndFlush([newMember]);
     return newMember;
   }
 
@@ -194,6 +208,27 @@ export class ConversationService {
     }
     if (conversationDeletedReason) {
       await this.conversationRepository.nativeDelete(conversationId);
+    } else {
+      conversation.membersPreview = conversation.membersPreview.filter(
+        (m) => m.id !== meId,
+      );
+      console.log('members preview', conversation.membersPreview);
+      const memberToPreviews = conversation.members
+        .getItems()
+        .filter((m) => {
+          return !!conversation.membersPreview.every(
+            (preview) => preview.id !== m.user.id && m.user.id !== meId,
+          );
+        })
+        .slice(0, 4 - conversation.membersPreview.length);
+      console.log('member to preview ', memberToPreviews);
+      if (memberToPreviews.length) {
+        const users = await this.userRepository.find({
+          id: { $in: [...memberToPreviews.map((m) => m.user.id)] },
+        });
+        conversation.membersPreview.push(...users);
+        await this.conversationRepository.persistAndFlush(conversation);
+      }
     }
 
     await this.socketService.leaveConversation(
@@ -230,31 +265,62 @@ export class ConversationService {
 
   async kickMember(meId: number, userId: number, conversationId: number) {
     await this.memberRepository.isMemberOrThrow(userId, conversationId);
-    await this.conversationRepository.findOneOrFail({
-      id: conversationId,
-      type: ConversationType.GROUP,
-      admin: meId,
-    });
+    const conversation = await this.conversationRepository.findOneOrFail(
+      {
+        id: conversationId,
+        type: ConversationType.GROUP,
+        admin: meId,
+      },
+      { populate: ['members'] },
+    );
     await this.memberRepository.nativeDelete({
       user: userId,
       conversation: conversationId,
     });
+
+    conversation.membersPreview = conversation.membersPreview.filter(
+      (m) => m.id !== userId,
+    );
+    const memberToPreviews = conversation.members
+      .getItems()
+      .filter((m) => {
+        return !!conversation.membersPreview.every(
+          (preview) => preview.id !== m.user.id && m.user.id !== userId,
+        );
+      })
+      .slice(0, 4 - conversation.membersPreview.length);
+    if (memberToPreviews.length) {
+      const users = await this.userRepository.find({
+        id: { $in: [...memberToPreviews.map((m) => m.user.id)] },
+      });
+      conversation.membersPreview.push(...users);
+    }
+    await this.conversationRepository.persistAndFlush(conversation);
+    await this.socketService.memberKicked(conversation, userId);
 
     return true;
   }
 
   async addMember(meId: number, userIds: number[], conversationId: number) {
     await this.memberRepository.isMemberOrThrow(meId, conversationId);
-    const members = await this.memberRepository.find({
+    const oldMembers = await this.memberRepository.find({
       conversation: conversationId,
     });
+    const conversation = await this.conversationRepository.findOne(
+      conversationId,
+      { populate: ['lastMessage'] },
+    );
     const userIdsToAdd = userIds.filter(
-      (uId) => !members.some((m) => m.user.id === uId),
+      (uId) => !oldMembers.some((m) => m.user.id === uId),
     );
 
-    const newMembers = userIdsToAdd.map((uId) =>
+    const usersToAdd = await this.userRepository.find({
+      id: { $in: userIdsToAdd },
+    });
+
+    const newMembers = usersToAdd.map((u) =>
       this.memberRepository.create({
-        user: uId,
+        user: u,
         conversation: conversationId,
       }),
     );
@@ -267,6 +333,20 @@ export class ConversationService {
       },
       { populate: ['user'] },
     );
+    const membersToAddPreview = _newMembers
+      .filter((m) => {
+        return !!conversation.membersPreview.every(
+          (preview) => preview.id !== m.user.id,
+        );
+      })
+      .slice(0, 4 - conversation.membersPreview.length)
+      .map((m) => m.user);
+    if (membersToAddPreview.length) {
+      conversation.membersPreview.push(...membersToAddPreview);
+      await this.conversationRepository.persistAndFlush([conversation]);
+    }
+
+    await this.socketService.newMember(conversation, oldMembers, newMembers);
     return _newMembers;
   }
 
@@ -294,12 +374,49 @@ export class ConversationService {
   }
 
   async paginated(meId: number) {
-    const members = await this.memberRepository.find({ user: meId });
-    const conversationIds = members.map((m) => m.conversation.id);
-    const conversations = await this.conversationRepository.find(
-      { id: { $in: conversationIds } },
-      { populate: ['members', 'members.user', 'lastMessage'] },
+    const result = await this.conversationRepository.qb().raw(
+      `
+      select c.id, c.title, c.type, c.admin_id,
+      c.invite_link_token as "inviteLinkToken",
+      c.created_at as "createdAt",
+      c.members_preview as "membersPreview",
+      json_build_object(
+        'id', last_msg.id,
+        'text', last_msg.text,
+        'images', last_msg.images,
+        'isDeleted', last_msg.is_deleted,
+        'createdAt', last_msg.created_at
+      ) as "lastMessage",
+      json_build_object(
+        'id', u_partner.id,
+        'isOnline', u_partner.is_online,
+        'username', u_partner.username,
+        'avatarUrl', u_partner.avatar_url,
+        'lastLoginAt', u_partner.last_login_at
+      ) as "partner"
+      from conversations c
+      inner join members m on m.user_id = ? and m.conversation_id = c.id
+      left join members as m_partner 
+      on m_partner.user_id != ? and m_partner.conversation_id = c.id and c.type = 'private'
+      left join users u_partner on u_partner.id = m_partner.user_id
+      left join messages last_msg on c.last_message_id = last_msg.id
+      order by coalesce(last_msg.created_at, c.created_at) desc;
+    `,
+      [meId, meId],
     );
-    return conversations;
+    console.log('conversations ', result.rows);
+    return result.rows;
+  }
+
+  async getById(meId: number, conversationId: number) {
+    await this.memberRepository.isMemberOrThrow(meId, conversationId);
+    const conversation = await this.conversationRepository.findOne(
+      {
+        id: conversationId,
+      },
+      { populate: ['members', 'members.user'] },
+    );
+
+    return conversation;
   }
 }

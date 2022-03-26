@@ -130,6 +130,15 @@
           "nullable": true,
           "mappedType": "string"
         },
+        "members_preview": {
+          "name": "members_preview",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "json"
+        },
         "last_message_id": {
           "name": "last_message_id",
           "type": "int",

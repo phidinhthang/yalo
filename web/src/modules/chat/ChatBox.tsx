@@ -104,8 +104,11 @@ export const ChatBox = () => {
   );
   const { data: me } = useTypeSafeQuery('me');
   const { data: users } = useTypeSafeQuery('findAll');
-  const { data: conversations } = useTypeSafeQuery('getPaginatedConversations');
-  const conversation = conversations?.find((c) => c.id === conversationOpened);
+  const { data: conversation } = useTypeSafeQuery(
+    ['getConversation', conversationOpened!],
+    { enabled: !!conversationOpened },
+    [conversationOpened!]
+  );
   const { mutate: addMember } = useTypeSafeMutation('addMember');
   const { mutate: deleteMessage } = useTypeSafeMutation('deleteMessage');
   const { mutate: createMessage } = useTypeSafeMutation('createMessage');
@@ -137,8 +140,10 @@ export const ChatBox = () => {
     }
   }, [endRef.current, conversationOpened, isLoading]);
 
-  const members = conversation?.members.filter((m) => m.user.id !== me?.id);
-  const partner = members?.[0].user;
+  const membersExceptMe = conversation?.members.filter(
+    (m) => m.user.id !== me?.id
+  );
+  const partner = membersExceptMe?.[0].user;
   const isGroup = conversation?.type === 'group';
   const memberMap: Record<number, Member> = {};
   const uploadFileInputRef = React.useRef<HTMLInputElement>(null);
@@ -169,7 +174,7 @@ export const ChatBox = () => {
     );
   }
 
-  if (!conversation) return <>error</>;
+  if (!conversation && !isLoading) return <>error</>;
 
   if (isLoading) {
     return <MainSkeleton />;
@@ -191,7 +196,11 @@ export const ChatBox = () => {
           ) : null}
           <div className='flex'>
             <AvatarGroup>
-              {members?.map((m) => (
+              {[
+                ...(conversation?.type === 'group'
+                  ? conversation.members || []
+                  : membersExceptMe || []),
+              ]?.map((m) => (
                 <Avatar
                   key={m.user.id}
                   username={m.user.username}
@@ -244,6 +253,13 @@ export const ChatBox = () => {
                                       );
                                       conversation!.title = newTitle;
                                       return conversations;
+                                    }
+                                  );
+                                  updateQuery(
+                                    ['getConversation', conversationOpened!],
+                                    (c) => {
+                                      c.title = newTitle;
+                                      return c;
                                     }
                                   );
                                   setIsChangeConversationTitleModalOpen(false);
@@ -300,7 +316,7 @@ export const ChatBox = () => {
         </div>
         <div>
           <div className='flex items-center gap-2'>
-            {conversation.type === 'group' ? (
+            {conversation?.type === 'group' ? (
               <IconButton onClick={() => setIsAddMemberModalOpen((o) => !o)}>
                 <SvgOutlineUserAdd />
               </IconButton>
@@ -316,20 +332,7 @@ export const ChatBox = () => {
                 <div className='flex flex-row-reverse w-full gap-3'>
                   <Button
                     onClick={() => {
-                      addMember([conversation.id, selectedUserIds], {
-                        onSuccess: (newMembers) => {
-                          console.log('new members', newMembers);
-                          updateQuery(
-                            'getPaginatedConversations',
-                            (conversations) => {
-                              const conversation = conversations?.find(
-                                (c) => c.id === conversationOpened
-                              );
-                              conversation?.members.push(...newMembers);
-                              return conversations;
-                            }
-                          );
-                        },
+                      addMember([conversation!.id, selectedUserIds], {
                         onSettled: () => {
                           setIsAddMemberModalOpen(false);
                           setSelectedUserIds([]);
@@ -356,7 +359,7 @@ export const ChatBox = () => {
                 {users
                   ?.filter((u) => u.id !== me?.id)
                   .map((u) => {
-                    const isMember = conversation.members.some(
+                    const isMember = conversation!.members.some(
                       (m) => m.user.id === u.id
                     );
                     return (
@@ -418,7 +421,7 @@ export const ChatBox = () => {
         {messages?.pages.map((page, p_idx) =>
           page.data.map((m, m_idx) => {
             const isMsgSentByMe = m.creator === me?.id;
-            const seenMembers = members
+            const seenMembers = membersExceptMe
               ?.filter(
                 (mb) =>
                   mb.user.id !== me?.id &&
@@ -561,7 +564,7 @@ export const ChatBox = () => {
                       {
                         onSuccess: (message) => {
                           updateInfiniteQuery(
-                            ['getPaginatedMessages', conversation.id],
+                            ['getPaginatedMessages', conversation!.id],
                             (messages) => {
                               messages.pages[0].data.unshift(message);
                               return messages;

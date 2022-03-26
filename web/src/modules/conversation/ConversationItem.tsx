@@ -19,13 +19,10 @@ export const ConversationItem = ({
   me,
 }: ConversationItemProps) => {
   const { t } = useTypeSafeTranslation();
-  const members = c.members.filter((m) => m.user.id !== me.id);
   const lastMessageSentByMe =
     c.lastMessage?.creator === me.id ||
     (c.lastMessage?.creator as any)?.id === me.id;
-  const partner = c.members.filter(
-    (m) => m.user?.id !== undefined && m.user.id !== me!.id
-  )[0]?.user;
+  const partner = c.partner;
   const [isOpenMenu, setIsOpenMenu] = React.useState(false);
   const { mutate: leaveGroupConversation } = useTypeSafeMutation(
     'leaveGroupConversation'
@@ -50,12 +47,8 @@ export const ConversationItem = ({
         />
       ) : (
         <AvatarGroup>
-          {members.map((m) => (
-            <Avatar
-              src={m.user.avatarUrl}
-              username={m.user.username}
-              size='md'
-            />
+          {c.membersPreview.map((m) => (
+            <Avatar src={m.avatarUrl} username={m.username} size='md' />
           ))}
         </AvatarGroup>
       )}
@@ -63,7 +56,7 @@ export const ConversationItem = ({
         <div className='flex justify-between flex-auto'>
           <div>{c.type === 'group' ? c.title : partner?.username}</div>
           <div className='text-gray-500 text-sm italic relative -bottom-[2px]'>
-            {c.lastMessage
+            {c.lastMessage?.createdAt
               ? t('common.ago', {
                   time: new Date(c.lastMessage.createdAt),
                 })

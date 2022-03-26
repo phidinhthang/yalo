@@ -2,6 +2,8 @@ import { EntityManager } from '@mikro-orm/core';
 import { NotFoundException } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 import { escape } from 'html-escaper';
+import { SocketService } from 'src/socket/socket.service';
+import { UserRepository } from 'src/user/user.repository';
 import { CreateCommentDto, CreatePostDto } from './post.dto';
 import { Post } from './post.entity';
 import {
@@ -16,21 +18,27 @@ export class PostService {
     private readonly postRepository: PostRepository,
     private readonly reactionRepository: ReactionRepository,
     private readonly commentRepository: CommentRepository,
+    private readonly userRepository: UserRepository,
+    private readonly socketService: SocketService,
     private readonly em: EntityManager,
   ) {}
 
   async create(meId: number, createPostDto: CreatePostDto) {
     const santiziedText = escape(createPostDto.text);
+    const me = await this.userRepository.findOne(meId);
     const post = this.postRepository.create({
       text: santiziedText,
-      creator: meId,
+      creator: me,
     });
     await this.postRepository.persistAndFlush(post);
+    await this.socketService.newPost(post);
 
     return post;
   }
 
   async getPost(meId: number, postId: number) {
+    await this.postRepository.canViewPostOrThrow(meId, postId);
+
     const res = await this.em.getConnection('read').execute(
       `select p.id, 
 			p.creator_id as "creatorId",
@@ -55,7 +63,12 @@ export class PostService {
   }
 
   async delete(meId: number, postId: number) {
-    await this.postRepository.nativeDelete({ id: postId, creator: meId });
+    const post = await this.postRepository.findOne({
+      id: postId,
+      creator: meId,
+    });
+    await this.postRepository.removeAndFlush(post);
+    await this.socketService.postDeleted(meId, post);
     return true;
   }
 
@@ -64,7 +77,8 @@ export class PostService {
     postId: number,
     { text }: CreateCommentDto,
   ) {
-    // @todo check if user can have permission to create comment
+    await this.postRepository.canViewPostOrThrow(meId, postId);
+    const me = await this.userRepository.findOne(meId);
 
     const post = await this.postRepository.findOne(postId);
 
@@ -74,7 +88,7 @@ export class PostService {
     }
 
     const comment = this.commentRepository.create({
-      creator: meId,
+      creator: me,
       post: postId,
       text: escape(text),
     });
@@ -82,6 +96,7 @@ export class PostService {
     post.numComments += 1;
 
     await this.commentRepository.persistAndFlush([comment, post]);
+    this.socketService.newComment(post.id, comment).then(() => {});
     return comment;
   }
 
@@ -118,7 +133,7 @@ export class PostService {
     postId: number,
     { nextCursor, limit }: { nextCursor?: string; limit?: number },
   ) {
-    // @todo check if user has permission to view comments by meId and postId
+    await this.postRepository.canViewPostOrThrow(meId, postId);
     limit = Math.min(limit || 3, 20);
     const limitPlusOne = limit + 1;
     const replacement =
@@ -216,6 +231,7 @@ export class PostService {
   }
 
   async reactsToPost(meId: number, postId: number, value: number) {
+    await this.postRepository.canViewPostOrThrow(meId, postId);
     const like = value === 1 ? true : false;
     let reaction = await this.reactionRepository.findOne({
       user: meId,

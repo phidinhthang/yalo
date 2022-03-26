@@ -2,7 +2,10 @@ import { MikroOrmModuleOptions as Options } from '@mikro-orm/nestjs';
 import { LoadStrategy } from '@mikro-orm/core';
 import { User } from './user/user.entity';
 import { Member } from './member/member.entity';
-import { Conversation } from './conversation/conversation.entity';
+import {
+  Conversation,
+  MemberPreview,
+} from './conversation/conversation.entity';
 import { Message, Image } from './message/message.entity';
 import { FriendRequest, UserFriend } from './friend/friend.entity';
 import { Post, Reaction, Comment } from './post/post.entity';
@@ -14,6 +17,7 @@ const config: Options = {
     User,
     Member,
     Message,
+    MemberPreview,
     Conversation,
     Image,
     FriendRequest,

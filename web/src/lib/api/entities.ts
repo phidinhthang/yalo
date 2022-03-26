@@ -95,4 +95,12 @@ export type Conversation = {
   createdAt: string;
   members: Member[];
   messages: Message[];
+  membersPreview: MemberPreview[];
+  partner?: Omit<User, 'password'>;
+};
+
+export type MemberPreview = {
+  id: number;
+  avatarUrl?: string;
+  username: string;
 };

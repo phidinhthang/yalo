@@ -29,6 +29,15 @@ export class ConversationController {
     return this.conversationService.findOrCreatePrivate(meId, partnerId);
   }
 
+  @UseGuards(HttpAuthGuard)
+  @Get('/:conversationId')
+  async getById(
+    @Param('conversationId', new ParseIntPipe()) conversationId: number,
+    @MeId() meId: number,
+  ) {
+    return this.conversationService.getById(meId, conversationId);
+  }
+
   @UsePipes(new ValidationPipe())
   @UseGuards(HttpAuthGuard)
   @Post('/')

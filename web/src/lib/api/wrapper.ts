@@ -42,6 +42,8 @@ export const wrap = (connection: Connection) => ({
       connection.fetch(`/conversation/private/${data.id}`),
     getPaginatedConversations: (): Promise<Conversation[]> =>
       connection.fetch(`/conversation`),
+    getConversation: (conversationId: number): Promise<Conversation> =>
+      connection.fetch(`/conversation/${conversationId}`),
     getPaginatedMessages: (
       data: { conversationId: number },
       ctx: { nextParam?: string }

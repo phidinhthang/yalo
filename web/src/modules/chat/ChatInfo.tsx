@@ -136,6 +136,9 @@ const MemberItem = ({
   const isMe = m.user.id === me.id;
   const isAdmin = m.user.id === admin.id;
   const canKick = me.id === admin.id && m.user.id !== me.id;
+  const conversationId =
+    // @ts-ignore
+    typeof m.conversation === 'number' ? m.conversation : m.conversation.id;
 
   return (
     <div className='flex py-2 px-3 hover:bg-gray-50 dark:hover:bg-dark-500 group'>
@@ -171,20 +174,16 @@ const MemberItem = ({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  kickMember([m.conversation, m.user.id], {
+                  console.log('kick member id ', m.user.id, typeof m.user.id);
+                  kickMember([conversationId, m.user.id], {
                     onSuccess: () => {
-                      updateQuery(
-                        'getPaginatedConversations',
-                        (conversations) => {
-                          conversations.forEach((c) => {
-                            if (c.id !== m.conversation) return;
-                            c.members = c.members.filter(
-                              (_m) => m.user.id !== m.user.id
-                            );
-                          });
-                          return conversations;
-                        }
-                      );
+                      updateQuery(['getConversation', conversationId], (c) => {
+                        if (!c) return undefined;
+                        c.members = c?.members?.filter(
+                          (_m) => m.user.id !== _m.user.id
+                        );
+                        return c as any;
+                      });
                     },
                     onSettled: () => setIsMenuOpen(false),
                   });

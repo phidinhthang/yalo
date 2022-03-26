@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { io } from 'socket.io-client';
 import { toast } from 'react-toastify';
-import { Message, Conversation, User } from '../lib/api/entities';
+import { Message, Conversation, User, Member } from '../lib/api/entities';
 import { useRefreshToken } from '../modules/auth/useRefreshToken';
 import { useTokenStore } from '../modules/auth/useTokenStore';
 import { useWsStore } from '../modules/auth/useWsStore';
@@ -17,11 +17,13 @@ import { useChatStore } from '../modules/chat/useChatStore';
 import { Button } from '../ui/Button';
 import { useTypeSafePrefetch } from './useTypeSafePrefetch';
 import { useUpdateRelationship } from '../lib/useUpdateRelationship';
+import { useQueryClient } from 'react-query';
 
 export const useMainWsHandler = () => {
   const { ws, setWs } = useWsStore();
 
   const updateQuery = useTypeSafeUpdateQuery();
+  const queryClient = useQueryClient();
   const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
   const getQuery = useTypeSafeGetQuery();
   const accessToken = useTokenStore().accessToken;
@@ -63,17 +65,17 @@ export const useMainWsHandler = () => {
           return u;
         });
       });
-      updateQuery('getPaginatedConversations', (conversations) => {
-        if (!conversations) return conversations;
-        conversations
-          .filter((c) => c.type === 'private')
-          .forEach((c) => {
-            c.members.forEach((m) => {
-              if (m.user.id === userId) m.user.isOnline = true;
-            });
-          });
-        return conversations;
-      });
+      // updateQuery('getPaginatedConversations', (conversations) => {
+      //   if (!conversations) return conversations;
+      //   conversations
+      //     .filter((c) => c.type === 'private')
+      //     .forEach((c) => {
+      //       c.members.forEach((m) => {
+      //         if (m.user.id === userId) m.user.isOnline = true;
+      //       });
+      //     });
+      //   return conversations;
+      // });
     });
     ws?.on('toggle_offline', (userId: number) => {
       updateQuery('findAll', (users) => {
@@ -85,20 +87,20 @@ export const useMainWsHandler = () => {
           return u;
         });
       });
-      updateQuery('getPaginatedConversations', (conversations) => {
-        if (!conversations) return conversations;
-        conversations
-          .filter((c) => c.type === 'private')
-          .forEach((c) => {
-            c.members.forEach((m) => {
-              if (m.user.id === userId) {
-                m.user.isOnline = false;
-                m.user.lastLoginAt = new Date().toISOString();
-              }
-            });
-          });
-        return conversations;
-      });
+      // updateQuery('getPaginatedConversations', (conversations) => {
+      //   if (!conversations) return conversations;
+      //   conversations
+      //     .filter((c) => c.type === 'private')
+      //     .forEach((c) => {
+      //       c.members.forEach((m) => {
+      //         if (m.user.id === userId) {
+      //           m.user.isOnline = false;
+      //           m.user.lastLoginAt = new Date().toISOString();
+      //         }
+      //       });
+      //     });
+      //   return conversations;
+      // });
     });
 
     ws?.on('new_friend_request', async (requester: Omit<User, 'password'>) => {
@@ -244,16 +246,15 @@ export const useMainWsHandler = () => {
     ws?.on(
       'update_mark_read',
       (userId: number, conversationId: number, lastReadAt: string) => {
-        updateQuery('getPaginatedConversations', (conversations) => {
-          conversations?.forEach((c) => {
-            if (c.id !== conversationId) return;
-            c.members.forEach((m) => {
-              if (m.user.id === userId) {
-                m.lastReadAt = lastReadAt;
-              }
-            });
+        const conversation = getQuery(['getConversation', conversationId]);
+        if (!conversation) return;
+        updateQuery(['getConversation', conversationId], (c) => {
+          c.members.forEach((m) => {
+            if (m.user.id === userId) {
+              m.lastReadAt = lastReadAt;
+            }
           });
-          return conversations;
+          return c;
         });
       }
     );
@@ -267,9 +268,42 @@ export const useMainWsHandler = () => {
         t('conversation.added', { title: conversation.title } as any),
         { position: 'bottom-left' }
       );
+      const conversations = getQuery('getPaginatedConversations');
+      if (!conversations) return;
       updateQuery('getPaginatedConversations', (conversations) =>
         conversations ? [conversation, ...conversations] : conversations
       );
+    });
+
+    ws?.on('conversation_added', (conversation: Conversation) => {
+      const conversations = getQuery('getPaginatedConversations');
+      if (!conversations) return;
+      updateQuery('getPaginatedConversations', (conversations) => {
+        conversations.unshift(conversation);
+        return conversations;
+      });
+    });
+
+    ws?.on('new_members', (conversationId: number, newMembers: Member[]) => {
+      const conversation = getQuery(['getConversation', conversationId]);
+      if (!conversation) return;
+      updateQuery(['getConversation', conversationId], (conversation) => {
+        conversation.members.unshift(...newMembers);
+        return conversation;
+      });
+    });
+
+    ws?.on('you_have_been_kicked', (conversation: Conversation) => {
+      console.log('you_have_been_kicked', conversation);
+      queryClient.removeQueries(['getConversation', conversation.id], {
+        exact: true,
+      });
+      const conversations = getQuery('getPaginatedConversations');
+      if (conversations) {
+        updateQuery('getPaginatedConversations', (conversations) => {
+          return conversations?.filter((c) => c.id !== conversation.id);
+        });
+      }
     });
 
     ws?.on('delete_conversation', (conversation: Conversation) => {
@@ -277,6 +311,8 @@ export const useMainWsHandler = () => {
         t('conversation.deleted', { title: conversation.title } as any),
         { position: 'bottom-left' }
       );
+      const conversations = getQuery('getPaginatedConversations');
+      if (!conversations) return;
       updateQuery('getPaginatedConversations', (conversations) =>
         conversations?.filter((c) => c.id !== conversation.id)
       );
@@ -293,33 +329,35 @@ export const useMainWsHandler = () => {
         conversation: Conversation;
         conversationDeletedReason?: 'admin_leave' | 'member_count';
       }) => {
-        updateQuery('getPaginatedConversations', (conversations) => {
-          if (conversationDeletedReason === 'admin_leave') {
-            toast.info(
-              t('conversation.left.adminLeft', {
-                title: conversation.title,
-              } as any),
-              { position: 'bottom-left' }
-            );
-          }
-          if (conversationDeletedReason === 'member_count') {
-            toast.info(
-              t('conversation.left.minimum', {
-                title: conversation.title,
-              } as any),
-              { position: 'bottom-left' }
-            );
-          }
-          if (conversationDeletedReason) {
-            return conversations?.filter((c) => c.id !== conversation.id);
-          }
-          return conversations?.map((c) => {
-            if (c.id === conversation.id) {
-              c.members = c.members.filter((m) => m.user.id !== userId);
-            }
+        if (conversationDeletedReason === 'admin_leave') {
+          toast.info(
+            t('conversation.left.adminLeft', {
+              title: conversation.title,
+            } as any),
+            { position: 'bottom-left' }
+          );
+        }
+        if (conversationDeletedReason === 'member_count') {
+          toast.info(
+            t('conversation.left.minimum', {
+              title: conversation.title,
+            } as any),
+            { position: 'bottom-left' }
+          );
+        }
+        const c = getQuery(['getConversation', conversation.id]);
+        if (c && !conversationDeletedReason) {
+          updateQuery(['getConversation', conversation.id], (c) => {
+            c.members = c.members.filter((m) => m.user.id !== userId);
             return c;
           });
-        });
+        }
+        const conversations = getQuery('getPaginatedConversations');
+        if (conversations && conversationDeletedReason) {
+          updateQuery('getPaginatedConversations', (conversations) => {
+            return conversations?.filter((c) => c.id !== conversation.id);
+          });
+        }
       }
     );
 
@@ -338,6 +376,9 @@ export const useMainWsHandler = () => {
       ws?.off('new_conversation');
       ws?.off('delete_conversation');
       ws?.off('leave_conversation');
+      ws?.off('conversation_added');
+      ws?.off('new_members');
+      ws?.off('you_have_been_kicked');
     };
   }, [ws]);
 };

@@ -6,6 +6,9 @@ import { Member } from 'src/member/member.entity';
 import { MemberRepository } from 'src/member/member.repository';
 import { Conversation } from 'src/conversation/conversation.entity';
 import { UserRepository } from 'src/user/user.repository';
+import { Comment, Post } from 'src/post/post.entity';
+import { UserFriendRepository } from 'src/friend/friend.repository';
+import { PostRepository } from 'src/post/post.repository';
 
 @Injectable()
 export class SocketService {
@@ -15,6 +18,8 @@ export class SocketService {
     private readonly em: EntityManager,
     private readonly userRepository: UserRepository,
     private readonly memberRepository: MemberRepository,
+    private readonly userFriendRepository: UserFriendRepository,
+    private readonly postRespository: PostRepository,
   ) {}
 
   async toggleOnlineStatus(userId: number) {
@@ -113,6 +118,31 @@ export class SocketService {
       });
   }
 
+  async newMember(
+    conversation: Conversation,
+    oldMembers: Member[],
+    newMembers: Member[],
+  ) {
+    newMembers.forEach((m) => {
+      this.socket.to(`${m.user.id}`).emit('conversation_added', conversation);
+    });
+    oldMembers.forEach((m) => {
+      this.socket
+        .to(`${m.user.id}`)
+        .emit('new_members', conversation.id, newMembers);
+    });
+  }
+
+  async memberKicked(conversation: Conversation, kickedMemberUserId: number) {
+    const members = conversation.members.getItems();
+    members.forEach((m) => {
+      this.socket.to(`${m.user.id}`).emit('member_kicked', kickedMemberUserId);
+    });
+    this.socket
+      .to(`${kickedMemberUserId}`)
+      .emit('you_have_been_kicked', conversation);
+  }
+
   async deleteMessage(
     messageId: number,
     senderId: number,
@@ -160,5 +190,27 @@ export class SocketService {
   async friendRemoved(fromUserId: number, toUserId: number) {
     const fromUser = await this.userRepository.findOne(fromUserId);
     this.socket.to(`${toUserId}`).emit('friend_removed', fromUser);
+  }
+
+  async newPost(post: Post) {
+    const friends = await this.userFriendRepository.getFriends(post.creator.id);
+    friends.forEach((f) => {
+      this.socket.to(`${f.id}`).emit('new_post', post);
+    });
+  }
+
+  async postDeleted(userId: number, post: Post) {
+    const friends = await this.userFriendRepository.getFriends(userId);
+    friends.forEach((f) => {
+      this.socket.to(`${f.id}`).emit('post_deleted', post);
+    });
+  }
+
+  async newComment(postId: number, comment: Comment) {
+    const postAuthor = await this.postRespository.findOne(postId, {
+      fields: ['creator'],
+    });
+    const postAuthorId = postAuthor.creator.id;
+    this.socket.to(`${postAuthorId}`).emit('new_comment', comment);
   }
 }

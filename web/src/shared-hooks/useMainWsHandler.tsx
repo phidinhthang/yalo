@@ -65,17 +65,20 @@ export const useMainWsHandler = () => {
           return u;
         });
       });
-      // updateQuery('getPaginatedConversations', (conversations) => {
-      //   if (!conversations) return conversations;
-      //   conversations
-      //     .filter((c) => c.type === 'private')
-      //     .forEach((c) => {
-      //       c.members.forEach((m) => {
-      //         if (m.user.id === userId) m.user.isOnline = true;
-      //       });
-      //     });
-      //   return conversations;
-      // });
+      const conversations = getQuery('getPaginatedConversations');
+      if (conversations) {
+        updateQuery('getPaginatedConversations', (conversations) => {
+          if (!conversations) return conversations;
+          conversations
+            .filter((c) => c.type === 'private')
+            .forEach((c) => {
+              if (c.partner?.id === userId) {
+                c.partner.isOnline = true;
+              }
+            });
+          return conversations;
+        });
+      }
     });
     ws?.on('toggle_offline', (userId: number) => {
       updateQuery('findAll', (users) => {
@@ -87,20 +90,20 @@ export const useMainWsHandler = () => {
           return u;
         });
       });
-      // updateQuery('getPaginatedConversations', (conversations) => {
-      //   if (!conversations) return conversations;
-      //   conversations
-      //     .filter((c) => c.type === 'private')
-      //     .forEach((c) => {
-      //       c.members.forEach((m) => {
-      //         if (m.user.id === userId) {
-      //           m.user.isOnline = false;
-      //           m.user.lastLoginAt = new Date().toISOString();
-      //         }
-      //       });
-      //     });
-      //   return conversations;
-      // });
+      const conversations = getQuery('getPaginatedConversations');
+      if (conversations) {
+        updateQuery('getPaginatedConversations', (conversations) => {
+          if (!conversations) return conversations;
+          conversations
+            .filter((c) => c.type === 'private')
+            .forEach((c) => {
+              if (c.partner?.id === userId) {
+                c.partner.isOnline = false;
+              }
+            });
+          return conversations;
+        });
+      }
     });
 
     ws?.on('new_friend_request', async (requester: Omit<User, 'password'>) => {

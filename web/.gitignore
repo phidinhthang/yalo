@@ -28,3 +28,6 @@ dist-ssr
 
 #analysis
 analysis
+
+#not exposed
+src/ui/Mention

@@ -1,4 +1,3 @@
-import { formatDistanceToNow } from 'date-fns';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -26,13 +25,14 @@ import { SvgSolidInfo } from '../../icons/SolidInfo';
 import { ChatInfo } from './ChatInfo';
 import { useOnClickOutside } from '../../shared-hooks/useOnClickOutside';
 import { SvgSolidTrash } from '../../icons/SolidTrash';
-import { ChatInput } from './ChatInput';
+import { ChatInputController } from './ChatInputController';
 import { ChatMessageText } from './ChatMessageText';
 import { SvgOutlineUserAdd } from '../../icons/OutlineUserAdd';
 import { Modal } from '../../ui/Modal';
 import { SvgOutlinePencil } from '../../icons/OutlinePencil';
 import { IconButton } from '../../ui/IconButton';
 import { SvgOutlinePhotograph } from '../../icons/OutlinePhotograph';
+import { MessageBox } from './MessageBox';
 
 const MainSkeleton = () => {
   const genHeight = () => randomNumber(3, 8) * 12;
@@ -72,12 +72,11 @@ const MainSkeleton = () => {
 };
 
 export const ChatBox = () => {
-  const { conversationOpened, setConversationOpened, typings } = useChatStore();
+  const { conversationOpened, setConversationOpened } = useChatStore();
   const [ref, inView] = useInView();
   const isDesktopScreen = useIsDesktopScreen();
   const navigate = useNavigate();
   const updateQuery = useTypeSafeUpdateQuery();
-  const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
   const { t } = useTypeSafeTranslation();
   const [isChatInfoBoxOpen, setIsChatInfoBoxOpen] = React.useState(false);
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = React.useState(false);
@@ -110,8 +109,6 @@ export const ChatBox = () => {
     [conversationOpened!]
   );
   const { mutate: addMember } = useTypeSafeMutation('addMember');
-  const { mutate: deleteMessage } = useTypeSafeMutation('deleteMessage');
-  const { mutate: createMessage } = useTypeSafeMutation('createMessage');
   const { mutate: changeTitle, isLoading: isChangeTitleLoading } =
     useTypeSafeMutation('changeConversationTitle');
   const chatInfoRef = React.useRef<HTMLDivElement | null>(null);
@@ -146,8 +143,6 @@ export const ChatBox = () => {
   const partner = membersExceptMe?.[0].user;
   const isGroup = conversation?.type === 'group';
   const memberMap: Record<number, Member> = {};
-  const uploadFileInputRef = React.useRef<HTMLInputElement>(null);
-  const emptyInputRef = React.useRef<HTMLInputElement>(null);
 
   conversation?.members.forEach((m) => {
     memberMap[m.user.id] = m;
@@ -420,181 +415,19 @@ export const ChatBox = () => {
         <div ref={endRef} style={{ float: 'left', clear: 'both' }}></div>
         {messages?.pages.map((page, p_idx) =>
           page.data.map((m, m_idx) => {
-            const isMsgSentByMe = m.creator === me?.id;
-            const seenMembers = membersExceptMe
-              ?.filter(
-                (mb) =>
-                  mb.user.id !== me?.id &&
-                  mb.user.id !== m.creator &&
-                  mb?.lastReadAt &&
-                  new Date(mb.lastReadAt) > new Date(m.createdAt)
-              )
-              .map((mb) => mb.user.username);
-            const seenMembersDisplay = seenMembers?.slice(0, 2);
-            const seenText = seenMembersDisplay?.length
-              ? seenMembers?.length === seenMembersDisplay?.length
-                ? `${seenMembersDisplay?.join(', ')} seen`
-                : `${seenMembersDisplay?.join(', ')} and ${
-                    seenMembers!.length - seenMembersDisplay!.length
-                  } other seen`
-              : '';
-
             return (
-              <div
+              <MessageBox
+                message={m}
+                pageIndex={p_idx}
+                messageIndex={m_idx}
                 key={m.id}
-                className={`flex my-2 gap-3 w-full ${
-                  isMsgSentByMe ? 'flex-row-reverse' : 'flex-row'
-                }`}
-              >
-                <div>
-                  <Avatar
-                    size='sm'
-                    src={memberMap[m.creator].user.avatarUrl}
-                    username={memberMap[m.creator].user.username}
-                  />
-                </div>
-
-                <div
-                  className={`bg-white dark:bg-dark-200 break-all rounded-lg relative p-2 group ${
-                    isMsgSentByMe ? 'text-right' : ''
-                  }`}
-                  style={{ maxWidth: 'calc(100% - 132px)' }}
-                >
-                  <p>
-                    {m.isDeleted ? (
-                      <span className='italic text-gray-500 dark:text-white'>
-                        {t('message.deleted')}
-                      </span>
-                    ) : m.text ? (
-                      <ChatMessageText text={m.text!} />
-                    ) : null}
-                    {m.images ? (
-                      <div className='flex gap-2'>
-                        {m.images.map((i, idx) => (
-                          <img src={i.url} className='w-52 object-cover' />
-                        ))}
-                      </div>
-                    ) : null}
-                  </p>
-                  <div className='flex'>
-                    <div className='flex-grow'></div>
-                    <p className='text-sm italic text-gray-500 dark:text-gray-300'>
-                      {formatDistanceToNow(new Date(m.createdAt))}
-                    </p>
-                    {seenText && p_idx === 0 && m_idx === 0 ? (
-                      <p className='text-sm italic text-gray-500 ml-3'>
-                        {seenText}
-                      </p>
-                    ) : null}
-                  </div>
-                  <div
-                    className={`absolute bottom-0 right-full w-20 h-16 bg-pink hidden group-hover:flex items-center justify-center ${
-                      isMsgSentByMe ? 'right-full' : 'left-full'
-                    }`}
-                  >
-                    <div>
-                      <button
-                        className='w-6 h-6 rounded-full flex items-center justify-center bg-white dark:bg-dark-500 border dark:border-dark-900 hover:bg-gray-100'
-                        onClick={() => {
-                          deleteMessage([m.id], {
-                            onSuccess: () => {
-                              updateInfiniteQuery(
-                                ['getPaginatedMessages', conversationOpened],
-                                (messages) => {
-                                  messages?.pages.forEach((p) =>
-                                    p.data.forEach((msg) => {
-                                      if (msg.id === m.id) msg.isDeleted = true;
-                                      return msg;
-                                    })
-                                  );
-                                  return messages;
-                                }
-                              );
-                              updateQuery(
-                                'getPaginatedConversations',
-                                (conversations) => {
-                                  conversations?.forEach((c) => {
-                                    if (c.lastMessage?.id === m.id) {
-                                      c.lastMessage.text = '';
-                                      c.lastMessage.isDeleted = true;
-                                    }
-                                  });
-                                  return conversations;
-                                }
-                              );
-                            },
-                          });
-                        }}
-                      >
-                        <SvgSolidTrash />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              />
             );
           })
         )}
         {hasNextPage ? <div ref={ref} className='pb-1'></div> : null}
       </div>
-      <div>
-        <div className=''>
-          <div>
-            {typings[conversationOpened]?.length
-              ? `${typings[conversationOpened].join(', ')} is typing...`
-              : null}
-          </div>
-          <div className='border h-12 dark:border-gray-700'>
-            <div className='h-full flex items-center'>
-              <input
-                hidden
-                ref={uploadFileInputRef}
-                type='file'
-                multiple
-                onChange={(e) => {
-                  console.log('e.target.files', e.target.files);
-                  if (e.target.files?.length) {
-                    createMessage(
-                      [
-                        {
-                          images: Array.from(e.target.files),
-                          conversationId: conversationOpened,
-                        },
-                      ],
-                      {
-                        onSuccess: (message) => {
-                          updateInfiniteQuery(
-                            ['getPaginatedMessages', conversation!.id],
-                            (messages) => {
-                              messages.pages[0].data.unshift(message);
-                              return messages;
-                            }
-                          );
-                        },
-                        onSettled: () => {
-                          e.target.files = emptyInputRef.current!.files;
-                        },
-                      }
-                    );
-                  }
-                }}
-              />
-              <input hidden ref={emptyInputRef} multiple />
-              <Button
-                variant='secondary'
-                size='sm'
-                className='ml-2'
-                onClick={() => {
-                  uploadFileInputRef.current?.click();
-                }}
-              >
-                <SvgOutlinePhotograph />
-              </Button>
-            </div>
-          </div>
-        </div>
-        <ChatInput />
-      </div>
+      <ChatInputController />
     </div>
   );
 };

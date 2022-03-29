@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { DetailedPost } from './modules/album/DetailedPost';
 import { MainFeed } from './modules/album/MainFeed';
 import FriendAnchorPage from './modules/friend/FriendAnchorPage';
+// import { MentionTest } from './ui/Mention/Test';
 import { ScreenLoader } from './ui/ScreenLoader';
 const LoginPage = React.lazy(() => import('./modules/auth/LoginPage'));
 const RegisterPage = React.lazy(() => import('./modules/auth/RegisterPage'));
@@ -35,7 +36,7 @@ export const Routers = React.memo(() => {
         <Route path='/conversations' element={<ConversationPage />} />
         <Route path='/s' element={<SettingPage />} />
         <Route path='/g/:inviteLinkToken' element={<GroupPreviewPage />} />
-        <Route path='test' element={<ScreenLoader />} />
+        {/* <Route path='test' element={<MentionTest />} /> */}
       </Routes>
     </React.Suspense>
   );

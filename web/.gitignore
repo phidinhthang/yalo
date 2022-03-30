@@ -31,3 +31,6 @@ analysis
 
 #not exposed
 src/ui/Mention
+
+#not use anymore
+public/emotes

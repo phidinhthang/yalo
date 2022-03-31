@@ -9,11 +9,10 @@ import { Avatar } from '../../ui/Avatar';
 import { useTokenStore } from '../auth/useTokenStore';
 import { useChatStore } from '../chat/useChatStore';
 import { useWsStore } from '../auth/useWsStore';
-import { Modal } from '../../ui/Modal';
-import { Button } from '../../ui/Button';
 import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 import { testId } from '../../utils/testId';
+import { confirmModal } from '../../lib/confirmModal';
 
 export const AvatarMenu = () => {
   const [isOpenDropdown, setIsOpenDropdown] = React.useState(false);
@@ -26,7 +25,6 @@ export const AvatarMenu = () => {
   const { data: me } = useTypeSafeQuery('me');
   const { mutate: devDeleteAccount } = useTypeSafeMutation('deleteAccount');
   const { ws } = useWsStore();
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
   const { t } = useTypeSafeTranslation();
   const location = useLocation();
 
@@ -88,7 +86,9 @@ export const AvatarMenu = () => {
               className='block'
               onClick={(e) => {
                 e.preventDefault();
-                setIsModalOpen(true);
+                confirmModal(t('common.logout.confirm'), () => {
+                  logout();
+                });
               }}
               href='#'
               {...testId('logout')}
@@ -98,27 +98,6 @@ export const AvatarMenu = () => {
           </li>
         </div>
       </div>
-      <Modal
-        title={t('common.logout.label')}
-        isOpen={isModalOpen}
-        onRequestClose={(e) => {
-          setIsModalOpen(false);
-        }}
-        footer={
-          <div className='flex w-full'>
-            <div className='flex-grow'></div>
-            <Button
-              onClick={(e) => logout()}
-              className=''
-              {...testId('modal-confirm')}
-            >
-              ok
-            </Button>
-          </div>
-        }
-      >
-        {t('common.logout.confirm')}
-      </Modal>
     </>
   );
 };

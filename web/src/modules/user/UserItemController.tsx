@@ -30,9 +30,14 @@ export const UserItemController = ({
     if (!enabled || !conversation) return;
     updateQuery('getPaginatedConversations', (conversations) => {
       if (!conversations.find((c) => c.id === conversation?.id)) {
-        return [conversation!, ...conversations];
+        conversation.partner = user;
+        return [conversation, ...conversations];
       }
       return conversations;
+    });
+
+    updateQuery(['getConversation', conversation.id], () => {
+      return conversation;
     });
 
     if (!isDesktopScreen) navigate('/');

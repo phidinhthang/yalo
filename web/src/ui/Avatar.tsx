@@ -8,6 +8,7 @@ export const avatarSizeMap = {
   sm: '40px',
   xs: '20px',
   xxs: '30px',
+  xxxs: '15px',
 };
 
 export const onlineIndicatorStyleMap = {
@@ -53,6 +54,7 @@ export const onlineIndicatorStyleMap = {
     bottom: '-1px',
     borderWidth: '1px',
   },
+  xxxs: {},
 };
 
 export interface AvatarProps {

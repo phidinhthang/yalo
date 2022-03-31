@@ -15,16 +15,14 @@ import { useWsStore } from '../auth/useWsStore';
 import InputEmoji from '../../lib/react-input-emoji/InputEmoji';
 import { Button } from '../../ui/Button';
 import { SvgOutlinePhotograph } from '../../icons/OutlinePhotograph';
+import { useGetCurrentConversation } from '../../lib/useGetCurrentConverrsation';
 
 export const ChatInputController = () => {
   const { mutate: createMessage } = useTypeSafeMutation('createMessage');
   const updateQuery = useTypeSafeUpdateQuery();
   const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
-  const { conversationOpened, typings } = useChatStore();
-  const { data: conversation } = useTypeSafeQuery(
-    ['getConversation', conversationOpened!],
-    { enabled: !!conversationOpened }
-  );
+  const { conversationOpened } = useChatStore();
+  const conversation = useGetCurrentConversation();
   const members = conversation?.members;
   const { data: me } = useTypeSafeQuery('me');
   const ws = useWsStore().ws;
@@ -76,10 +74,18 @@ export const ChatInputController = () => {
     <div className='flex flex-col'>
       <div>
         <div className=''>
-          <div>
-            {typings[conversationOpened!]?.length
+          <div className='flex'>
+            {/* {conversation?.typingMembers?.length
               ? `${typings[conversationOpened!].join(', ')} is typing...`
-              : null}
+              : null} */}
+            {conversation?.typingMembers
+              ?.filter(
+                (member, index, self) =>
+                  index === self.findIndex((m) => m.user.id === member.user.id)
+              )
+              .map((member) => (
+                <div>{member.user.username}</div>
+              ))}
           </div>
           <div className='border h-12 dark:border-gray-700'>
             <div className='h-full flex items-center'>
@@ -137,6 +143,9 @@ export const ChatInputController = () => {
         placeholder='Typing...'
         onEnter={() => {
           sendMessage();
+        }}
+        onKeyDown={() => {
+          newTyping();
         }}
         searchMention={async (text) => {
           if (!text) {

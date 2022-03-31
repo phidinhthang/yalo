@@ -177,8 +177,27 @@ export const useMainWsHandler = () => {
         conversationId: number;
         user: Omit<User, 'password'>;
       }) => {
-        const addTyping = useChatStore.getState().addTyping;
-        addTyping(conversationId, user.username);
+        const typingId = Math.random().toString(16).slice(0, 32);
+        updateQuery(['getConversation', conversationId], (conversation) => {
+          // @ts-ignore
+          if (!conversation.typingMembers) {
+            // @ts-ignore
+            conversation.typingMembers = [{ typingId, user }];
+          } else {
+            // @ts-ignore
+            conversation.typingMembers?.push({ typingId, user });
+          }
+          return conversation;
+        });
+        setTimeout(() => {
+          updateQuery(['getConversation', conversationId], (conversation) => {
+            // @ts-ignore
+            conversation.typingMembers = conversation?.typingMembers?.filter(
+              ({ typingId: tId }: any) => tId !== typingId
+            );
+            return conversation;
+          });
+        }, 2000);
       }
     );
 

@@ -48,7 +48,8 @@ const MentionWrapper: React.FC<Props> = ({
       mentionsEl.forEach((mentionEl) => {
         container.innerHTML = container.innerHTML.replace(
           mentionEl.outerHTML,
-          `@[${mentionEl.dataset.mentionName}](userId:${mentionEl.dataset.mentionId})`
+          // `@[${mentionEl.dataset.mentionName}](userId:${mentionEl.dataset.mentionId})`
+          `@${mentionEl.dataset.mentionName}`
         );
       });
 

@@ -41,24 +41,13 @@ export const MessageBox = ({
     memberMap[m.user.id] = m;
   });
   const isMsgSentByMe = message.creator === me?.id;
-  const seenMembers = membersExceptMe
-    ?.filter(
-      (mb) =>
-        mb.user.id !== me?.id &&
-        mb.user.id !== message.creator &&
-        mb?.lastReadAt &&
-        new Date(mb.lastReadAt) > new Date(message.createdAt)
-    )
-    .map((mb) => mb.user.username);
-  const seenMembersDisplay = seenMembers?.slice(0, 2);
-  const seenText = seenMembersDisplay?.length
-    ? seenMembers?.length === seenMembersDisplay?.length
-      ? `${seenMembersDisplay?.join(', ')} seen`
-      : `${seenMembersDisplay?.join(', ')} and ${
-          seenMembers!.length - seenMembersDisplay!.length
-        } other seen`
-    : '';
-
+  const seenMembers = membersExceptMe?.filter(
+    (mb) =>
+      mb.user.id !== me?.id &&
+      mb.user.id !== message.creator &&
+      mb?.lastReadAt &&
+      new Date(mb.lastReadAt) > new Date(message.createdAt)
+  );
   return (
     <div
       className={`flex my-2 gap-3 w-full ${
@@ -72,81 +61,90 @@ export const MessageBox = ({
           username={memberMap[message.creator].user.username}
         />
       </div>
-
-      <div
-        className={`bg-white dark:bg-dark-200 break-all rounded-lg relative p-2 group ${
-          isMsgSentByMe ? 'text-right' : ''
-        }`}
-        style={{ maxWidth: 'calc(100% - 132px)' }}
-      >
-        <p>
-          {message.isDeleted ? (
-            <span className='italic text-gray-500 dark:text-white'>
-              {t('message.deleted')}
-            </span>
-          ) : message.text ? (
-            <ChatMessageText text={message.text!} />
-          ) : null}
-          {message.images ? (
-            <div className='flex gap-2'>
-              {message.images.map((i, idx) => (
-                <img src={i.url} className='w-52 object-cover' />
-              ))}
-            </div>
-          ) : null}
-        </p>
-        <div className='flex'>
-          <div className='flex-grow'></div>
-          <p className='text-sm italic text-gray-500 dark:text-gray-300'>
-            {formatDistanceToNow(new Date(message.createdAt))}
-          </p>
-          {seenText && pageIndex === 0 && messageIndex === 0 ? (
-            <p className='text-sm italic text-gray-500 ml-3'>{seenText}</p>
-          ) : null}
-        </div>
+      <div style={{ maxWidth: 'calc(100% - 132px)' }} className='flex flex-col'>
         <div
-          className={`absolute bottom-0 right-full w-20 h-16 bg-pink hidden group-hover:flex items-center justify-center ${
-            isMsgSentByMe ? 'right-full' : 'left-full'
+          className={`bg-white dark:bg-dark-200 break-all rounded-lg relative p-2 group ${
+            isMsgSentByMe ? 'text-right' : ''
           }`}
         >
-          <div>
-            <button
-              className='w-6 h-6 rounded-full flex items-center justify-center bg-white dark:bg-dark-500 border dark:border-dark-900 hover:bg-gray-100'
-              onClick={() => {
-                deleteMessage([message.id], {
-                  onSuccess: () => {
-                    updateInfiniteQuery(
-                      ['getPaginatedMessages', conversationOpened!],
-                      (messages) => {
-                        messages?.pages.forEach((p) =>
-                          p.data.forEach((msg) => {
-                            if (msg.id === message.id) msg.isDeleted = true;
-                            return msg;
-                          })
-                        );
-                        return messages;
-                      }
-                    );
-                    updateQuery(
-                      'getPaginatedConversations',
-                      (conversations) => {
-                        conversations?.forEach((c) => {
-                          if (c.lastMessage?.id === message.id) {
-                            c.lastMessage.text = '';
-                            c.lastMessage.isDeleted = true;
-                          }
-                        });
-                        return conversations;
-                      }
-                    );
-                  },
-                });
-              }}
-            >
-              <SvgSolidTrash />
-            </button>
+          <p>
+            {message.isDeleted ? (
+              <span className='italic text-gray-500 dark:text-white'>
+                {t('message.deleted')}
+              </span>
+            ) : message.text ? (
+              <ChatMessageText text={message.text!} />
+            ) : null}
+            {message.images ? (
+              <div className='flex gap-2'>
+                {message.images.map((i, idx) => (
+                  <img src={i.url} className='w-52 object-cover' />
+                ))}
+              </div>
+            ) : null}
+          </p>
+          <div className='flex'>
+            <div className='flex-grow'></div>
+            <p className='text-sm italic text-gray-500 dark:text-gray-300'>
+              {formatDistanceToNow(new Date(message.createdAt))}
+            </p>
+          </div>
+          <div
+            className={`absolute bottom-0 right-full w-20 h-16 bg-pink hidden group-hover:flex items-center justify-center ${
+              isMsgSentByMe ? 'right-full' : 'left-full'
+            }`}
+          >
+            <div>
+              <button
+                className='w-6 h-6 rounded-full flex items-center justify-center bg-white dark:bg-dark-500 border dark:border-dark-900 hover:bg-gray-100'
+                onClick={() => {
+                  deleteMessage([message.id], {
+                    onSuccess: () => {
+                      updateInfiniteQuery(
+                        ['getPaginatedMessages', conversationOpened!],
+                        (messages) => {
+                          messages?.pages.forEach((p) =>
+                            p.data.forEach((msg) => {
+                              if (msg.id === message.id) msg.isDeleted = true;
+                              return msg;
+                            })
+                          );
+                          return messages;
+                        }
+                      );
+                      updateQuery(
+                        'getPaginatedConversations',
+                        (conversations) => {
+                          conversations?.forEach((c) => {
+                            if (c.lastMessage?.id === message.id) {
+                              c.lastMessage.text = '';
+                              c.lastMessage.isDeleted = true;
+                            }
+                          });
+                          return conversations;
+                        }
+                      );
+                    },
+                  });
+                }}
+              >
+                <SvgSolidTrash />
+              </button>
+            </div>
           </div>
         </div>
+        {pageIndex === 0 && messageIndex === 0 && seenMembers?.length ? (
+          <div className='flex gap-[2px] justify-end mt-1'>
+            {seenMembers?.map((m) => (
+              <Avatar
+                size='xxxs'
+                key={m.user.id}
+                src={m.user.avatarUrl}
+                username={m.user.username}
+              />
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   );

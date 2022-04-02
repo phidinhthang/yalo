@@ -8,7 +8,8 @@ import {
 } from './conversation/conversation.entity';
 import { Message, Image } from './message/message.entity';
 import { FriendRequest, UserFriend } from './friend/friend.entity';
-import { Post, Reaction, Comment } from './post/post.entity';
+import { Post, Comment } from './post/post.entity';
+import { NumReactions, Reaction } from './common/entities/reaction.entity';
 
 const config: Options = {
   type: 'postgresql',
@@ -23,6 +24,7 @@ const config: Options = {
     FriendRequest,
     UserFriend,
     Comment,
+    NumReactions,
     Reaction,
     Post,
   ],

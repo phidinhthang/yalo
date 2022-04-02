@@ -2,15 +2,15 @@ import { EntityManager } from '@mikro-orm/core';
 import { NotFoundException } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 import { escape } from 'html-escaper';
+import {
+  ReactionRepository,
+  ReactionValue,
+} from 'src/common/entities/reaction.entity';
 import { SocketService } from 'src/socket/socket.service';
 import { UserRepository } from 'src/user/user.repository';
 import { CreateCommentDto, CreatePostDto } from './post.dto';
 import { Post } from './post.entity';
-import {
-  CommentRepository,
-  PostRepository,
-  ReactionRepository,
-} from './post.repository';
+import { CommentRepository, PostRepository } from './post.repository';
 
 @Injectable()
 export class PostService {
@@ -48,11 +48,11 @@ export class PostService {
         'avatarUrl', u.avatar_url
       ) creator,
 			p.text, p.num_reactions as "numReactions", p.num_comments as "numComments",
-      case when r.id is not null then true else false end as "reacted",
+      case when r.id is not null then r.value else null end as "reaction",
 			p.created_at as "createdAt", p.updated_at as "updatedAt"
 			from posts p
       inner join users u on u.id = p.creator_id
-      left join reactions r on r.user_id = ? and r.post_id = ?
+      left join reactions r on r.user_id = ? and r.post_id = ? and r.type = 'p'
       where p.id = ? ;
       `,
       [meId, postId, postId],
@@ -205,12 +205,12 @@ export class PostService {
       ) creator,
 			p.text, p.num_reactions as "numReactions",
       p.num_comments as "numComments",
-      case when r.id is not null then true else false end as "reacted",
+      case when r.id is not null then r.value else null end as "reaction",
 			p.created_at as "createdAt", p.updated_at as "updatedAt"
 			from posts p
       inner join users u on u.id = p.creator_id
 			left join user_friends uf on uf.friend_id = p.creator_id and uf.user_id = ?
-      left join reactions r on r.user_id = ? and r.post_id = p.id
+      left join reactions r on r.user_id = ? and r.post_id = p.id and r.type = 'p'
 			where (p.creator_id = ? or p.creator_id = uf.friend_id) and ${
         typeof nextCursor === 'string' ? `p.created_at <= ?` : `1 + 1 = 2`
       }
@@ -230,40 +230,67 @@ export class PostService {
     };
   }
 
-  async reactsToPost(meId: number, postId: number, value: number) {
+  async reactsToPost(
+    meId: number,
+    postId: number,
+    value: ReactionValue,
+    action: 'create' | 'remove',
+  ) {
     await this.postRepository.canViewPostOrThrow(meId, postId);
-    const like = value === 1 ? true : false;
     let reaction = await this.reactionRepository.findOne({
       user: meId,
       post: postId,
     });
-    if (reaction && !like) {
+    if (reaction && action === 'remove') {
       await this.em.transactional(async (em) => {
         await em.getConnection('write').execute(
           `
 				delete from reactions where user_id = ? and post_id = ?`,
           [meId, postId],
         );
-        await em
-          .getConnection('write')
-          .execute(
-            `update posts set num_reactions = num_reactions - 1 where id = ?`,
-            [postId],
-          );
+        await em.getConnection('write').execute(
+          `update posts set num_reactions = 
+            num_reactions || concat(?, coalesce(num_reactions->>?, '1')::int - 1, '}')::jsonb where posts.id = ?;
+            `,
+          [`{"${value}":`, `${value}`, postId],
+        );
       });
-    } else if (!reaction && like) {
+    } else if (!reaction && action === 'create') {
       await this.em.transactional(async (em) => {
         await em.getConnection('write').execute(
-          `insert into reactions (user_id, post_id) values (?, ?);
+          `insert into reactions (user_id, post_id, value, type) values (?, ?, ?, ?);
 					`,
-          [meId, postId],
+          [meId, postId, value, 'p'],
         );
-        await em
-          .getConnection('write')
-          .execute(
-            `update posts set num_reactions = num_reactions + 1 where id = ?`,
-            [postId],
-          );
+        await em.getConnection('write').execute(
+          `update posts set num_reactions = 
+            num_reactions || concat(?, coalesce(num_reactions->>?, '0')::int + 1, '}')::jsonb where posts.id = ?;
+            `,
+          [`{"${value}":`, `${value}`, postId],
+        );
+      });
+    } else if (reaction && action === 'create' && reaction.value !== value) {
+      await this.em.transactional(async (em) => {
+        await em.getConnection('write').execute(
+          `update reactions set value = ? 
+          where user_id = ? and post_id = ? and type = ? 
+					`,
+          [value, meId, postId, 'p'],
+        );
+        await em.getConnection('write').execute(
+          `update posts set num_reactions = 
+            num_reactions || concat(?, coalesce(num_reactions->>?, '0')::int + 1, '}')::jsonb 
+            || concat(?, coalesce(num_reactions->>?, '1')::int - 1, '}')::jsonb
+            where posts.id = ?;
+            `,
+          [
+            `{"${value}":`,
+            `${value}`,
+            `{"${reaction.value}":`,
+            `${reaction.value}`,
+            postId,
+          ],
+        );
       });
     }
 

@@ -6,11 +6,14 @@ import { ParseIntPipe } from '@nestjs/common';
 import { Delete } from '@nestjs/common';
 import { UseInterceptors } from '@nestjs/common';
 import { Get } from '@nestjs/common';
+import { ParseEnumPipe } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { Query } from '@nestjs/common';
 import { Controller } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes } from '@nestjs/swagger';
 import { MeId } from 'src/common/decorators/meId.decorator';
+import { ReactionValue } from 'src/common/entities/reaction.entity';
 import { FilesToBodyInterceptor } from 'src/common/file.interceptor';
 import { HttpAuthGuard } from 'src/common/guards/httpAuth.guard';
 import { CreateCommentDto, CreatePostDto } from './post.dto';
@@ -43,9 +46,13 @@ export class PostController {
   reactsToPost(
     @MeId() meId: number,
     @Param('postId', new ParseIntPipe()) postId: number,
-    @Query('value', new ParseIntPipe()) value: number,
+    @Query('value', new ParseEnumPipe(ReactionValue)) value: ReactionValue,
+    @Query('action') action: 'remove' | 'create',
   ) {
-    return this.postService.reactsToPost(meId, postId, value);
+    if (action !== 'remove' && action !== 'create')
+      throw new BadRequestException();
+
+    return this.postService.reactsToPost(meId, postId, value, action);
   }
 
   @UseGuards(HttpAuthGuard)

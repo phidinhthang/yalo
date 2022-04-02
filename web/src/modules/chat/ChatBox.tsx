@@ -23,7 +23,7 @@ import { SvgOutlinePhotograph } from '../../icons/OutlinePhotograph';
 import { MessageBox } from './MessageBox';
 import { ChangeConversationTitleModal } from './ChangeConversationTitleModal';
 import { AddMemberModal } from './AddMemberModal';
-import { ChatSkeleton } from './ChatSkeletion';
+import { ChatSkeleton } from './ChatSkeleton';
 
 export const ChatBox = () => {
   const { conversationOpened, setConversationOpened } = useChatStore();

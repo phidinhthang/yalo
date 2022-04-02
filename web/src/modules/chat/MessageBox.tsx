@@ -1,5 +1,8 @@
 import { formatDistanceToNow } from 'date-fns';
 import { t } from 'i18next';
+import React from 'react';
+import { SvgOutlineHappy } from '../../icons/OutlineHappy';
+import { SvgOutlineTrash } from '../../icons/OutlineTrash';
 import { SvgSolidTrash } from '../../icons/SolidTrash';
 import { Member, Message } from '../../lib/api/entities';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
@@ -9,6 +12,8 @@ import {
   useTypeSafeUpdateQuery,
 } from '../../shared-hooks/useTypeSafeUpdateQuery';
 import { Avatar } from '../../ui/Avatar';
+import { IconButton } from '../../ui/IconButton';
+import { ReactionPicker } from '../../ui/Reaction/ReactionPicker';
 import { ChatMessageText } from './ChatMessageText';
 import { useChatStore } from './useChatStore';
 
@@ -23,6 +28,7 @@ export const MessageBox = ({
   messageIndex,
   pageIndex,
 }: MessageBoxProps) => {
+  const [showReactionPicker, setShowReactionPicker] = React.useState(false);
   const { mutate: deleteMessage } = useTypeSafeMutation('deleteMessage');
   const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
   const updateQuery = useTypeSafeUpdateQuery();
@@ -94,9 +100,9 @@ export const MessageBox = ({
               isMsgSentByMe ? 'right-full' : 'left-full'
             }`}
           >
-            <div>
-              <button
-                className='w-6 h-6 rounded-full flex items-center justify-center bg-white dark:bg-dark-500 border dark:border-dark-900 hover:bg-gray-100'
+            <div className='flex gap-2'>
+              <IconButton
+                className='w-6 h-6'
                 onClick={() => {
                   deleteMessage([message.id], {
                     onSuccess: () => {
@@ -128,8 +134,32 @@ export const MessageBox = ({
                   });
                 }}
               >
-                <SvgSolidTrash />
-              </button>
+                <SvgOutlineTrash />
+              </IconButton>
+              <IconButton
+                className='w-6 h-6 relative'
+                onClick={() => setShowReactionPicker((s) => !s)}
+              >
+                <SvgOutlineHappy />
+                {showReactionPicker ? (
+                  <div className='absolute bottom-full z-20'>
+                    <ReactionPicker
+                      iconSize={24}
+                      reactions={[
+                        'like',
+                        'love',
+                        'haha',
+                        'wow',
+                        'sad',
+                        'angry',
+                      ]}
+                      onSelect={(label) => {
+                        console.log('label ', label);
+                      }}
+                    />
+                  </div>
+                ) : null}
+              </IconButton>
             </div>
           </div>
         </div>

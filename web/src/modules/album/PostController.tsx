@@ -21,6 +21,7 @@ import { Avatar } from '../../ui/Avatar';
 import { Button } from '../../ui/Button';
 import { IconButton } from '../../ui/IconButton';
 import { Modal } from '../../ui/Modal';
+import { ReactionPicker } from '../../ui/Reaction/ReactionPicker';
 
 interface PostControllerProps {
   p: Post;
@@ -143,39 +144,76 @@ export const PostController = ({
                 <span className='text-sm'>{p.numComments}</span>
               </div>
               <div className='flex gap-1 items-center'>
-                <IconButton
+                <ReactionPicker
+                  iconSize={32}
+                  onSelect={(label) => {
+                    reactsToPost(
+                      [p.id, label, p.reaction !== label ? 'create' : 'remove'],
+                      {
+                        onSuccess: () => {
+                          const posts = getQuery('getPaginatedPosts');
+                          console.log();
+                          if (posts) {
+                            updateInfiniteQuery(
+                              'getPaginatedPosts',
+                              (posts) => {
+                                posts.pages.forEach((page) =>
+                                  page.data.forEach((post) => {
+                                    if (post.id === p.id) {
+                                      post.numReactions = {
+                                        ...post.numReactions,
+                                        [label]:
+                                          p.reaction === label
+                                            ? (post.numReactions[label] ?? 1) -
+                                              1
+                                            : (post.numReactions[label] ?? 0) +
+                                              1,
+                                      };
+                                      if (p.reaction && p.reaction !== label) {
+                                        post.numReactions[p.reaction] =
+                                          (post.numReactions[p.reaction] ?? 1) -
+                                          1;
+                                      }
+                                      post.reaction =
+                                        post.reaction === label
+                                          ? undefined
+                                          : label;
+                                    }
+                                  })
+                                );
+                                return posts;
+                              }
+                            );
+                          }
+                          const post = getQuery(['getPost', p.id]);
+                          if (post) {
+                            updateQuery(['getPost', p.id], (post) => {
+                              post.numReactions = {
+                                ...post.numReactions,
+                                [label]:
+                                  p.reaction === label
+                                    ? (post.numReactions[label] ?? 1) - 1
+                                    : (post.numReactions[label] ?? 0) + 1,
+                              };
+                              if (p.reaction && p.reaction !== label) {
+                                post.numReactions[p.reaction] =
+                                  (post.numReactions[p.reaction] ?? 1) - 1;
+                              }
+                              post.reaction =
+                                post.reaction === label ? undefined : label;
+                              return post;
+                            });
+                          }
+                        },
+                      }
+                    );
+                  }}
+                  reactions={['angry', 'haha', 'like', 'love', 'sad', 'wow']}
+                  picked={p.reaction}
+                />
+                {/* <IconButton
                   className='bg-transparent'
                   onClick={() => {
-                    reactsToPost([p.id, p.reacted !== true ? 1 : 0], {
-                      onSuccess: () => {
-                        const posts = getQuery('getPaginatedPosts');
-                        console.log();
-                        if (posts) {
-                          updateInfiniteQuery('getPaginatedPosts', (posts) => {
-                            posts.pages.forEach((page) =>
-                              page.data.forEach((post) => {
-                                if (post.id === p.id) {
-                                  post.reacted = !post.reacted;
-                                  post.numReactions +=
-                                    post.reacted === true ? 1 : -1;
-                                }
-                              })
-                            );
-                            return posts;
-                          });
-                        }
-                        const post = getQuery(['getPost', p.id]);
-                        if (post) {
-                          updateQuery(['getPost', p.id], (_post) => {
-                            _post.reacted = !_post.reacted;
-                            _post.numReactions +=
-                              _post.reacted === true ? 1 : -1;
-                            console.log('_post after ', _post);
-                            return _post;
-                          });
-                        }
-                      },
-                    });
                   }}
                 >
                   {p.reacted ? (
@@ -183,8 +221,8 @@ export const PostController = ({
                   ) : (
                     <SvgOutlineHeart />
                   )}
-                </IconButton>
-                <span className='text-sm'>{p.numReactions}</span>
+                </IconButton> */}
+                {/* <span className='text-sm'>{p.numReactions}</span> */}
               </div>
             </div>
           </div>

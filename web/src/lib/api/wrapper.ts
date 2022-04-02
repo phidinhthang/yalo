@@ -96,8 +96,14 @@ export const wrap = (connection: Connection) => ({
       connection.send(`/friend/${targetId}/remove-friend`, {
         method: 'DELETE',
       }),
-    reactsToPost: (postId: number, value: number) =>
-      connection.send(`/post/${postId}/reaction?value=${value}`),
+    reactsToPost: (
+      postId: number,
+      value: 'like' | 'haha' | 'wow' | 'angry' | 'love' | 'sad',
+      action: 'create' | 'remove'
+    ) =>
+      connection.send(
+        `/post/${postId}/reaction?value=${value}&action=${action}`
+      ),
     createPost: (data: Pick<Post, 'text'>): Promise<Post> => {
       const formData = new FormData();
       if (data.text) formData.append('text', data.text);

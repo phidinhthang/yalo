@@ -7,10 +7,13 @@ import {
   Embeddable,
   Embedded,
   Index,
+  OneToMany,
+  Collection,
 } from '@mikro-orm/core';
 import { User } from '../user/user.entity';
 import { Conversation } from '../conversation/conversation.entity';
 import { MessageRepository } from './message.repository';
+import { NumReactions, Reaction } from '../common/entities/reaction.entity';
 
 @Entity({ tableName: 'messages', customRepository: () => MessageRepository })
 export class Message {
@@ -27,6 +30,12 @@ export class Message {
 
   @Property({ nullable: true })
   text?: string;
+
+  @OneToMany(() => Reaction, (reaction) => reaction.message)
+  reactions = new Collection<Reaction>(this);
+
+  @Embedded(() => NumReactions, { object: true })
+  numReactions: NumReactions;
 
   @Embedded(() => Image, { nullable: true, object: true, array: true })
   images?: Image[];

@@ -38,11 +38,11 @@ export type Post = {
   id: number;
   text: string;
   creator: Omit<User, 'password'>;
-  numReactions: number;
+  numReactions: NumReactions;
   reactions: Reaction[];
   numComments: number;
   comments: Comment[];
-  reacted?: boolean;
+  reaction?: keyof NumReactions;
   createdAt: string;
   updatedAt: string;
 };
@@ -55,10 +55,22 @@ export type Comment = {
   createdAt: string;
 };
 
+export type NumReactions = {
+  like?: number;
+  love?: number;
+  haha?: number;
+  wow?: number;
+  sad?: number;
+  angry?: number;
+};
+
 export type Reaction = {
   id: number;
   user: Omit<User, 'password'>;
-  post: Post;
+  post?: Post;
+  message?: Message;
+  type: 'p' | 'm';
+  value: keyof NumReactions;
   createdAt: string;
 };
 

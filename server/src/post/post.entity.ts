@@ -7,13 +7,11 @@ import {
   Collection,
   EntityRepositoryType,
   Index,
+  Embedded,
 } from '@mikro-orm/core';
+import { NumReactions, Reaction } from '../common/entities/reaction.entity';
 import { User } from '../user/user.entity';
-import {
-  CommentRepository,
-  PostRepository,
-  ReactionRepository,
-} from './post.repository';
+import { CommentRepository, PostRepository } from './post.repository';
 
 @Entity({ tableName: 'posts', customRepository: () => PostRepository })
 export class Post {
@@ -28,8 +26,8 @@ export class Post {
   @ManyToOne(() => User, { onDelete: 'cascade' })
   creator: User;
 
-  @Property({ default: 0 })
-  numReactions: number = 0;
+  @Embedded(() => NumReactions, { object: true })
+  numReactions?: NumReactions = {};
 
   @OneToMany(() => Reaction, (reaction) => reaction.post)
   reactions = new Collection<Reaction>(this);
@@ -45,25 +43,6 @@ export class Post {
 
   @Property({ defaultRaw: 'CURRENT_TIMESTAMP', onUpdate: () => new Date() })
   updatedAt: Date = new Date();
-}
-
-@Entity({ tableName: 'reactions', customRepository: () => ReactionRepository })
-@Index({ properties: ['user', 'post'] })
-export class Reaction {
-  [EntityRepositoryType]?: ReactionRepository;
-
-  @PrimaryKey()
-  id: number;
-
-  @ManyToOne(() => User, { onDelete: 'cascade' })
-  user: User;
-
-  @ManyToOne(() => Post, { onDelete: 'cascade' })
-  post: Post;
-
-  @Index()
-  @Property({ defaultRaw: 'CURRENT_TIMESTAMP' })
-  createdAt: Date = new Date();
 }
 
 @Entity({ tableName: 'comments', customRepository: () => CommentRepository })

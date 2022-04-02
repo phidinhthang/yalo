@@ -27,11 +27,14 @@
       "errors": {
         "username": {
           "length": "username must be longer than or equal to 3 characters and less than or equal 255 characters",
-          "empty": "username should not be empty"
+          "empty": "username should not be empty",
+          "exist": "username already existed",
+          "not-exist": "username doesn't exist"
         },
         "password": {
           "length": "password must be longer than or equal to 3 characters and less than or euqal to 255 characters",
-          "empty": "username should not be empty"
+          "empty": "username should not be empty",
+          "not-match": "password doesn't match"
         }
       }
     },

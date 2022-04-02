@@ -1,24 +1,14 @@
 import { useInView } from 'react-intersection-observer';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import { Avatar, AvatarGroup } from '../../ui/Avatar';
-import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 import {
   useTypeSafeInfiniteQuery,
   useTypeSafeQuery,
 } from '../../shared-hooks/useTypeSafeQuery';
-import {
-  useTypeSafeUpdateQuery,
-  useTypeSafeUpdateInfiniteQuery,
-} from '../../shared-hooks/useTypeSafeUpdateQuery';
 import { useIsDesktopScreen } from '../../shared-hooks/useIsDesktopScreen';
 import { useChatStore } from './useChatStore';
 import { Member } from '../../lib/api/entities';
 import React from 'react';
-import { Skeleton } from '../../ui/Skeleton';
-import { randomNumber } from '../../utils/randomNumber';
-import { Input } from '../../ui/Input';
-import { Button } from '../../ui/Button';
 import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslation';
 import { SvgSolidArrowLeft } from '../../icons/SolidArrowLeft';
 import { SvgSolidInfo } from '../../icons/SolidInfo';
@@ -26,57 +16,20 @@ import { ChatInfo } from './ChatInfo';
 import { useOnClickOutside } from '../../shared-hooks/useOnClickOutside';
 import { SvgSolidTrash } from '../../icons/SolidTrash';
 import { ChatInputController } from './ChatInputController';
-import { ChatMessageText } from './ChatMessageText';
 import { SvgOutlineUserAdd } from '../../icons/OutlineUserAdd';
-import { Modal } from '../../ui/Modal';
 import { SvgOutlinePencil } from '../../icons/OutlinePencil';
 import { IconButton } from '../../ui/IconButton';
 import { SvgOutlinePhotograph } from '../../icons/OutlinePhotograph';
 import { MessageBox } from './MessageBox';
-
-const MainSkeleton = () => {
-  const genHeight = () => randomNumber(3, 8) * 12;
-  const genWidth = () => randomNumber(8, 24) * 18;
-  return (
-    <div className='h-screen overflow-y-auto'>
-      {Array.from({ length: randomNumber(8, 12) }).map((_, idx) => {
-        const isLeft = randomNumber(0, 1);
-        return (
-          <div
-            key={idx}
-            className={`px-2 flex gap-2 mb-2 ${
-              isLeft ? 'flex-row' : 'flex-row-reverse'
-            }`}
-          >
-            <Skeleton circle className='w-14 h-14 rounded-full' />
-            <div
-              className={`flex flex-col flex-auto ${
-                isLeft ? 'items-start' : 'items-end'
-              }`}
-            >
-              <Skeleton className='h-7 w-36 mb-1' />
-              <Skeleton
-                style={{
-                  height: genHeight(),
-                  width: genWidth(),
-                  maxWidth: '100%',
-                }}
-                className='px-2'
-              />
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
+import { ChangeConversationTitleModal } from './ChangeConversationTitleModal';
+import { AddMemberModal } from './AddMemberModal';
+import { ChatSkeleton } from './ChatSkeletion';
 
 export const ChatBox = () => {
   const { conversationOpened, setConversationOpened } = useChatStore();
   const [ref, inView] = useInView();
   const isDesktopScreen = useIsDesktopScreen();
   const navigate = useNavigate();
-  const updateQuery = useTypeSafeUpdateQuery();
   const { t } = useTypeSafeTranslation();
   const [isChatInfoBoxOpen, setIsChatInfoBoxOpen] = React.useState(false);
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = React.useState(false);
@@ -84,7 +37,6 @@ export const ChatBox = () => {
     isChangeConversationTitleModalOpen,
     setIsChangeConversationTitleModalOpen,
   ] = React.useState(false);
-  const [selectedUserIds, setSelectedUserIds] = React.useState<number[]>([]);
   const {
     data: messages,
     isLoading,
@@ -102,24 +54,12 @@ export const ChatBox = () => {
     [{ conversationId: conversationOpened! }]
   );
   const { data: me } = useTypeSafeQuery('me');
-  const { data: users } = useTypeSafeQuery('findAll');
   const { data: conversation } = useTypeSafeQuery(
     ['getConversation', conversationOpened!],
     { enabled: !!conversationOpened },
     [conversationOpened!]
   );
-  const { mutate: addMember } = useTypeSafeMutation('addMember');
-  const { mutate: changeTitle, isLoading: isChangeTitleLoading } =
-    useTypeSafeMutation('changeConversationTitle');
   const chatInfoRef = React.useRef<HTMLDivElement | null>(null);
-
-  const [newTitle, setNewTitle] = React.useState<string>(
-    conversation?.title || ''
-  );
-
-  React.useEffect(() => {
-    setNewTitle(conversation?.title || '');
-  }, [conversationOpened]);
 
   useOnClickOutside(chatInfoRef, () => {
     setIsChatInfoBoxOpen(false);
@@ -137,10 +77,10 @@ export const ChatBox = () => {
     }
   }, [endRef.current, conversationOpened, isLoading]);
 
-  const membersExceptMe = conversation?.members.filter(
+  const partnerMember = conversation?.members.filter(
     (m) => m.user.id !== me?.id
-  );
-  const partner = membersExceptMe?.[0].user;
+  )?.[0];
+  const partner = partnerMember?.user;
   const isGroup = conversation?.type === 'group';
   const memberMap: Record<number, Member> = {};
 
@@ -172,7 +112,7 @@ export const ChatBox = () => {
   if (!conversation && !isLoading) return <>error</>;
 
   if (isLoading) {
-    return <MainSkeleton />;
+    return <ChatSkeleton />;
   }
 
   return (
@@ -193,13 +133,13 @@ export const ChatBox = () => {
             <AvatarGroup>
               {[
                 ...(conversation?.type === 'group'
-                  ? conversation.members || []
-                  : membersExceptMe || []),
-              ]?.map((m) => (
+                  ? conversation.membersPreview || []
+                  : [partner!] || []),
+              ]?.map((user) => (
                 <Avatar
-                  key={m.user.id}
-                  username={m.user.username}
-                  src={m.user.avatarUrl}
+                  key={user.id}
+                  username={user.username}
+                  src={user.avatarUrl}
                   size='md'
                 />
               )) || []}
@@ -215,86 +155,10 @@ export const ChatBox = () => {
                   <SvgOutlinePencil />
                 </IconButton>
                 {
-                  <Modal
+                  <ChangeConversationTitleModal
                     isOpen={isChangeConversationTitleModalOpen}
-                    title={'Set group name'}
-                    onRequestClose={() => {
-                      setIsChangeConversationTitleModalOpen(false);
-                      setNewTitle(conversation?.title || '');
-                    }}
-                    footer={
-                      <div className='flex flex-row-reverse w-full gap-3'>
-                        <Button
-                          onClick={() => {
-                            changeTitle(
-                              [conversationOpened!, { title: newTitle }],
-                              {
-                                onSuccess: (data) => {
-                                  if (data) {
-                                    console.log(
-                                      'change conversation title ',
-                                      data
-                                    );
-                                  }
-                                  toast(
-                                    'Change conversation title successfully!',
-                                    { type: 'success' }
-                                  );
-                                  updateQuery(
-                                    'getPaginatedConversations',
-                                    (conversations) => {
-                                      const conversation = conversations.find(
-                                        (c) => c.id === conversationOpened
-                                      );
-                                      conversation!.title = newTitle;
-                                      return conversations;
-                                    }
-                                  );
-                                  updateQuery(
-                                    ['getConversation', conversationOpened!],
-                                    (c) => {
-                                      c.title = newTitle;
-                                      return c;
-                                    }
-                                  );
-                                  setIsChangeConversationTitleModalOpen(false);
-                                },
-                                onError: (error) => {
-                                  console.log(
-                                    'change conversation title error ',
-                                    error
-                                  );
-                                  toast(error.errors.title, { type: 'error' });
-                                },
-                              }
-                            );
-                          }}
-                          disabled={newTitle.length === 0}
-                          loading={isChangeTitleLoading}
-                        >
-                          Confirm
-                        </Button>
-                        <Button
-                          variant='secondary'
-                          onClick={() => {
-                            setIsChangeConversationTitleModalOpen(false);
-                            setNewTitle(conversation?.title || '');
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    }
-                  >
-                    <p>
-                      Are you sure you want to rename this group, a new group
-                      name will be visible with all members
-                    </p>
-                    <Input
-                      value={newTitle}
-                      onChange={(e) => setNewTitle(e.target.value)}
-                    />
-                  </Modal>
+                    setOpen={setIsChangeConversationTitleModalOpen}
+                  />
                 }
               </p>
               <p>
@@ -316,88 +180,10 @@ export const ChatBox = () => {
                 <SvgOutlineUserAdd />
               </IconButton>
             ) : null}
-            <Modal
-              title='Add member'
+            <AddMemberModal
               isOpen={isAddMemberModalOpen}
-              onRequestClose={() => {
-                setIsAddMemberModalOpen(false);
-                setSelectedUserIds([]);
-              }}
-              footer={
-                <div className='flex flex-row-reverse w-full gap-3'>
-                  <Button
-                    onClick={() => {
-                      addMember([conversation!.id, selectedUserIds], {
-                        onSettled: () => {
-                          setIsAddMemberModalOpen(false);
-                          setSelectedUserIds([]);
-                        },
-                      });
-                    }}
-                    disabled={selectedUserIds.length === 0}
-                  >
-                    Confirm
-                  </Button>
-                  <Button
-                    variant='secondary'
-                    onClick={() => {
-                      setIsAddMemberModalOpen(false);
-                      setSelectedUserIds([]);
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              }
-            >
-              <div className='max-h-96 overflow-y-auto'>
-                {users
-                  ?.filter((u) => u.id !== me?.id)
-                  .map((u) => {
-                    const isMember = conversation!.members.some(
-                      (m) => m.user.id === u.id
-                    );
-                    return (
-                      <label
-                        key={u.id}
-                        htmlFor={`add__member__${u.id}`}
-                        className='flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-600 hover:cursor-pointer'
-                      >
-                        <input
-                          id={`add__member__${u.id}`}
-                          type='checkbox'
-                          checked={
-                            selectedUserIds.some((uId) => uId === u.id) ||
-                            isMember
-                          }
-                          onChange={(e) => {
-                            if (isMember) return;
-                            if (e.target.checked) {
-                              setSelectedUserIds((uIds) => [...uIds, u.id]);
-                            } else {
-                              setSelectedUserIds((uIds) =>
-                                uIds.filter((id) => id !== u.id)
-                              );
-                            }
-                          }}
-                          className='w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
-                        ></input>
-                        <Avatar
-                          size='sm'
-                          src={u.avatarUrl}
-                          username={u.username}
-                        />
-                        <div>
-                          <div>{u.username}</div>
-                          {isMember ? (
-                            <p className='text-gray-500 text-sm'>Đã tham gia</p>
-                          ) : null}
-                        </div>
-                      </label>
-                    );
-                  })}
-              </div>
-            </Modal>
+              setOpen={setIsAddMemberModalOpen}
+            />
             <IconButton
               onClick={() => {
                 setIsChatInfoBoxOpen((o) => !o);

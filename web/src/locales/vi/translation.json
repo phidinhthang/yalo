@@ -26,11 +26,14 @@
       "errors": {
         "username": {
           "length": "Tên tài khoản bao gồm tối thiểu 3 kí tự và tối đa 255 kí tự.",
-          "empty": "Tên tài khoản không được bỏ trống."
+          "empty": "Tên tài khoản không được bỏ trống.",
+          "exist": "Tên tài khoản đã tồn tại.",
+          "not-exist": "Tên tài khoản không tồn tại."
         },
         "password": {
           "length": "Mật khẩu bao gồm tối thiểu 3 kí tự và tối đa 255 kí tự.",
-          "empty": "Mật khẩu không được bỏ trống."
+          "empty": "Mật khẩu không được bỏ trống.",
+          "not-match": "Mật khẩu không chính xác."
         }
       }
     },

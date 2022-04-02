@@ -21,7 +21,7 @@ export class UsersService {
     if (existed) {
       throw new BadRequestException({
         errors: {
-          username: ['username already exist'],
+          username: ['exist'],
         },
       });
     }
@@ -53,7 +53,7 @@ export class UsersService {
     if (!user) {
       throw new BadRequestException({
         errors: {
-          username: ['username dont existed'],
+          username: ['not-exist'],
         },
       });
     }
@@ -66,7 +66,7 @@ export class UsersService {
     if (!isMatched) {
       throw new BadRequestException({
         errors: {
-          password: ['password does not match'],
+          password: ['not-match'],
         },
       });
     }
@@ -82,7 +82,6 @@ export class UsersService {
 
   async devUnsafeDeleteAccount(userId: number) {
     const deletedRow = await this.userRepository.nativeDelete(userId);
-    console.log('deleted row ', deletedRow);
     return !!deletedRow;
   }
 

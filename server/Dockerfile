@@ -15,12 +15,11 @@ RUN npm run build
 FROM node:17.5.0-alpine3.15 as production
 
 ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
 
 ARG ACCESS_TOKEN_SECRET
 ARG REFRESH_TOKEN_SECRET
 ARG POSTGRES_URL
-ARG PORT
+ARG PORT=4000
 
 WORKDIR /usr/src/app
 
@@ -32,6 +31,6 @@ COPY . .
 
 COPY --from=development /usr/src/app/dist ./dist
 
-EXPOSE 4000
+EXPOSE $PORT
 
 CMD ["node", "dist/main"]

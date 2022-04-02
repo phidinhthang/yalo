@@ -15,6 +15,7 @@ import { MessageModule } from './message/message.module';
 import { MemberModule } from './member/member.module';
 import { FriendModule } from './friend/friend.module';
 import { PostModule } from './post/post.module';
+import { HelloController } from './hello.controller';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { PostModule } from './post/post.module';
     PostModule,
     SocketModule,
   ],
+  controllers: [HelloController],
 })
 export class AppModule implements NestModule, OnModuleInit {
   constructor(private readonly orm: MikroORM) {}

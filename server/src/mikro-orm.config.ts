@@ -32,6 +32,7 @@ const config: Options = {
   migrations: {
     path: 'dist/common/migrations',
     pathTs: 'src/common/migrations',
+    disableForeignKeys: false,
   },
   driverOptions:
     process.env.NODE_ENV === 'production'

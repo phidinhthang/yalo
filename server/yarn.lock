@@ -120,16 +120,16 @@
     yargonaut "1.1.4"
     yargs "15.4.1"
 
-"@mikro-orm/core@^5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@mikro-orm/core/-/core-5.0.2.tgz#6a671686e1f7c9457b328d7800aa60eaab0ab917"
-  integrity sha512-cWCOOzOIhnhl2QmVpf2xoiZNhVn4Ak15nCZPT8wlD0aJe9K45MpWuIoDEJCet8l2tPwBWSWN0CO1zHdATOmaxQ==
+"@mikro-orm/core@^5.0.2", "@mikro-orm/core@^5.1.1":
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/@mikro-orm/core/-/core-5.1.1.tgz#991eb80341a85c1397d12340d4e8e298b6898ce9"
+  integrity sha512-k4rpjwZJxQu5aKeBqPj2Hnvjnivo/GClkuWxX++786lTf7LNspeqeNYa9dl8elzsaWSSzEh0wr06X8JesxNIBw==
   dependencies:
     dotenv "16.0.0"
     escaya "0.0.61"
-    fs-extra "10.0.0"
+    fs-extra "10.0.1"
     globby "11.0.4"
-    mikro-orm "^5.0.0"
+    mikro-orm "^5.1.0"
     reflect-metadata "0.1.13"
 
 "@mikro-orm/knex@^5.0.2", "@mikro-orm/knex@^5.1.1":
@@ -2254,25 +2254,6 @@ knex@1.0.4:
     tarn "^3.0.2"
     tildify "2.0.0"
 
-knex@1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/knex/-/knex-1.0.4.tgz#b9db3c60d0e3a4af37239bb879244e50eb748124"
-  integrity sha512-cMQ81fpkVmr4ia20BtyrD3oPere/ir/Q6IGLAgcREKOzRVhMsasQ4nx1VQuDRJjqq6oK5kfcxmvWoYkHKrnuMA==
-  dependencies:
-    colorette "2.0.16"
-    commander "^8.3.0"
-    debug "4.3.3"
-    escalade "^3.1.1"
-    esm "^3.2.25"
-    getopts "2.3.0"
-    interpret "^2.2.0"
-    lodash "^4.17.21"
-    pg-connection-string "2.5.0"
-    rechoir "^0.8.0"
-    resolve-from "^5.0.0"
-    tarn "^3.0.2"
-    tildify "2.0.0"
-
 levn@~0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/levn/-/levn-0.3.0.tgz#3b09924edf9f083c0490fdd4c0bc4421e04764ee"
@@ -2429,10 +2410,10 @@ micromatch@^4.0.0, micromatch@^4.0.4:
     braces "^3.0.1"
     picomatch "^2.2.3"
 
-mikro-orm@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/mikro-orm/-/mikro-orm-5.0.0.tgz#5ab8b74ce4ae3dc502e004ab62b9d5639d0da562"
-  integrity sha512-uEZPmlWEmzCTYKGQfOukR/LtHJc9JxeP8d4nLZJh4ucuQueaJ7QK1Eo0KLC69SoB9xIV+HdlrFMzh31mtfUJTQ==
+mikro-orm@^5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/mikro-orm/-/mikro-orm-5.1.0.tgz#1ca763ca5c6ee5cbd539ff95f6dcb9d374a51ec8"
+  integrity sha512-9sRQ0XgDmy8Yb6q3gMVvw19mpMKy1xmrMlghbkeCl9DJuhP6nc+mOhJSmx7TQdcroa2SqDV8M75f7La8scXRtA==
 
 mime-db@1.51.0:
   version "1.51.0"

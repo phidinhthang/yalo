@@ -192,7 +192,6 @@ export class PostService {
       typeof nextCursor === 'string'
         ? [meId, meId, meId, nextCursor, limitPlusOne]
         : [meId, meId, meId, limitPlusOne];
-    // @todo check if user can have permission to view posts
 
     const posts: Post[] = await this.em.getConnection('read').execute(
       `

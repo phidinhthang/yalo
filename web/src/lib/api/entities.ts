@@ -29,6 +29,9 @@ export type Message = {
   createdAt: string;
   creator: number;
   conversation: number;
+  numReactions: NumReactions;
+  reactions: Reaction[];
+  reaction?: keyof NumReactions;
   isDeleted: boolean;
   text?: string;
   images?: Array<{ url: string }>;

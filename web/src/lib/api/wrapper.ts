@@ -134,6 +134,14 @@ export const wrap = (connection: Connection) => ({
         body: formData,
       });
     },
+    reactsToMessage: (
+      messageId: number,
+      value: 'like' | 'haha' | 'wow' | 'angry' | 'love' | 'sad',
+      action: 'create' | 'remove'
+    ) =>
+      connection.send(
+        `/message/${messageId}/reaction?value=${value}&action=${action}`
+      ),
     deleteMessage: (messageId: number) =>
       connection.send(`/message/${messageId}`, { method: 'DELETE' }),
     markReadMsg: (conversationId: number) =>

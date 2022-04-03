@@ -6,9 +6,11 @@ import { SvgOutlineHeart } from '../../icons/OutlineHeart';
 import { SvgOutlineTrash } from '../../icons/OutlineTrash';
 import { SvgSolidDots } from '../../icons/SolidDots';
 import { SvgSolidHeart } from '../../icons/SolidHeart';
+import { SvgSolidThumbUp } from '../../icons/SolidThumbUp';
 import { SvgSolidTrash } from '../../icons/SolidTrash';
 import { Post } from '../../lib/api/entities';
 import { useElementSize } from '../../shared-hooks/useElementSize';
+import { useOnClickOutside } from '../../shared-hooks/useOnClickOutside';
 import { useTypeSafeGetQuery } from '../../shared-hooks/useTypeSafeGetQuery';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 import { useTypeSafeQuery } from '../../shared-hooks/useTypeSafeQuery';
@@ -22,6 +24,7 @@ import { Button } from '../../ui/Button';
 import { IconButton } from '../../ui/IconButton';
 import { Modal } from '../../ui/Modal';
 import { ReactionPicker } from '../../ui/Reaction/ReactionPicker';
+import { ReactionStats } from '../../ui/Reaction/ReactionStats';
 
 interface PostControllerProps {
   p: Post;
@@ -42,7 +45,20 @@ export const PostController = ({
   const { data: me } = useTypeSafeQuery('me');
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isReactionPickerOpen, setIsReactionPickerOpen] = React.useState(false);
   const postId = useParams().postId;
+  const numReactions = Object.values(p.numReactions).reduce(
+    (acc, curr) => acc + curr,
+    0
+  );
+  const pickerWrapperRef = React.useRef<HTMLDivElement>(null);
+  const usedReactions = Object.keys(p.numReactions).filter(
+    // @ts-ignore
+    (r) => p.numReactions[r] !== undefined && p.numReactions[r] !== 0
+  );
+  useOnClickOutside(pickerWrapperRef, () => {
+    setIsReactionPickerOpen(false);
+  });
 
   return (
     <React.Fragment key={p.id}>
@@ -143,74 +159,106 @@ export const PostController = ({
                 </IconButton>
                 <span className='text-sm'>{p.numComments}</span>
               </div>
-              <div className='flex gap-1 items-center'>
-                <ReactionPicker
-                  iconSize={32}
-                  onSelect={(label) => {
-                    reactsToPost(
-                      [p.id, label, p.reaction !== label ? 'create' : 'remove'],
-                      {
-                        onSuccess: () => {
-                          const posts = getQuery('getPaginatedPosts');
-                          console.log();
-                          if (posts) {
-                            updateInfiniteQuery(
-                              'getPaginatedPosts',
-                              (posts) => {
-                                posts.pages.forEach((page) =>
-                                  page.data.forEach((post) => {
-                                    if (post.id === p.id) {
-                                      post.numReactions = {
-                                        ...post.numReactions,
-                                        [label]:
-                                          p.reaction === label
-                                            ? (post.numReactions[label] ?? 1) -
-                                              1
-                                            : (post.numReactions[label] ?? 0) +
-                                              1,
-                                      };
-                                      if (p.reaction && p.reaction !== label) {
-                                        post.numReactions[p.reaction] =
-                                          (post.numReactions[p.reaction] ?? 1) -
-                                          1;
-                                      }
-                                      post.reaction =
-                                        post.reaction === label
-                                          ? undefined
-                                          : label;
-                                    }
-                                  })
-                                );
-                                return posts;
-                              }
-                            );
-                          }
-                          const post = getQuery(['getPost', p.id]);
-                          if (post) {
-                            updateQuery(['getPost', p.id], (post) => {
-                              post.numReactions = {
-                                ...post.numReactions,
-                                [label]:
-                                  p.reaction === label
-                                    ? (post.numReactions[label] ?? 1) - 1
-                                    : (post.numReactions[label] ?? 0) + 1,
-                              };
-                              if (p.reaction && p.reaction !== label) {
-                                post.numReactions[p.reaction] =
-                                  (post.numReactions[p.reaction] ?? 1) - 1;
-                              }
-                              post.reaction =
-                                post.reaction === label ? undefined : label;
-                              return post;
-                            });
-                          }
-                        },
-                      }
-                    );
-                  }}
-                  reactions={['angry', 'haha', 'like', 'love', 'sad', 'wow']}
-                  picked={p.reaction}
+              <div className='flex gap-1 items-center' ref={pickerWrapperRef}>
+                <ReactionStats
+                  numReactions={numReactions}
+                  reactions={
+                    usedReactions.length ? usedReactions : (['like'] as any)
+                  }
                 />
+                <div className='relative'>
+                  <IconButton
+                    onClick={() => setIsReactionPickerOpen((o) => !o)}
+                    className='text-[#5890FF] bg-gray-50 hover:bg-gray-200'
+                  >
+                    <SvgSolidThumbUp />
+                  </IconButton>
+                  {isReactionPickerOpen ? (
+                    <ReactionPicker
+                      className='absolute bottom-full right-1/2 transform translate-x-1/2'
+                      iconSize={32}
+                      onSelect={(label) => {
+                        reactsToPost(
+                          [
+                            p.id,
+                            label,
+                            p.reaction !== label ? 'create' : 'remove',
+                          ],
+                          {
+                            onSuccess: () => {
+                              const posts = getQuery('getPaginatedPosts');
+                              console.log();
+                              if (posts) {
+                                updateInfiniteQuery(
+                                  'getPaginatedPosts',
+                                  (posts) => {
+                                    posts.pages.forEach((page) =>
+                                      page.data.forEach((post) => {
+                                        if (post.id === p.id) {
+                                          post.numReactions = {
+                                            ...post.numReactions,
+                                            [label]:
+                                              p.reaction === label
+                                                ? (post.numReactions[label] ??
+                                                    1) - 1
+                                                : (post.numReactions[label] ??
+                                                    0) + 1,
+                                          };
+                                          if (
+                                            p.reaction &&
+                                            p.reaction !== label
+                                          ) {
+                                            post.numReactions[p.reaction] =
+                                              (post.numReactions[p.reaction] ??
+                                                1) - 1;
+                                          }
+                                          post.reaction =
+                                            post.reaction === label
+                                              ? undefined
+                                              : label;
+                                        }
+                                      })
+                                    );
+                                    return posts;
+                                  }
+                                );
+                              }
+                              const post = getQuery(['getPost', p.id]);
+                              if (post) {
+                                updateQuery(['getPost', p.id], (post) => {
+                                  post.numReactions = {
+                                    ...post.numReactions,
+                                    [label]:
+                                      p.reaction === label
+                                        ? (post.numReactions[label] ?? 1) - 1
+                                        : (post.numReactions[label] ?? 0) + 1,
+                                  };
+                                  if (p.reaction && p.reaction !== label) {
+                                    post.numReactions[p.reaction] =
+                                      (post.numReactions[p.reaction] ?? 1) - 1;
+                                  }
+                                  post.reaction =
+                                    post.reaction === label ? undefined : label;
+                                  return post;
+                                });
+                              }
+                            },
+                          }
+                        );
+                        setIsReactionPickerOpen(false);
+                      }}
+                      reactions={[
+                        'angry',
+                        'haha',
+                        'like',
+                        'love',
+                        'sad',
+                        'wow',
+                      ]}
+                      picked={p.reaction}
+                    />
+                  ) : null}
+                </div>
                 {/* <IconButton
                   className='bg-transparent'
                   onClick={() => {
@@ -222,7 +270,6 @@ export const PostController = ({
                     <SvgOutlineHeart />
                   )}
                 </IconButton> */}
-                {/* <span className='text-sm'>{p.numReactions}</span> */}
               </div>
             </div>
           </div>

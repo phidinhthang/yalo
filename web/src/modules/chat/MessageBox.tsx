@@ -14,6 +14,7 @@ import {
 import { Avatar } from '../../ui/Avatar';
 import { IconButton } from '../../ui/IconButton';
 import { ReactionPicker } from '../../ui/Reaction/ReactionPicker';
+import { ReactionStats } from '../../ui/Reaction/ReactionStats';
 import { ChatMessageText } from './ChatMessageText';
 import { useChatStore } from './useChatStore';
 
@@ -30,6 +31,7 @@ export const MessageBox = ({
 }: MessageBoxProps) => {
   const [showReactionPicker, setShowReactionPicker] = React.useState(false);
   const { mutate: deleteMessage } = useTypeSafeMutation('deleteMessage');
+  const { mutate: reactsToMessage } = useTypeSafeMutation('reactsToMessage');
   const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
   const updateQuery = useTypeSafeUpdateQuery();
   const { data: me } = useTypeSafeQuery('me');
@@ -53,6 +55,15 @@ export const MessageBox = ({
       mb.user.id !== message.creator &&
       mb?.lastReadAt &&
       new Date(mb.lastReadAt) > new Date(message.createdAt)
+  );
+  const numReactions = Object.values(message.numReactions).reduce(
+    (acc, curr) => acc + curr,
+    0
+  );
+  const usedReactions = Object.keys(message.numReactions).filter(
+    (r) =>
+      //@ts-ignore
+      message.numReactions[r] !== undefined && message.numReactions[r] !== 0
   );
   return (
     <div
@@ -136,13 +147,15 @@ export const MessageBox = ({
               >
                 <SvgOutlineTrash />
               </IconButton>
-              <IconButton
-                className='w-6 h-6 relative'
-                onClick={() => setShowReactionPicker((s) => !s)}
-              >
-                <SvgOutlineHappy />
+              <div className='relative'>
+                <IconButton
+                  className='w-6 h-6'
+                  onClick={() => setShowReactionPicker((s) => !s)}
+                >
+                  <SvgOutlineHappy />
+                </IconButton>
                 {showReactionPicker ? (
-                  <div className='absolute bottom-full z-20'>
+                  <div className='absolute bottom-full z-20 right-1/2 transform translate-x-1/2'>
                     <ReactionPicker
                       iconSize={24}
                       reactions={[
@@ -153,16 +166,70 @@ export const MessageBox = ({
                         'sad',
                         'angry',
                       ]}
+                      picked={message.reaction}
                       onSelect={(label) => {
-                        console.log('label ', label);
+                        reactsToMessage(
+                          [
+                            message.id,
+                            label,
+                            message.reaction !== label ? 'create' : 'remove',
+                          ],
+                          {
+                            onSuccess: () => {
+                              updateInfiniteQuery(
+                                ['getPaginatedMessages', message.conversation],
+                                (messages) => {
+                                  messages.pages.forEach((page) => {
+                                    page.data.forEach((m) => {
+                                      if (m.id === message.id) {
+                                        m.numReactions = {
+                                          ...m.numReactions,
+                                          [label]:
+                                            message.reaction === label
+                                              ? (m.numReactions[label] ?? 1) - 1
+                                              : (m.numReactions[label] ?? 0) +
+                                                1,
+                                        };
+
+                                        if (
+                                          message.reaction &&
+                                          message.reaction !== label
+                                        ) {
+                                          m.numReactions[message.reaction] =
+                                            (m.numReactions[message.reaction] ??
+                                              1) - 1;
+                                        }
+                                        m.reaction =
+                                          m.reaction === label
+                                            ? undefined
+                                            : label;
+                                      }
+                                    });
+                                  });
+                                  return messages;
+                                }
+                              );
+                            },
+                          }
+                        );
                       }}
                     />
                   </div>
                 ) : null}
-              </IconButton>
+              </div>
             </div>
           </div>
         </div>
+        {usedReactions.length ? (
+          <div className='relative flex justify-end'>
+            <div className='-mt-3 -mb-1'>
+              <ReactionStats
+                numReactions={numReactions}
+                reactions={usedReactions as any}
+              />
+            </div>
+          </div>
+        ) : null}
         {pageIndex === 0 && messageIndex === 0 && seenMembers?.length ? (
           <div className='flex gap-[2px] justify-end mt-1'>
             {seenMembers?.map((m) => (

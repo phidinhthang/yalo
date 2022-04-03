@@ -53,7 +53,7 @@
   },
   "devDependencies": {
     "@mikro-orm/cli": "^5.0.2",
-    "@nestjs/cli": "^8.0.0",
+    "@nestjs/cli": "^8.2.4",
     "@nestjs/schematics": "^8.0.0",
     "@nestjs/testing": "^8.0.0",
     "@types/buffer-to-stream": "^1.0.0",

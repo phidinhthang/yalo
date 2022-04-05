@@ -383,6 +383,10 @@ export const useMainWsHandler = () => {
       }
     );
 
+    ws?.on('new_notification', () => {
+      queryClient.invalidateQueries('getPaginatedNotifications');
+    });
+
     return () => {
       ws?.off('toggle_online');
       ws?.off('toggle_offline');
@@ -401,6 +405,7 @@ export const useMainWsHandler = () => {
       ws?.off('conversation_added');
       ws?.off('new_members');
       ws?.off('you_have_been_kicked');
+      ws?.off('new_notification');
     };
   }, [ws]);
 };

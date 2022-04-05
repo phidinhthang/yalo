@@ -10,6 +10,12 @@ import { Message, Image } from './message/message.entity';
 import { FriendRequest, UserFriend } from './friend/friend.entity';
 import { Post, Comment } from './post/post.entity';
 import { NumReactions, Reaction } from './common/entities/reaction.entity';
+import {
+  NotificationEntityType,
+  NotificationObject,
+  Notification,
+  NotificationChange,
+} from './notification/notification.entity';
 
 const config: Options = {
   type: 'postgresql',
@@ -27,6 +33,10 @@ const config: Options = {
     NumReactions,
     Reaction,
     Post,
+    NotificationEntityType,
+    NotificationObject,
+    Notification,
+    NotificationChange,
   ],
   debug: true,
   loadStrategy: LoadStrategy.JOINED,

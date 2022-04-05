@@ -10,6 +10,7 @@ import {
   Comment,
   User,
   Post,
+  Notification,
 } from './entities';
 import { Connection } from './raw';
 import { _Omit } from './util-types';
@@ -58,6 +59,8 @@ export const wrap = (connection: Connection) => ({
       connection.fetch(`/post/${postId}/comment?${new URLSearchParams(ctx)}`),
     getGroupPreview: (inviteLinkToken: string): Promise<Conversation> =>
       connection.fetch(`/conversation/${inviteLinkToken}/preview`),
+    getPaginatedNotifications: (): Promise<Notification[]> =>
+      connection.fetch(`/notification`),
   },
   mutation: {
     refreshToken: (data: {
@@ -182,5 +185,7 @@ export const wrap = (connection: Connection) => ({
       ),
     joinGroupByLink: (inviteLinkToken: string): Promise<Member | boolean> =>
       connection.send(`/conversation/${inviteLinkToken}/join-group`),
+    markReadNotifications: (): Promise<void> =>
+      connection.send(`/notification/mark-as-read`, { method: 'PATCH' }),
   },
 });

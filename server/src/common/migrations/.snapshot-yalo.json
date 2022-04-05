@@ -15,6 +15,123 @@
           "nullable": false,
           "mappedType": "integer"
         },
+        "entity": {
+          "name": "entity",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        }
+      },
+      "name": "notification_entity_types",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "notification_entity_types_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "entity_type_id": {
+          "name": "entity_type_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "entity_id": {
+          "name": "entity_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "integer"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "CURRENT_TIMESTAMP",
+          "mappedType": "datetime"
+        }
+      },
+      "name": "notification_objects",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "notification_objects_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "notification_objects_entity_type_id_foreign": {
+          "constraintName": "notification_objects_entity_type_id_foreign",
+          "columnNames": [
+            "entity_type_id"
+          ],
+          "localTableName": "public.notification_objects",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.notification_entity_types",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        }
+      }
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "mappedType": "integer"
+        },
         "username": {
           "name": "username",
           "type": "varchar(255)",
@@ -336,6 +453,15 @@
           "nullable": true,
           "mappedType": "string"
         },
+        "num_reactions": {
+          "name": "num_reactions",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "json"
+        },
         "images": {
           "name": "images",
           "type": "jsonb",
@@ -580,13 +706,12 @@
         },
         "num_reactions": {
           "name": "num_reactions",
-          "type": "int",
+          "type": "jsonb",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "default": "0",
-          "mappedType": "integer"
+          "mappedType": "json"
         },
         "num_comments": {
           "name": "num_comments",
@@ -773,6 +898,36 @@
           "nullable": false,
           "mappedType": "integer"
         },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "enumItems": [
+            "like",
+            "love",
+            "haha",
+            "wow",
+            "sad",
+            "angry"
+          ],
+          "mappedType": "enum"
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "enumItems": [
+            "m",
+            "p"
+          ],
+          "mappedType": "enum"
+        },
         "user_id": {
           "name": "user_id",
           "type": "int",
@@ -788,7 +943,16 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
+          "mappedType": "integer"
+        },
+        "message_id": {
+          "name": "message_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
           "mappedType": "integer"
         },
         "created_at": {
@@ -812,16 +976,6 @@
           ],
           "composite": false,
           "keyName": "reactions_created_at_index",
-          "primary": false,
-          "unique": false
-        },
-        {
-          "keyName": "reactions_user_id_post_id_index",
-          "columnNames": [
-            "user_id",
-            "post_id"
-          ],
-          "composite": true,
           "primary": false,
           "unique": false
         },
@@ -861,6 +1015,174 @@
           ],
           "referencedTableName": "public.posts",
           "deleteRule": "cascade",
+          "updateRule": "cascade"
+        },
+        "reactions_message_id_foreign": {
+          "constraintName": "reactions_message_id_foreign",
+          "columnNames": [
+            "message_id"
+          ],
+          "localTableName": "public.reactions",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.messages",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        }
+      }
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "notification_object_id": {
+          "name": "notification_object_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "notifier_id": {
+          "name": "notifier_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "status": {
+          "name": "status",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "0",
+          "mappedType": "integer"
+        }
+      },
+      "name": "notifications",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "notifications_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "notifications_notification_object_id_foreign": {
+          "constraintName": "notifications_notification_object_id_foreign",
+          "columnNames": [
+            "notification_object_id"
+          ],
+          "localTableName": "public.notifications",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.notification_objects",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        },
+        "notifications_notifier_id_foreign": {
+          "constraintName": "notifications_notifier_id_foreign",
+          "columnNames": [
+            "notifier_id"
+          ],
+          "localTableName": "public.notifications",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        }
+      }
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "notification_object_id": {
+          "name": "notification_object_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "actor_id": {
+          "name": "actor_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        }
+      },
+      "name": "notification_changes",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "notification_changes_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "notification_changes_notification_object_id_foreign": {
+          "constraintName": "notification_changes_notification_object_id_foreign",
+          "columnNames": [
+            "notification_object_id"
+          ],
+          "localTableName": "public.notification_changes",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.notification_objects",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        },
+        "notification_changes_actor_id_foreign": {
+          "constraintName": "notification_changes_actor_id_foreign",
+          "columnNames": [
+            "actor_id"
+          ],
+          "localTableName": "public.notification_changes",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
           "updateRule": "cascade"
         }
       }

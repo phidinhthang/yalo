@@ -119,3 +119,18 @@ export type MemberPreview = {
   avatarUrl?: string;
   username: string;
 };
+
+export type Notification = {
+  actors: Array<Omit<User, 'password'>>;
+  createdAt: string;
+  display: string;
+  entityId: number;
+  entityType: {
+    id: number;
+    entity: 'post' | 'comment' | 'message';
+    description: string;
+  };
+  entityTypeId: number;
+  id: number;
+  status: 0 | 1;
+};

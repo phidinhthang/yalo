@@ -16,6 +16,7 @@ import { MemberModule } from './member/member.module';
 import { FriendModule } from './friend/friend.module';
 import { PostModule } from './post/post.module';
 import { HelloController } from './hello.controller';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { HelloController } from './hello.controller';
     UsersModule,
     FriendModule,
     PostModule,
+    NotificationModule,
     SocketModule,
   ],
   controllers: [HelloController],

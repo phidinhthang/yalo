@@ -52,7 +52,7 @@
     "swagger-ui-express": "^4.3.0"
   },
   "devDependencies": {
-    "@mikro-orm/cli": "^5.0.2",
+    "@mikro-orm/cli": "5.1.1",
     "@nestjs/cli": "^8.2.4",
     "@nestjs/schematics": "^8.0.0",
     "@nestjs/testing": "^8.0.0",

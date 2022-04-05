@@ -6,6 +6,8 @@ import {
   ReactionRepository,
   ReactionValue,
 } from 'src/common/entities/reaction.entity';
+import { UserFriendRepository } from 'src/friend/friend.repository';
+import { NotificationService } from 'src/notification/notification.service';
 import { SocketService } from 'src/socket/socket.service';
 import { UserRepository } from 'src/user/user.repository';
 import { CreateCommentDto, CreatePostDto } from './post.dto';
@@ -16,9 +18,11 @@ import { CommentRepository, PostRepository } from './post.repository';
 export class PostService {
   constructor(
     private readonly postRepository: PostRepository,
+    private readonly userFriendRepository: UserFriendRepository,
     private readonly reactionRepository: ReactionRepository,
     private readonly commentRepository: CommentRepository,
     private readonly userRepository: UserRepository,
+    private readonly notificationService: NotificationService,
     private readonly socketService: SocketService,
     private readonly em: EntityManager,
   ) {}
@@ -32,6 +36,17 @@ export class PostService {
     });
     await this.postRepository.persistAndFlush(post);
     await this.socketService.newPost(post);
+
+    const friends = await this.userFriendRepository.getFriends(meId);
+
+    this.notificationService
+      .create({
+        actorId: meId,
+        entityId: post.id,
+        entityTypeId: 1,
+        notifierIds: friends.map((f) => f.id),
+      })
+      .then(() => {});
 
     return post;
   }

@@ -29,6 +29,7 @@ type Props = {
   tabIndex?: number;
   searchMention: (text: string) => Promise<MentionUser[]>;
   buttonGroup?: React.ReactNode;
+  onPaste?: (e: React.ClipboardEvent) => void;
 };
 function InputEmoji(props: Props, ref: React.Ref<any>) {
   const {
@@ -48,6 +49,7 @@ function InputEmoji(props: Props, ref: React.Ref<any>) {
     value,
     searchMention,
     buttonGroup = <div />,
+    onPaste,
   } = props;
 
   const textInputRef = useRef<Ref>(null);
@@ -92,6 +94,7 @@ function InputEmoji(props: Props, ref: React.Ref<any>) {
       }
 
       if (event.key === 'Enter') {
+        console.log('enter here?');
         event.preventDefault();
 
         const text = sanitize(textInputRef.current!.html);
@@ -159,6 +162,7 @@ function InputEmoji(props: Props, ref: React.Ref<any>) {
       let content = event.clipboardData.getData('text/plain');
       content = pollute(content);
       document.execCommand('insertHTML', false, content);
+      onPaste?.(event);
     }
   }
 

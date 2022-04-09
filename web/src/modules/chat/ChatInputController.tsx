@@ -16,6 +16,19 @@ import InputEmoji from '../../lib/react-input-emoji/InputEmoji';
 import { Button } from '../../ui/Button';
 import { SvgOutlinePhotograph } from '../../icons/OutlinePhotograph';
 import { useGetCurrentConversation } from '../../lib/useGetCurrentConverrsation';
+import { IconButton } from '../../ui/IconButton';
+import { SvgOutlineTrash } from '../../icons/OutlineTrash';
+
+type FileOrImagePreview =
+  | { filename: string; mimeType: string; extension: string }
+  | { dataUrl: string };
+
+function getFileExtension(filename: string) {
+  return (
+    filename.substring(filename.lastIndexOf('.') + 1, filename.length) ||
+    filename
+  );
+}
 
 export const ChatInputController = () => {
   const { mutate: createMessage } = useTypeSafeMutation('createMessage');
@@ -29,9 +42,43 @@ export const ChatInputController = () => {
   const uploadFileInputRef = React.useRef<HTMLInputElement>(null);
   const emptyInputRef = React.useRef<HTMLInputElement>(null);
   const [message, setMessage] = React.useState('');
+  const [filesOrImages, setFilesOrImages] = React.useState<File[]>([]);
+  const [filesOrImagesPreview, setFilesOrImagesPreview] = React.useState<
+    FileOrImagePreview[]
+  >([]);
   React.useEffect(() => {
     setMessage('');
   }, [conversationOpened]);
+
+  React.useEffect(() => {
+    const promises: Promise<FileOrImagePreview>[] = [];
+    filesOrImages.forEach((fileOrImage) => {
+      if (fileOrImage.type.includes('image')) {
+        const reader = new FileReader();
+        promises.push(
+          new Promise((res) => {
+            reader.addEventListener('loadend', (e) => {
+              res({ dataUrl: reader.result as string });
+            });
+          })
+        );
+        reader.readAsDataURL(fileOrImage);
+      } else {
+        promises.push(
+          new Promise((res) => {
+            res({
+              filename: fileOrImage.name,
+              mimeType: fileOrImage.type,
+              extension: getFileExtension(fileOrImage.name),
+            });
+          })
+        );
+      }
+    });
+    Promise.all(promises).then((previews) => {
+      setFilesOrImagesPreview(previews);
+    });
+  }, [filesOrImages]);
 
   const newTyping = throttle(() => {
     console.log('typing...');
@@ -41,33 +88,43 @@ export const ChatInputController = () => {
   }, 2000);
 
   const sendMessage = () => {
-    if (!message.length) return;
+    if (!message.length && !filesOrImages.length) return;
 
-    createMessage([{ conversationId: conversationOpened!, text: message }], {
-      onSuccess: (data) => {
-        if (typeof data === 'boolean') return;
-        if (!('id' in data)) return;
-        updateInfiniteQuery(
-          ['getPaginatedMessages', conversationOpened!],
-          (messages) => {
-            if (!messages) return messages;
-            messages.pages[0].data.unshift(data);
-            return messages;
-          }
-        );
-        updateQuery('getPaginatedConversations', (conversations) => {
-          conversations
-            ?.filter((c) => c.id === data.conversation)
-            .map((c) => {
-              c.lastMessage = data;
-              return c;
-            });
+    createMessage(
+      [
+        {
+          conversationId: conversationOpened!,
+          text: message,
+          images: filesOrImages,
+        },
+      ],
+      {
+        onSuccess: (data) => {
+          if (typeof data === 'boolean') return;
+          if (!('id' in data)) return;
+          updateInfiniteQuery(
+            ['getPaginatedMessages', conversationOpened!],
+            (messages) => {
+              if (!messages) return messages;
+              messages.pages[0].data.unshift(data);
+              return messages;
+            }
+          );
+          updateQuery('getPaginatedConversations', (conversations) => {
+            conversations
+              ?.filter((c) => c.id === data.conversation)
+              .map((c) => {
+                c.lastMessage = data;
+                return c;
+              });
 
-          return conversations;
-        });
-        setMessage('');
-      },
-    });
+            return conversations;
+          });
+          setMessage('');
+          setFilesOrImages([]);
+        },
+      }
+    );
   };
 
   return (
@@ -137,44 +194,122 @@ export const ChatInputController = () => {
           </div>
         </div>
       </div>
-      <InputEmoji
-        value={message}
-        onChange={(message) => setMessage(message)}
-        placeholder='Typing...'
-        onEnter={() => {
-          sendMessage();
-        }}
-        onKeyDown={() => {
-          newTyping();
-        }}
-        searchMention={async (text) => {
-          if (!text) {
-            return [];
-          }
-          console.log('memser ', members);
-          const filteredText = text.substring(1).toLocaleLowerCase();
-
-          return (
-            members
-              ?.filter((member) => {
-                if (
-                  member.user.username
-                    .toLocaleLowerCase()
-                    .startsWith(filteredText) &&
-                  member.user.id !== me?.id
-                ) {
-                  return true;
+      <div>
+        {filesOrImagesPreview.length ? (
+          <div className='p-2'>
+            <p className='pb-2'>
+              {(() => {
+                const numImagePreviews = filesOrImagesPreview.filter(
+                  (p) => 'dataUrl' in p
+                ).length;
+                const numFilePreviews =
+                  filesOrImagesPreview.length - numImagePreviews;
+                const photoDisplay =
+                  numImagePreviews === 1 ? 'photo' : 'photos';
+                const fileDisplay = numFilePreviews === 1 ? 'file' : 'files';
+                if (numImagePreviews && numFilePreviews) {
+                  return `${numImagePreviews} ${photoDisplay} selected and ${numFilePreviews} ${fileDisplay} selected`;
+                } else if (numFilePreviews && !numImagePreviews) {
+                  return `${numFilePreviews} ${fileDisplay} selected`;
+                } else if (numImagePreviews && !numFilePreviews) {
+                  return `${numImagePreviews} ${photoDisplay} selected`;
                 }
-              })
-              .map((member) => ({
-                id: member.user.id + '',
-                name: member.user.username,
-                image: member.user.avatarUrl!,
-              })) || []
-          );
-        }}
-        buttonGroup={<button>ok</button>}
-      />
+                return '';
+              })()}
+            </p>
+            <div className='flex gap-1'>
+              {filesOrImagesPreview.map((preview, index) => {
+                let body = <img />;
+                if ('dataUrl' in preview) {
+                  body = (
+                    <img
+                      className='w-full h-full object-cover'
+                      src={preview.dataUrl}
+                    />
+                  );
+                } else {
+                  body = (
+                    <>
+                      <img
+                        className='w-full h-full object-cover'
+                        src={`/file-icons/${preview.extension}.svg`}
+                        onError={(e) => {
+                          e.currentTarget.src = `/file-icons/unknown.svg`;
+                        }}
+                      />
+                      <div className='absolute bottom-0 left-0 right-0 bg-gray-700 opacity-[0.75] text-center truncate'>
+                        <p className='text-white opacity-100 p-1 text-sm'>
+                          {preview.filename}
+                        </p>
+                      </div>
+                    </>
+                  );
+                }
+                return (
+                  <div className='w-24 h-24 relative rounded-lg overflow-hidden'>
+                    {/* {preview.filename} */}
+
+                    {body}
+                    <IconButton
+                      className='absolute right-1 top-1 w-5 h-5 border border-gray-500'
+                      onClick={() => {
+                        setFilesOrImages((filesOrImages) =>
+                          filesOrImages.filter((_, idx) => idx !== index)
+                        );
+                      }}
+                    >
+                      <SvgOutlineTrash />
+                    </IconButton>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
+        <InputEmoji
+          value={message}
+          onChange={(message) => setMessage(message)}
+          placeholder='Typing...'
+          onEnter={() => {
+            sendMessage();
+          }}
+          onKeyDown={() => {
+            newTyping();
+          }}
+          onPaste={(e) => {
+            console.log('paste ', e);
+            const files = [...e.clipboardData.files];
+            setFilesOrImages((previous) => [...previous, ...files]);
+          }}
+          searchMention={async (text) => {
+            if (!text) {
+              return [];
+            }
+            console.log('memser ', members);
+            const filteredText = text.substring(1).toLocaleLowerCase();
+
+            return (
+              members
+                ?.filter((member) => {
+                  if (
+                    member.user.username
+                      .toLocaleLowerCase()
+                      .startsWith(filteredText) &&
+                    member.user.id !== me?.id
+                  ) {
+                    return true;
+                  }
+                })
+                .map((member) => ({
+                  id: member.user.id + '',
+                  name: member.user.username,
+                  image: member.user.avatarUrl!,
+                })) || []
+            );
+          }}
+          buttonGroup={<button>ok</button>}
+        />
+      </div>
     </div>
   );
 };

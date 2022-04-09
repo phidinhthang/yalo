@@ -122,11 +122,11 @@ export const wrap = (connection: Connection) => ({
       }),
     deleteComment: (commentId: number) =>
       connection.send(`/post/${commentId}/comment`, { method: 'DELETE' }),
-    createMessage: (
-      data: Pick<Message, 'text'> & { conversationId: number } & {
-        images?: File[];
-      }
-    ): Promise<Message | ErrorResponse> => {
+    createMessage: (data: {
+      conversationId: number;
+      text?: string;
+      images?: File[];
+    }): Promise<Message | ErrorResponse> => {
       const formData = new FormData();
       console.log('data ', data);
       if (data.text) formData.append('text', data.text);

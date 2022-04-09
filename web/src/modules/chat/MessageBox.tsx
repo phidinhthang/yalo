@@ -92,7 +92,7 @@ export const MessageBox = ({
             ) : message.text ? (
               <ChatMessageText text={message.text!} />
             ) : null}
-            {message.images ? (
+            {message.images && !message.isDeleted ? (
               <div className='flex gap-2'>
                 {message.images.map((i, idx) => (
                   <img src={i.url} className='w-52 object-cover' />

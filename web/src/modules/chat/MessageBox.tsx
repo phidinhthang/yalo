@@ -1,10 +1,13 @@
 import { formatDistanceToNow } from 'date-fns';
 import { t } from 'i18next';
 import React from 'react';
+import { SvgOutlineDownload } from '../../icons/OutlineDownload';
 import { SvgOutlineHappy } from '../../icons/OutlineHappy';
 import { SvgOutlineTrash } from '../../icons/OutlineTrash';
 import { SvgSolidTrash } from '../../icons/SolidTrash';
 import { Member, Message } from '../../lib/api/entities';
+import { downloadFile } from '../../lib/downloadFile';
+import { getFileExtension } from '../../lib/getFileExtension';
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 import { useTypeSafeQuery } from '../../shared-hooks/useTypeSafeQuery';
 import {
@@ -96,6 +99,40 @@ export const MessageBox = ({
               <div className='flex gap-2'>
                 {message.images.map((i, idx) => (
                   <img src={i.url} className='w-52 object-cover' />
+                ))}
+              </div>
+            ) : null}
+            {message.files && !message.isDeleted ? (
+              <div>
+                {message.files.map((f) => (
+                  <div className='flex justify-between'>
+                    <div className='flex gap-2'>
+                      <div className='w-14 h-14'>
+                        <img
+                          className='object-cover w-full h-full'
+                          src={`/file-icons/${getFileExtension(
+                            f.fileName
+                          )}.svg`}
+                          onError={(e) => {
+                            e.currentTarget.src = `/file-icons/unknown.svg`;
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <p>{f.fileName}</p>
+                        <p>{Math.round((f.fileSize / 1024) * 10) / 10} kb</p>
+                      </div>
+                    </div>
+                    <div>
+                      <IconButton
+                        onClick={() => {
+                          downloadFile(f.url, f.fileName);
+                        }}
+                      >
+                        <SvgOutlineDownload />
+                      </IconButton>
+                    </div>
+                  </div>
                 ))}
               </div>
             ) : null}

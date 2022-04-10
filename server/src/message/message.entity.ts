@@ -40,6 +40,9 @@ export class Message {
   @Embedded(() => Image, { nullable: true, object: true, array: true })
   images?: Image[];
 
+  @Embedded(() => File, { nullable: true, object: true, array: true })
+  files?: File[];
+
   @Property({ default: false, defaultRaw: 'false' })
   isDeleted: boolean = false;
 
@@ -52,4 +55,16 @@ export class Message {
 export class Image {
   @Property({ columnType: 'text' })
   url: string;
+}
+
+@Embeddable()
+export class File {
+  @Property({ columnType: 'text' })
+  url: string;
+
+  @Property()
+  fileName: string;
+
+  @Property()
+  fileSize: number;
 }

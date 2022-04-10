@@ -1,5 +1,5 @@
 export class CreateMessageDto {
   text?: string;
 
-  images?: Express.Multer.File[];
+  filesOrImages?: Express.Multer.File[];
 }

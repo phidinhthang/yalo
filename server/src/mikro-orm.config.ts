@@ -6,7 +6,7 @@ import {
   Conversation,
   MemberPreview,
 } from './conversation/conversation.entity';
-import { Message, Image } from './message/message.entity';
+import { Message, Image, File } from './message/message.entity';
 import { FriendRequest, UserFriend } from './friend/friend.entity';
 import { Post, Comment } from './post/post.entity';
 import { NumReactions, Reaction } from './common/entities/reaction.entity';
@@ -27,6 +27,7 @@ const config: Options = {
     MemberPreview,
     Conversation,
     Image,
+    File,
     FriendRequest,
     UserFriend,
     Comment,

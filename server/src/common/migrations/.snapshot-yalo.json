@@ -471,6 +471,15 @@
           "nullable": true,
           "mappedType": "json"
         },
+        "files": {
+          "name": "files",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "json"
+        },
         "is_deleted": {
           "name": "is_deleted",
           "type": "boolean",

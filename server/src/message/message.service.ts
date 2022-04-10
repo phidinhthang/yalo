@@ -6,7 +6,7 @@ import { SocketService } from 'src/socket/socket.service';
 import { BadRequestException } from '@nestjs/common';
 import { MemberRepository } from 'src/member/member.repository';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import { Image, Message } from './message.entity';
+import { File, Image, Message } from './message.entity';
 import {
   ReactionRepository,
   ReactionValue,
@@ -31,34 +31,51 @@ export class MessageService {
     conversationId: number,
     createMessageDto: CreateMessageDto,
   ) {
-    console.log('create message dto ', createMessageDto);
-
+    await this.memberRepository.isMemberOrThrow(senderId, conversationId);
+    console.log('dto ', createMessageDto);
     if (
       (createMessageDto.text && createMessageDto.text.length === 0) ||
-      (!createMessageDto.text && !createMessageDto.images?.length)
+      (!createMessageDto.text && !createMessageDto.filesOrImages?.length)
     ) {
       return false;
     }
 
-    const uploadPromises = createMessageDto.images?.map(async (imageFile) => {
-      const uploadResponse = await this.cloudinaryService.uploadImage(
-        imageFile,
-      );
+    const imageBlobs = createMessageDto.filesOrImages.filter((fileOrImage) =>
+      fileOrImage.mimetype.includes('image'),
+    );
+    const fileBlobs = createMessageDto.filesOrImages.filter(
+      (fileOrImage) => !fileOrImage.mimetype.includes('image'),
+    );
+
+    const uploadImagePromises = imageBlobs?.map(async (image) => {
+      const uploadResponse = await this.cloudinaryService.uploadImage(image);
       return uploadResponse;
     });
 
-    const uploadResponses = await Promise.all(uploadPromises ?? []);
+    const uploadFilePromises = fileBlobs?.map(async (file) => {
+      const uploadResponse = await this.cloudinaryService.uploadFile(file);
+      return uploadResponse;
+    });
 
-    const images: Image[] = uploadResponses?.map((r) => ({ url: r.url }));
+    const uploadImageResponses = await Promise.all(uploadImagePromises ?? []);
+    const uploadFileResponses = await Promise.all(uploadFilePromises ?? []);
 
-    console.log('images ', images);
+    const images: Image[] = uploadImageResponses?.map((r) => ({
+      url: r.url,
+    }));
+    const files: File[] = uploadFileResponses.map((r, index) => ({
+      url: r.url,
+      // @todo: better get filename
+      fileName: fileBlobs[index].originalname,
+      fileSize: r.bytes,
+    }));
 
-    await this.memberRepository.isMemberOrThrow(senderId, conversationId);
     const message = this.messageRepository.create({
       creator: senderId,
       conversation: conversationId,
       text: createMessageDto.text,
       images: images,
+      files: files,
       numReactions: {},
     });
     await this.messageRepository.persistAndFlush(message);
@@ -117,6 +134,8 @@ export class MessageService {
       m.creator_id as "creator",
       m.conversation_id as "conversation",
       m.text, m.num_reactions as "numReactions",
+      m.images as images,
+      m.files as files,
       case when r.id is not null then r.value else null end as "reaction",
       m.created_at as "createdAt"
       from messages m

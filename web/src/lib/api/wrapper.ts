@@ -125,12 +125,14 @@ export const wrap = (connection: Connection) => ({
     createMessage: (data: {
       conversationId: number;
       text?: string;
-      images?: File[];
+      filesOrImages: File[];
     }): Promise<Message | ErrorResponse> => {
       const formData = new FormData();
       console.log('data ', data);
       if (data.text) formData.append('text', data.text);
-      data.images?.forEach((i, idx) => formData.append(`images`, i));
+      data.filesOrImages?.forEach((item) =>
+        formData.append(`filesOrImages`, item)
+      );
 
       console.log('form data', Array.from(formData));
       return connection.send(`/message/create/${data.conversationId}`, {

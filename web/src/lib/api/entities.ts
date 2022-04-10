@@ -35,6 +35,7 @@ export type Message = {
   isDeleted: boolean;
   text?: string;
   images?: Array<{ url: string }>;
+  files?: Array<{ url: string; fileName: string; fileSize: number }>;
 };
 
 export type Post = {

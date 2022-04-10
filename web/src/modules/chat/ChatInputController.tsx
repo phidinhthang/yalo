@@ -18,17 +18,11 @@ import { SvgOutlinePhotograph } from '../../icons/OutlinePhotograph';
 import { useGetCurrentConversation } from '../../lib/useGetCurrentConverrsation';
 import { IconButton } from '../../ui/IconButton';
 import { SvgOutlineTrash } from '../../icons/OutlineTrash';
+import { getFileExtension } from '../../lib/getFileExtension';
 
 type FileOrImagePreview =
   | { filename: string; mimeType: string; extension: string }
   | { dataUrl: string };
-
-function getFileExtension(filename: string) {
-  return (
-    filename.substring(filename.lastIndexOf('.') + 1, filename.length) ||
-    filename
-  );
-}
 
 export const ChatInputController = () => {
   const { mutate: createMessage } = useTypeSafeMutation('createMessage');
@@ -95,7 +89,7 @@ export const ChatInputController = () => {
         {
           conversationId: conversationOpened!,
           text: message,
-          images: filesOrImages,
+          filesOrImages: filesOrImages,
         },
       ],
       {
@@ -157,7 +151,7 @@ export const ChatInputController = () => {
                     createMessage(
                       [
                         {
-                          images: Array.from(e.target.files),
+                          filesOrImages: Array.from(e.target.files),
                           conversationId: conversationOpened!,
                         },
                       ],

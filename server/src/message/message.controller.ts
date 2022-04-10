@@ -28,7 +28,7 @@ export class MessageController {
   @UseGuards(HttpAuthGuard)
   @Post('create/:conversationId')
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FilesInterceptor('images'), FilesToBodyInterceptor)
+  @UseInterceptors(FilesInterceptor('filesOrImages'), FilesToBodyInterceptor)
   async create(
     @MeId() userId: number,
     @Param('conversationId', new ParseIntPipe()) conversationId: number,

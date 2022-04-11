@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateMessageDto } from './message.dto';
+import { CreateMessageDto, ReplyMessageDto } from './message.dto';
 import { MessageRepository } from './message.repository';
 import { ConversationRepository } from '../conversation/conversation.repository';
 import { SocketService } from 'src/socket/socket.service';
@@ -105,6 +105,33 @@ export class MessageService {
     );
 
     return true;
+  }
+
+  async replyMessage(
+    senderId: number,
+    messageId: number,
+    replyMessageDto: ReplyMessageDto,
+  ) {
+    const message = await this.messageRepository.findOne(messageId);
+    if (!message) {
+      throw new BadRequestException();
+    }
+    await this.memberRepository.isMemberOrThrow(
+      senderId,
+      message.conversation.id,
+    );
+    const reply = this.messageRepository.create({
+      creator: senderId,
+      conversation: message.conversation.id,
+      text: replyMessageDto.text,
+      replyTo: message,
+      numReactions: {},
+    });
+    await this.messageRepository.persistAndFlush(reply);
+
+    await this.socketService.newMessage(senderId, reply.conversation.id, reply);
+
+    return reply;
   }
 
   async paginated(

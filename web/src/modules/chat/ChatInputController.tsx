@@ -19,6 +19,7 @@ import { useGetCurrentConversation } from '../../lib/useGetCurrentConverrsation'
 import { IconButton } from '../../ui/IconButton';
 import { SvgOutlineTrash } from '../../icons/OutlineTrash';
 import { getFileExtension } from '../../lib/getFileExtension';
+import { useGetMessage } from './useGetMessage';
 
 type FileOrImagePreview =
   | { filename: string; mimeType: string; extension: string }
@@ -26,9 +27,10 @@ type FileOrImagePreview =
 
 export const ChatInputController = () => {
   const { mutate: createMessage } = useTypeSafeMutation('createMessage');
+  const { mutate: replyMessage } = useTypeSafeMutation('replyMessage');
   const updateQuery = useTypeSafeUpdateQuery();
   const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
-  const { conversationOpened } = useChatStore();
+  const { conversationOpened, replyTo, resetReply } = useChatStore();
   const conversation = useGetCurrentConversation();
   const members = conversation?.members;
   const { data: me } = useTypeSafeQuery('me');
@@ -43,6 +45,10 @@ export const ChatInputController = () => {
   React.useEffect(() => {
     setMessage('');
   }, [conversationOpened]);
+  const { message: messageToReply, creator: userToReply } = useGetMessage(
+    conversationOpened,
+    replyTo
+  );
 
   React.useEffect(() => {
     const promises: Promise<FileOrImagePreview>[] = [];
@@ -189,6 +195,24 @@ export const ChatInputController = () => {
         </div>
       </div>
       <div>
+        {messageToReply ? (
+          <div className='p-2 relative'>
+            <div className='bg-gray-200'>
+              <div>
+                Reply <span>{userToReply?.user.username}</span>
+              </div>
+              <div>{messageToReply.text}</div>
+            </div>
+            <IconButton
+              className='top-0 right-0 absolute'
+              onClick={() => {
+                resetReply();
+              }}
+            >
+              x
+            </IconButton>
+          </div>
+        ) : null}
         {filesOrImagesPreview.length ? (
           <div className='p-2'>
             <p className='pb-2'>
@@ -265,6 +289,33 @@ export const ChatInputController = () => {
           onChange={(message) => setMessage(message)}
           placeholder='Typing...'
           onEnter={() => {
+            if (messageToReply?.id) {
+              replyMessage([messageToReply.id, { text: message }], {
+                onSuccess: (data) => {
+                  if (typeof data === 'boolean') return;
+                  if (!('id' in data)) return;
+                  updateInfiniteQuery(
+                    ['getPaginatedMessages', conversationOpened!],
+                    (messages) => {
+                      if (!messages) return messages;
+                      messages.pages[0].data.unshift(data);
+                      return messages;
+                    }
+                  );
+                  updateQuery('getPaginatedConversations', (conversations) => {
+                    conversations
+                      ?.filter((c) => c.id === data.conversation)
+                      .map((c) => {
+                        c.lastMessage = data;
+                        return c;
+                      });
+
+                    return conversations;
+                  });
+                  setMessage('');
+                },
+              });
+            }
             sendMessage();
           }}
           onKeyDown={() => {

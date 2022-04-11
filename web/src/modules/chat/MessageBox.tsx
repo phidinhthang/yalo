@@ -4,6 +4,7 @@ import React from 'react';
 import { SvgOutlineDownload } from '../../icons/OutlineDownload';
 import { SvgOutlineHappy } from '../../icons/OutlineHappy';
 import { SvgOutlineTrash } from '../../icons/OutlineTrash';
+import { SvgSolidReply } from '../../icons/SolidReply';
 import { SvgSolidTrash } from '../../icons/SolidTrash';
 import { Member, Message } from '../../lib/api/entities';
 import { downloadFile } from '../../lib/downloadFile';
@@ -38,7 +39,7 @@ export const MessageBox = ({
   const updateInfiniteQuery = useTypeSafeUpdateInfiniteQuery();
   const updateQuery = useTypeSafeUpdateQuery();
   const { data: me } = useTypeSafeQuery('me');
-  const { conversationOpened } = useChatStore();
+  const { conversationOpened, setReplyTo } = useChatStore();
   const { data: conversation } = useTypeSafeQuery([
     'getConversation',
     conversationOpened!,
@@ -183,6 +184,14 @@ export const MessageBox = ({
                 }}
               >
                 <SvgOutlineTrash />
+              </IconButton>
+              <IconButton
+                className='w-6 h-6'
+                onClick={() => {
+                  setReplyTo(message.id);
+                }}
+              >
+                <SvgSolidReply />
               </IconButton>
               <div className='relative'>
                 <IconButton

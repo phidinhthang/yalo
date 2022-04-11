@@ -152,6 +152,10 @@ export const wrap = (connection: Connection) => ({
         body: formData,
       });
     },
+    replyMessage: (messageId: number, data: { text: string }) =>
+      connection.send(`/message/${messageId}/reply`, {
+        body: JSON.stringify(data),
+      }),
     reactsToMessage: (
       messageId: number,
       value: 'like' | 'haha' | 'wow' | 'angry' | 'love' | 'sad',

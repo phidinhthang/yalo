@@ -453,6 +453,15 @@
           "nullable": true,
           "mappedType": "string"
         },
+        "reply_to_id": {
+          "name": "reply_to_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "integer"
+        },
         "num_reactions": {
           "name": "num_reactions",
           "type": "jsonb",
@@ -550,6 +559,19 @@
           ],
           "referencedTableName": "public.conversations",
           "deleteRule": "cascade",
+          "updateRule": "cascade"
+        },
+        "messages_reply_to_id_foreign": {
+          "constraintName": "messages_reply_to_id_foreign",
+          "columnNames": [
+            "reply_to_id"
+          ],
+          "localTableName": "public.messages",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.messages",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         }
       }

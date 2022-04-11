@@ -3,3 +3,7 @@ export class CreateMessageDto {
 
   filesOrImages?: Express.Multer.File[];
 }
+
+export class ReplyMessageDto {
+  text?: string
+}

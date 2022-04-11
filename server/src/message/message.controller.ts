@@ -9,7 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { MessageService } from './message.service';
-import { CreateMessageDto } from './message.dto';
+import { CreateMessageDto, ReplyMessageDto } from './message.dto';
 import { HttpAuthGuard } from 'src/common/guards/httpAuth.guard';
 import { MeId } from 'src/common/decorators/meId.decorator';
 import { Delete } from '@nestjs/common';
@@ -35,6 +35,16 @@ export class MessageController {
     @Body() createMessageDto: CreateMessageDto,
   ) {
     return this.messageService.create(userId, conversationId, createMessageDto);
+  }
+
+  @UseGuards(HttpAuthGuard)
+  @Post('/:messageId/reply')
+  async replyMessage(
+    @MeId() userId: number,
+    @Param('messageId', new ParseIntPipe()) messageId: number,
+    @Body() replyMessageDto: ReplyMessageDto,
+  ) {
+    return this.messageService.replyMessage(userId, messageId, replyMessageDto);
   }
 
   @UseGuards(HttpAuthGuard)

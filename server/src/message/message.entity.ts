@@ -31,6 +31,9 @@ export class Message {
   @Property({ nullable: true })
   text?: string;
 
+  @ManyToOne(() => Message, { nullable: true })
+  replyTo?: Message;
+
   @OneToMany(() => Reaction, (reaction) => reaction.message)
   reactions = new Collection<Reaction>(this);
 

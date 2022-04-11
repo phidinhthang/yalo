@@ -5,6 +5,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { User } from './user.entity';
 import { SocketModule } from 'src/socket/socket.module';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 
 @Module({
   controllers: [UsersController],
@@ -13,6 +14,7 @@ import { SocketModule } from 'src/socket/socket.module';
     MikroOrmModule.forFeature({ entities: [User] }),
     AuthModule,
     SocketModule,
+    CloudinaryModule,
   ],
 })
 export class UsersModule {}

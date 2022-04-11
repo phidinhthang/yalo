@@ -87,6 +87,19 @@ export const wrap = (connection: Connection) => ({
     > => connection.send('/users/register', { body: JSON.stringify(data) }),
     deleteAccount: (): Promise<boolean> =>
       connection.send('/users/dev/delete-account', { method: 'DELETE' }),
+    changeAvatar: ({
+      file,
+    }: {
+      file: File;
+    }): Promise<{ avatarUrl: string }> => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return connection.send('/users/change-avatar', {
+        body: formData,
+      });
+    },
+    removeAvatar: () =>
+      connection.send('/users/remove-avatar', { method: 'DELETE' }),
     createFriendRequest: (targetId: number): Promise<boolean> =>
       connection.send(`/friend/${targetId}/request-friend`),
     acceptFriendRequest: (targetId: number): Promise<boolean> =>

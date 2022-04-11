@@ -75,7 +75,7 @@ export const Avatar: React.FC<AvatarProps> = ({
   const sizeStyle = onlineIndicatorStyleMap[size];
   return (
     <div
-      className={`relative inline-block ${className}`}
+      className={`relative inline-block bg-white rounded-full ${className}`}
       style={{ width: avatarSizeMap[size], height: avatarSizeMap[size] }}
     >
       <img

@@ -1,7 +1,11 @@
+import { confirmModal } from '../../lib/confirmModal';
+import { useLogout } from '../auth/useLogout';
 import { useSelectedTabPanelStore } from './useSelectedTabPanelStore';
 
 export const TabBar = () => {
   const { selectedTab, setSelectedTab } = useSelectedTabPanelStore();
+  const logout = useLogout();
+
   return (
     <div>
       <h4 className='font-semibold text-sm uppercase px-[10px] mb-1'>
@@ -22,6 +26,17 @@ export const TabBar = () => {
         }}
       >
         User Profile
+      </TabBarItem>
+      <TabBarSeparator />
+      <TabBarItem
+        active={false}
+        handleClick={() => {
+          confirmModal('Are you sure to logout ?', () => {
+            logout();
+          });
+        }}
+      >
+        Log Out
       </TabBarItem>
     </div>
   );
@@ -45,5 +60,11 @@ const TabBarItem: React.FC<TabBarItemProps> = ({
     <div role='tab' tabIndex={0} className={cn} onClick={() => handleClick?.()}>
       {children}
     </div>
+  );
+};
+
+const TabBarSeparator = () => {
+  return (
+    <div className='h-[1px] mx-[10px] mt-[8px] mb-[10px] bg-gray-400'></div>
   );
 };

@@ -14,3 +14,8 @@ export class RefreshTokenDto {
   @IsNotEmpty()
   refreshToken: string;
 }
+
+export class ChangeAvatarDto {
+  @IsNotEmpty({message: 'empty'})
+  file: Express.Multer.File
+}

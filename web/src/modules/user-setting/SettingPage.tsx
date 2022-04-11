@@ -1,7 +1,11 @@
 import { MainLayout } from '../../ui/MainLayout';
+import { MyAccountTab } from './tab-panels/MyAccountTab';
+import { UserProfileTab } from './tab-panels/UserProfileTab';
 import { TabBar } from './TabBar';
+import { useSelectedTabPanelStore } from './useSelectedTabPanelStore';
 
 const SettingPage = () => {
+  const selectedTab = useSelectedTabPanelStore((s) => s.selectedTab);
   return (
     <MainLayout
       leftPanel={
@@ -10,7 +14,10 @@ const SettingPage = () => {
         </div>
       }
     >
-      <div className='border-l h-full'></div>
+      <div className='border-l h-full pt-14 pl-8 pr-16'>
+        {selectedTab === 'my-account' ? <MyAccountTab /> : null}
+        {selectedTab === 'user-profile' ? <UserProfileTab /> : null}
+      </div>
     </MainLayout>
   );
 };

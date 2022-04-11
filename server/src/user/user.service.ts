@@ -1,8 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { AuthService } from 'src/auth/auth.service';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { SocketService } from 'src/socket/socket.service';
-import { CreateUserDto } from './user.dto';
+import { ChangeAvatarDto, CreateUserDto } from './user.dto';
 import { UserRepository } from './user.repository';
 
 @Injectable()
@@ -11,6 +12,7 @@ export class UsersService {
     private readonly userRepository: UserRepository,
     private readonly authService: AuthService,
     private readonly socketService: SocketService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async register(createUserDto: CreateUserDto) {
@@ -78,6 +80,24 @@ export class UsersService {
         refresh: this.authService.signRefreshToken(user),
       },
     };
+  }
+
+  async changeAvatar(meId: number, changeAvatarDto: ChangeAvatarDto) {
+    const { secure_url } = await this.cloudinaryService.uploadImage(
+      changeAvatarDto.file,
+    );
+    await this.userRepository.nativeUpdate(
+      { id: meId },
+      { avatarUrl: secure_url },
+    );
+
+    return { avatarUrl: secure_url };
+  }
+
+  async removeAvatar(meId: number) {
+    await this.userRepository.nativeUpdate({ id: meId }, { avatarUrl: null });
+
+    return true;
   }
 
   async devUnsafeDeleteAccount(userId: number) {

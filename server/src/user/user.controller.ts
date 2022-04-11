@@ -9,17 +9,20 @@ import {
   UnauthorizedException,
   HttpStatus,
   UsePipes,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ValidationPipe } from '../common/validation.pipe';
 import { UsersService } from './user.service';
 import { AuthService } from '../auth/auth.service';
 import { HttpAuthGuard } from 'src/common/guards/httpAuth.guard';
 import { MeId } from 'src/common/decorators/meId.decorator';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto, RefreshTokenDto } from './user.dto';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ChangeAvatarDto, CreateUserDto, RefreshTokenDto } from './user.dto';
 import { config } from '../common/config';
 import { DevGuard } from 'src/common/guards/dev.guard';
 import { Delete } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FileToBodyInterceptor } from 'src/common/file.interceptor';
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -69,6 +72,21 @@ export class UsersController {
   @Post('login')
   login(@Body() createUserDto: CreateUserDto) {
     return this.usersService.login(createUserDto);
+  }
+
+  @UseGuards(HttpAuthGuard)
+  @UsePipes(new ValidationPipe())
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'), FileToBodyInterceptor)
+  @Post('change-avatar')
+  changeAvatar(@MeId() meId: number, @Body() changeAvatarDto: ChangeAvatarDto) {
+    return this.usersService.changeAvatar(meId, changeAvatarDto);
+  }
+
+  @UseGuards(HttpAuthGuard)
+  @Delete('remove-avatar')
+  removeAvatar(@MeId() meId: number) {
+    return this.usersService.removeAvatar(meId);
   }
 
   @UseGuards(DevGuard)

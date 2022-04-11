@@ -13,33 +13,23 @@ import { useTypeSafeTranslation } from '../../shared-hooks/useTypeSafeTranslatio
 import { useTypeSafeMutation } from '../../shared-hooks/useTypeSafeMutation';
 import { testId } from '../../utils/testId';
 import { confirmModal } from '../../lib/confirmModal';
+import { useLogout } from '../auth/useLogout';
 
 export const AvatarMenu = () => {
   const [isOpenDropdown, setIsOpenDropdown] = React.useState(false);
-  const queryClient = useQueryClient();
   const { setConversationOpened, conversationOpened } = useChatStore();
-  const setTokens = useTokenStore((s) => s.setTokens);
   const dropdownRef = React.useRef<HTMLDivElement | null>(null);
   const isDesktopScreen = useIsDesktopScreen();
   const navigate = useNavigate();
   const { data: me } = useTypeSafeQuery('me');
   const { mutate: devDeleteAccount } = useTypeSafeMutation('deleteAccount');
-  const { ws } = useWsStore();
   const { t } = useTypeSafeTranslation();
   const location = useLocation();
+  const logout = useLogout();
 
   useOnClickOutside(dropdownRef, () => {
     setIsOpenDropdown(false);
   });
-
-  const logout = () => {
-    setTokens({ accessToken: '', refreshToken: '' });
-    ws?.close();
-    navigate('/login');
-    queryClient.clear();
-    setConversationOpened(null);
-    toast.success(t('common.logout.success'));
-  };
 
   React.useEffect(() => {
     if (!conversationOpened && !isDesktopScreen && location.pathname === '/') {

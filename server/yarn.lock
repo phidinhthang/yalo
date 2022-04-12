@@ -1820,10 +1820,10 @@ gauge@^3.0.0:
     strip-ansi "^6.0.1"
     wide-align "^1.1.2"
 
-gen-env-types@^1.3.2:
-  version "1.3.2"
-  resolved "https://registry.yarnpkg.com/gen-env-types/-/gen-env-types-1.3.2.tgz#477d96c4339f47b4c08068719bd5d8827a2e8248"
-  integrity sha512-r5MdwI6cwQ/Oo7w24Rr7UutDOjp7k6eNun5JXuNXlFxTqJrXfOptq1+EcrzzohDzrJgFWWEO/auDgG6I6BWqQw==
+gen-env-types@^1.3.3:
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/gen-env-types/-/gen-env-types-1.3.3.tgz#478c0d993b88a9a0b480004643c68cab19c13d7a"
+  integrity sha512-m8R3edadQeq0NzRYCp7wgICitbrMaN2vBIues0NG2dOiUwCN/UkvySupiC+EKxv4JFP6YM+V8liS7y6K6pB6GA==
   dependencies:
     chalk "^4.0.0"
 

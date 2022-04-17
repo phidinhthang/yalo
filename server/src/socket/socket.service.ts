@@ -53,7 +53,6 @@ export class SocketService {
       conversation: conversationId,
     });
     const users = members.map((m) => m.user).filter((u) => u.id !== senderId);
-    console.log('member ids ', users);
     users.forEach((u) => {
       this.socket.to(`${u.id}`).emit('new_message', message);
     });
@@ -105,7 +104,6 @@ export class SocketService {
     conversationDeletedReason?: string,
   ) {
     const members = conversation.members.getItems();
-    console.log('conversation members ', members);
     const users = members.map((m) => m.user);
     users
       .filter((u) => u.id !== userId)

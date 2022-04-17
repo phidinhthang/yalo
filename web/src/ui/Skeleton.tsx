@@ -21,13 +21,13 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   const circleSkeleton = Array.from({ length: count }).map((_, idx) => (
     <div
       key={idx}
-      className={`bg-gray-300 rounded-full ${className}`}
+      className={`bg-gray-300 dark:bg-dark-secondary rounded-full ${className}`}
       style={style}
     ></div>
   ));
   const rectSkeleton = Array.from({ length: count }).map((_, idx) => (
     <div
-      className={`bg-gray-300 rounded-md ${className}`}
+      className={`bg-gray-300 dark:bg-dark-secondary rounded-md ${className}`}
       style={style}
       key={idx}
     ></div>

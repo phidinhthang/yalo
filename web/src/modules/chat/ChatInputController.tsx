@@ -81,7 +81,6 @@ export const ChatInputController = () => {
   }, [filesOrImages]);
 
   const newTyping = throttle(() => {
-    console.log('typing...');
     if (conversationOpened) {
       ws?.emit('typing', conversationOpened);
     }
@@ -128,7 +127,7 @@ export const ChatInputController = () => {
   };
 
   return (
-    <div className='flex flex-col'>
+    <div className='flex flex-col dark:bg-dark-primary'>
       <div>
         <div className=''>
           <div className='flex'>
@@ -152,7 +151,6 @@ export const ChatInputController = () => {
                 type='file'
                 multiple
                 onChange={(e) => {
-                  console.log('e.target.files', e.target.files);
                   if (e.target.files?.length) {
                     createMessage(
                       [
@@ -322,7 +320,6 @@ export const ChatInputController = () => {
             newTyping();
           }}
           onPaste={(e) => {
-            console.log('paste ', e);
             const files = [...e.clipboardData.files];
             setFilesOrImages((previous) => [...previous, ...files]);
           }}
@@ -330,7 +327,6 @@ export const ChatInputController = () => {
             if (!text) {
               return [];
             }
-            console.log('memser ', members);
             const filteredText = text.substring(1).toLocaleLowerCase();
 
             return (

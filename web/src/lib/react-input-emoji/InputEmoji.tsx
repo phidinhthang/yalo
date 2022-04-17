@@ -175,10 +175,10 @@ function InputEmoji(props: Props, ref: React.Ref<any>) {
         addSanitizeFn={addSanitizeFn}
       />
       <div
-        className={`bg-white w-full outline-none font-[400] pl-[5px] py-[5px] leading-[20px] flex items-center border-t dark:bg-gray-700 dark:text-white${
+        className={`bg-white w-full outline-none font-[400] pl-[5px] py-[5px] leading-[20px] flex items-center border-t dark:bg-dark-primary dark:text-white${
           isFocus
             ? 'ring-blue-500 border-blue-500 dark:ring-blue-500 dark:border-blue-500'
-            : 'border-gray-300 dark:bg-gray-700'
+            : 'border-gray-300 dark:bg-dark-primary'
         }`}
       >
         {/* @ts-ignore */}

@@ -47,11 +47,9 @@ export class AppGateway
         config.accessTokenSecret,
       );
       const userId = decoded.userId;
-      console.log('user join ', userId);
       client.join(`${userId}`);
       this.socketService.toggleOnlineStatus(userId);
     } catch (err) {
-      console.log('ws connect error ', err);
       client.disconnect(true);
     }
   }
@@ -61,7 +59,6 @@ export class AppGateway
     try {
       const decoded: any = this.authService.decode(token);
       const userId = decoded.userId;
-      console.log('user leave ', userId);
       client.leave(`${userId}`);
       this.socketService.toggleOfflineStatus(userId);
     } catch (err) {

@@ -5,7 +5,7 @@ export const ChatSkeleton = () => {
   const genHeight = () => randomNumber(3, 8) * 12;
   const genWidth = () => randomNumber(8, 24) * 18;
   return (
-    <div className='h-screen overflow-y-auto'>
+    <div className='h-screen overflow-y-auto bg-dark-primary'>
       {Array.from({ length: randomNumber(8, 12) }).map((_, idx) => {
         const isLeft = randomNumber(0, 1);
         return (

@@ -6,10 +6,9 @@ module.exports = {
     extend: {
       colors: {
         dark: {
-          200: 'var(--color-dark-200)',
-          300: 'var(--color-dark-300)',
-          500: 'var(--color-dark-500)',
-          900: 'var(--color-dark-900)',
+          secondary: 'var(--color-dark-secondary)',
+          primary: 'var(--color-dark-primary)',
+          gray: '#72808e',
         },
       },
     },

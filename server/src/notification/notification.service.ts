@@ -90,8 +90,6 @@ export class NotificationService {
       [meId],
     );
 
-    console.log('notifications ', notifications);
-
     return notifications;
   }
 

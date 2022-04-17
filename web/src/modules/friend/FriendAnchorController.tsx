@@ -24,7 +24,7 @@ export const FriendAnchorController = () => {
   };
 
   return (
-    <div className='flex flex-col h-full dark:bg-dark-500'>
+    <div className='flex flex-col h-full dark:bg-dark-primary'>
       <div className='pb-1 pl-2 pt-4 flex justify-between'>
         <h3>{t('friend.friends')}</h3>
         <div className='flex gap-1 items-center ml-auto'>
@@ -41,7 +41,7 @@ export const FriendAnchorController = () => {
         <div>
           <SplittedLeftPanelWrapper>
             <div
-              className={`flex gap-3 p-2 hover:bg-gray-100 dark:hover:bg-dark-300 hover:cursor-pointer ${
+              className={`flex gap-3 p-2 hover:bg-gray-100 dark:hover:bg-dark-secondary hover:cursor-pointer ${
                 open === 'friend-search'
                   ? 'bg-blue-100 hover:bg-blue-100 dark:bg-gray-700 dark:hover:bg-gray-700'
                   : ''
@@ -65,7 +65,7 @@ export const FriendAnchorController = () => {
             collapsible
           >
             <div
-              className={`flex gap-3 p-2 hover:bg-gray-100 dark:hover:bg-dark-300 hover:cursor-pointer ${
+              className={`flex gap-3 p-2 hover:bg-gray-100 dark:hover:bg-dark-secondary hover:cursor-pointer ${
                 open === 'incoming-friend-request'
                   ? 'bg-blue-100 hover:bg-blue-100 dark:bg-gray-700 dark:hover:bg-gray-700'
                   : ''
@@ -84,7 +84,7 @@ export const FriendAnchorController = () => {
               <p>{t('friend.requests.incoming')}</p>
             </div>
             <div
-              className={`flex gap-3 p-2 hover:bg-gray-100 dark:hover:bg-dark-300 hover:cursor-pointer ${
+              className={`flex gap-3 p-2 hover:bg-gray-100 dark:hover:bg-dark-secondary hover:cursor-pointer ${
                 open === 'outgoing-friend-request'
                   ? 'bg-blue-100 hover:bg-blue-100 dark:bg-gray-700 dark:hover:bg-gray-700'
                   : ''

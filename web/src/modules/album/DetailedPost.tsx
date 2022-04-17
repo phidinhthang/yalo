@@ -72,7 +72,7 @@ export const DetailedPost = () => {
   }
 
   return (
-    <div className='border-l h-full w-full overflow-y-auto'>
+    <div className='border-l h-full w-full overflow-y-auto dark:bg-dark-primary'>
       <div className='p-4 flex gap-3 items-center border-b'>
         <IconButton onClick={() => navigate('/a')}>
           <SvgSolidArrowLeft />
@@ -126,7 +126,6 @@ export const DetailedPost = () => {
                       updateInfiniteQuery(
                         ['getPaginatedComments', postIdInt],
                         (comments) => {
-                          console.log('comment ', comment);
                           comment.creator = me!;
                           comments.pages[0].data.unshift(comment);
                           return comments;

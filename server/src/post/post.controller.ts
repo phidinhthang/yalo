@@ -28,7 +28,6 @@ export class PostController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FilesInterceptor('images'), FilesToBodyInterceptor)
   create(@MeId() meId: number, @Body() createPostDto: CreatePostDto) {
-    console.log('create post dto', createPostDto);
     return this.postService.create(meId, createPostDto);
   }
 

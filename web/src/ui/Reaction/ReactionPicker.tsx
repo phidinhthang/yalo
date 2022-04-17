@@ -32,7 +32,7 @@ export const ReactionPicker: React.FC<ReactionPickerProps> = ({
       style={{
         boxShadow: '0 0 0 1px rgba(0, 0, 0, .05), 0 1px 2px rgba(0, 0, 0, .15)',
       }}
-      className={`bg-white rounded-[50px] py-[1px] px-2 flex ${className}`}
+      className={`bg-white dark:bg-dark-primary rounded-[50px] py-[1px] px-2 flex ${className}`}
     >
       {reactions.map((reaction) => (
         <div
@@ -46,7 +46,9 @@ export const ReactionPicker: React.FC<ReactionPickerProps> = ({
             icon={icons[reaction]}
             label={reaction}
             onSelect={onSelect}
-            className={picked === reaction ? 'bg-gray-100' : ''}
+            className={
+              picked === reaction ? 'bg-gray-100 dark:bg-gray-700' : ''
+            }
           />
         </div>
       ))}

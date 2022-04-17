@@ -14,12 +14,9 @@ export const MeId = createParamDecorator(
       ? (req.headers.authorization as string).split(' ')
       : null;
 
-    console.log('token', token);
-
     try {
       if (token?.[1]) {
         const decoded: any = decode(token[1]);
-        console.log('decoded ', decoded);
         return decoded?.['userId'];
       }
     } catch (error) {

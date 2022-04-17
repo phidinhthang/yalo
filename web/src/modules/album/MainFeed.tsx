@@ -43,7 +43,7 @@ export const MainFeed = () => {
   }, []);
 
   return (
-    <div className='border-l h-full'>
+    <div className='border-l h-full dark:bg-dark-primary'>
       <div className='p-4 border-b'>
         <h2 className='font-semibold text-3xl'>Post</h2>
       </div>

@@ -35,7 +35,7 @@ export const ConversationItem = ({
   return (
     <div
       onClick={() => onOpened(c.id)}
-      className='flex flex-auto mb-3 p-2 hover:bg-gray-100 dark:hover:bg-dark-300 hover:cursor-pointer group'
+      className='flex flex-auto px-2 py-3 hover:bg-gray-100 dark:hover:bg-dark-secondary hover:cursor-pointer group'
     >
       {c.type === 'private' ? (
         <Avatar
@@ -91,7 +91,7 @@ export const ConversationItem = ({
             >
               {c.type === 'group' ? (
                 <>
-                  <li className='block py-2 px-4 w-full h-full text-gray-700 bg-white dark:bg-dark-500 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200 dark:hover:text-white'>
+                  <li className='block py-2 px-4 w-full h-full text-gray-700 bg-white dark:bg-dark-secondary hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200 dark:hover:text-white'>
                     <a
                       className='block'
                       onClick={(e) => {
@@ -119,7 +119,7 @@ export const ConversationItem = ({
                       {t('conversation.left.label')}
                     </a>
                   </li>
-                  <li className='block py-2 px-4 text-gray-700 bg-white hover:bg-gray-100 dark:bg-dark-500 dark:hover:bg-gray-700 dark:text-gray-200 dark:hover:text-white'>
+                  <li className='block py-2 px-4 text-gray-700 bg-white hover:bg-gray-100 dark:bg-dark-secondary dark:hover:bg-gray-700 dark:text-gray-200 dark:hover:text-white'>
                     <a
                       className='block'
                       onClick={(e) => {

@@ -41,7 +41,6 @@ export const ChangeConversationTitleModal = ({
               changeTitle([conversation!.id, { title: newTitle }], {
                 onSuccess: (data) => {
                   if (data) {
-                    console.log('change conversation title ', data);
                   }
                   toast('Change conversation title successfully!', {
                     type: 'success',
@@ -60,7 +59,6 @@ export const ChangeConversationTitleModal = ({
                   setOpen(false);
                 },
                 onError: (error) => {
-                  console.log('change conversation title error ', error);
                   toast(error.errors.title, { type: 'error' });
                 },
               });

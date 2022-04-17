@@ -27,7 +27,6 @@ export class ConversationService {
 				inner join members m2 on m2.user_id = ${partnerId} and m2.conversation_id = c.id
 					where m1.user_id = ${meId};
 		`);
-    console.log('conversation id ', conversationId, typeof conversationId);
     if (conversationId) {
       const conversation = await this.conversationRepository.findOne(
         conversationId,
@@ -71,7 +70,6 @@ export class ConversationService {
     const [userToAdd, memberCount] = await this.userRepository.findAndCount({
       id: { $in: memberIds },
     });
-    console.log('member count ', memberCount);
     if (memberCount < memberIds.length) {
       throw new BadRequestException({
         errors: {
@@ -201,8 +199,6 @@ export class ConversationService {
       conversation: conversationId,
     });
 
-    console.log('member count ', memberCount);
-
     if (memberCount <= 2) {
       conversationDeletedReason = 'member_count';
     }
@@ -212,7 +208,6 @@ export class ConversationService {
       conversation.membersPreview = conversation.membersPreview.filter(
         (m) => m.id !== meId,
       );
-      console.log('members preview', conversation.membersPreview);
       const memberToPreviews = conversation.members
         .getItems()
         .filter((m) => {
@@ -221,7 +216,6 @@ export class ConversationService {
           );
         })
         .slice(0, 4 - conversation.membersPreview.length);
-      console.log('member to preview ', memberToPreviews);
       if (memberToPreviews.length) {
         const users = await this.userRepository.find({
           id: { $in: [...memberToPreviews.map((m) => m.user.id)] },
@@ -404,7 +398,6 @@ export class ConversationService {
     `,
       [meId, meId],
     );
-    console.log('conversations ', result.rows);
     return result.rows;
   }
 

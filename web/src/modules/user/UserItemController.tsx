@@ -51,7 +51,7 @@ export const UserItemController = ({
         if (me?.id === user.id) return;
         setEnabled(true);
       }}
-      className='p-2 hover:bg-gray-100 dark:hover:bg-dark-300 hover:cursor-pointer'
+      className='p-2 hover:bg-gray-100 dark:hover:bg-dark-secondary hover:cursor-pointer'
     />
   );
 };

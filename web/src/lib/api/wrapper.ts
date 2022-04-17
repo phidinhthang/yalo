@@ -123,8 +123,6 @@ export const wrap = (connection: Connection) => ({
     createPost: (data: Pick<Post, 'text'>): Promise<Post> => {
       const formData = new FormData();
       if (data.text) formData.append('text', data.text);
-      console.log('create post data ', data);
-      console.log(formData);
       return connection.send(`/post/create`, { body: formData });
     },
     deletePost: (postId: number) =>
@@ -141,13 +139,11 @@ export const wrap = (connection: Connection) => ({
       filesOrImages: File[];
     }): Promise<Message | ErrorResponse> => {
       const formData = new FormData();
-      console.log('data ', data);
       if (data.text) formData.append('text', data.text);
       data.filesOrImages?.forEach((item) =>
         formData.append(`filesOrImages`, item)
       );
 
-      console.log('form data', Array.from(formData));
       return connection.send(`/message/create/${data.conversationId}`, {
         body: formData,
       });

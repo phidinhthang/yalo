@@ -187,7 +187,6 @@ export const PostController = ({
                           {
                             onSuccess: () => {
                               const posts = getQuery('getPaginatedPosts');
-                              console.log();
                               if (posts) {
                                 updateInfiniteQuery(
                                   'getPaginatedPosts',

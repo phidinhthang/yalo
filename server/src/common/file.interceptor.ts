@@ -11,7 +11,6 @@ export class FilesToBodyInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const ctx = context.switchToHttp();
     const req = ctx.getRequest();
-    console.log('req.body', req.body, req.file);
     if (req.body && Array.isArray(req.files) && req.files.length) {
       req.files.forEach((file: Express.Multer.File) => {
         const { fieldname } = file;

@@ -47,7 +47,6 @@ export const CreateGroupConversationWidget = () => {
             <Button
               variant='secondary'
               onClick={() => {
-                console.log('member ids', memberIds);
                 createGroupConversation([{ title, memberIds }], {
                   onSuccess: (data) => {
                     updateQuery(

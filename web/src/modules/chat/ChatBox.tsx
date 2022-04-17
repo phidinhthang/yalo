@@ -96,7 +96,7 @@ export const ChatBox = () => {
 
   if (!conversationOpened) {
     return (
-      <div className='h-full flex items-center justify-center text-center'>
+      <div className='h-full flex items-center justify-center text-center dark:bg-dark-primary'>
         <div>
           <h2 className='text-2xl mb-3'>
             {t('common.welcome.to' as any)} <b>yalo!</b>
@@ -117,7 +117,7 @@ export const ChatBox = () => {
 
   return (
     <div className='relative flex flex-col h-full w-full'>
-      <div className='border-b-2 dark:border-gray-700 px-2 py-3 flex w-full items-center justify-between'>
+      <div className='border-b dark:border-gray-700 dark:bg-dark-primary px-2 py-3 flex w-full items-center justify-between'>
         <div className='flex items-center'>
           {!isDesktopScreen ? (
             <IconButton
@@ -197,7 +197,7 @@ export const ChatBox = () => {
           </div>
         </div>
       </div>
-      <div className='flex-auto overflow-y-auto flex flex-col-reverse px-2 bg-gray-100 dark:bg-dark-300'>
+      <div className='flex-auto overflow-y-auto flex flex-col-reverse px-2 bg-gray-100 dark:bg-dark-secondary'>
         <div ref={endRef} style={{ float: 'left', clear: 'both' }}></div>
         {messages?.pages.map((page, p_idx) =>
           page.data.map((m, m_idx) => {

@@ -19,7 +19,7 @@ const FriendPage = () => {
 
   return (
     <MainLayout leftPanel={<FriendAnchorController />}>
-      <div className='h-full border-l-2 dark:border-gray-700'>
+      <div className='h-full border-l-2 dark:border-gray-700 dark:bg-dark-primary'>
         <FriendMainPanel />
       </div>
     </MainLayout>

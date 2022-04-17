@@ -54,7 +54,7 @@ export const ChatInfo = ({ conversation, innerRef }: ChatInfoProps) => {
         </AvatarGroup>
         <p className='font-bold'>{conversation.title}</p>
       </div>
-      <div className='p-4 border-b dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-dark-300 cursor-pointer'>
+      <div className='p-4 border-b dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-dark-secondary cursor-pointer'>
         <div className='flex justify-between'>
           <p
             className='hover:cursor-pointer hover:underline'
@@ -69,7 +69,7 @@ export const ChatInfo = ({ conversation, innerRef }: ChatInfoProps) => {
           </IconButton>
         </div>
       </div>
-      <div className='p-4 border-b dark:border-gray-700 flex justify-between hover:bg-gray-100 dark:hover:bg-dark-300 cursor-pointer'>
+      <div className='p-4 border-b dark:border-gray-700 flex justify-between hover:bg-gray-100 dark:hover:bg-dark-secondary cursor-pointer'>
         <div>
           <p>Group link</p>
           <p className='text-blue-500 text-sm'>{inviteLink}</p>
@@ -113,7 +113,7 @@ export const ChatInfo = ({ conversation, innerRef }: ChatInfoProps) => {
 
   return (
     <div
-      className='fixed top-0 right-0 bottom-0 w-[336px] z-50 border dark:border-gray-700 bg-white dark:bg-dark-900'
+      className='fixed top-0 right-0 bottom-0 w-[336px] z-50 border dark:border-gray-700 bg-white dark:bg-dark-primary'
       ref={innerRef as any}
     >
       {body}
@@ -141,7 +141,7 @@ const MemberItem = ({
     typeof m.conversation === 'number' ? m.conversation : m.conversation.id;
 
   return (
-    <div className='flex py-2 px-3 hover:bg-gray-50 dark:hover:bg-dark-500 group'>
+    <div className='flex py-2 px-3 hover:bg-gray-50 dark:hover:bg-dark-secondary group'>
       <Avatar
         size='md'
         src={m.user.avatarUrl || ''}
@@ -174,7 +174,6 @@ const MemberItem = ({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log('kick member id ', m.user.id, typeof m.user.id);
                   kickMember([conversationId, m.user.id], {
                     onSuccess: () => {
                       updateQuery(['getConversation', conversationId], (c) => {

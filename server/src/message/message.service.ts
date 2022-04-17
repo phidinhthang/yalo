@@ -32,7 +32,6 @@ export class MessageService {
     createMessageDto: CreateMessageDto,
   ) {
     await this.memberRepository.isMemberOrThrow(senderId, conversationId);
-    console.log('dto ', createMessageDto);
     if (
       (createMessageDto.text && createMessageDto.text.length === 0) ||
       (!createMessageDto.text && !createMessageDto.filesOrImages?.length)
@@ -40,10 +39,10 @@ export class MessageService {
       return false;
     }
 
-    const imageBlobs = createMessageDto.filesOrImages.filter((fileOrImage) =>
+    const imageBlobs = createMessageDto.filesOrImages?.filter((fileOrImage) =>
       fileOrImage.mimetype.includes('image'),
     );
-    const fileBlobs = createMessageDto.filesOrImages.filter(
+    const fileBlobs = createMessageDto.filesOrImages?.filter(
       (fileOrImage) => !fileOrImage.mimetype.includes('image'),
     );
 
@@ -63,7 +62,7 @@ export class MessageService {
     const images: Image[] = uploadImageResponses?.map((r) => ({
       url: r.url,
     }));
-    const files: File[] = uploadFileResponses.map((r, index) => ({
+    const files: File[] = uploadFileResponses?.map((r, index) => ({
       url: r.url,
       // @todo: better get filename
       fileName: fileBlobs[index].originalname,

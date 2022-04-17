@@ -54,7 +54,6 @@ export const connect = ({ url = apiUrl }: { url?: string }): Connection => {
       let data: any;
 
       data = await r.json();
-      console.log('response ', r, 'data', data);
       if (r.status > 399) {
         return Promise.reject(data);
       }
@@ -63,7 +62,6 @@ export const connect = ({ url = apiUrl }: { url?: string }): Connection => {
     send: async (endpoint, init?: RequestInit) => {
       const accessToken = getState().accessToken;
       refresh(accessToken);
-      console.log('body ', init?.body instanceof FormData);
       const headers = {
         Authorization: `Bearer ${accessToken}`,
       };

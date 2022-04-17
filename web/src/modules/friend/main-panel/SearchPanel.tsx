@@ -99,7 +99,7 @@ export const SearchPanel = () => {
                   )}
                 >
                   <ul
-                    className='w-full px-2 mb-2 mt-12 bg-white dark:bg-dark-900 overflow-y-auto'
+                    className='w-full px-2 mb-2 mt-12 bg-white dark:bg-dark-primary overflow-y-auto'
                     {...getMenuProps({ style: { top: 0 } })}
                   >
                     {!data?.length && searchUserLoading ? (

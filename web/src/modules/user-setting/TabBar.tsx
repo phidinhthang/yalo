@@ -53,8 +53,10 @@ const TabBarItem: React.FC<TabBarItemProps> = ({
   handleClick,
   children,
 }) => {
-  const cn = `py-[6px] px-[10px] mb-[2px] hover:bg-gray-200 rounded-lg cursor-pointer ${
-    active ? 'bg-gray-300 hover:bg-gray-300' : ''
+  const cn = `py-[6px] px-[10px] mb-[2px] hover:bg-gray-200 dark:hover:bg-dark-secondary rounded-lg cursor-pointer ${
+    active
+      ? 'bg-gray-300 dark:bg-dark-secondary hover:bg-gray-300 dark:hover:bg-dark-secondary'
+      : ''
   } ${className}`;
   return (
     <div role='tab' tabIndex={0} className={cn} onClick={() => handleClick?.()}>

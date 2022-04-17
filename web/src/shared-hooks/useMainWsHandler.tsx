@@ -202,7 +202,6 @@ export const useMainWsHandler = () => {
     );
 
     ws?.on('new_message', async (message: Message) => {
-      console.log('new_message', message);
       const conversations = getQuery('getPaginatedConversations');
       if (!conversations) return;
       let conversation = conversations.find(
@@ -316,7 +315,6 @@ export const useMainWsHandler = () => {
     });
 
     ws?.on('you_have_been_kicked', (conversation: Conversation) => {
-      console.log('you_have_been_kicked', conversation);
       queryClient.removeQueries(['getConversation', conversation.id], {
         exact: true,
       });

@@ -8,7 +8,6 @@ import { MainLayout } from '../../ui/MainLayout';
 const AlbumPage = () => {
   const { data: notifications } = useTypeSafeQuery('getPaginatedNotifications');
   const { mutate } = useTypeSafeMutation('markReadNotifications');
-  console.log('notifications ', notifications);
   const readNotifications = notifications?.filter((n) => n.status === 1);
   const unreadNotifications = notifications?.filter((n) => n.status === 0);
 
@@ -23,7 +22,7 @@ const AlbumPage = () => {
   return (
     <MainLayout
       leftPanel={
-        <div className=''>
+        <div className='dark:bg-dark-primary h-screen'>
           <h3 className='font-semibold text-2xl p-3'>Notification</h3>
           {readNotifications?.length ? <p>read</p> : null}
           <div>

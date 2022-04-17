@@ -16,7 +16,7 @@ export const ReactionStats: React.FC<ReactionStatsProps> = ({
 }: ReactionStatsProps) => {
   return (
     <div
-      className={`rounded-2xl border inline-flex px-[6px] py-[2px] cursor-pointer bg-white hover:bg-gray-100 gap-1 items-center ${
+      className={`rounded-2xl border inline-flex px-[6px] py-[2px] cursor-pointer bg-white dark:bg-dark-primary dark:border-gray-600 hover:bg-gray-100 gap-1 items-center ${
         placement === 'right' ? 'flex-row-reverse' : ''
       } ${className}`}
       {...props}

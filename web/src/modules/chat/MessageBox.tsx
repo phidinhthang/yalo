@@ -84,7 +84,7 @@ export const MessageBox = ({
       </div>
       <div style={{ maxWidth: 'calc(100% - 132px)' }} className='flex flex-col'>
         <div
-          className={`bg-white dark:bg-dark-200 break-all rounded-lg relative p-2 group ${
+          className={`bg-white dark:bg-dark-primary break-all rounded-lg relative p-2 group ${
             isMsgSentByMe ? 'text-right' : ''
           }`}
         >
@@ -145,7 +145,7 @@ export const MessageBox = ({
             </p>
           </div>
           <div
-            className={`absolute bottom-0 right-full w-20 h-16 bg-pink hidden group-hover:flex items-center justify-center ${
+            className={`absolute bottom-0 right-full w-24 h-16 bg-pink hidden group-hover:flex items-center justify-center ${
               isMsgSentByMe ? 'right-full' : 'left-full'
             }`}
           >

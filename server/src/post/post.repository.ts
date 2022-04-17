@@ -14,7 +14,6 @@ export class PostRepository extends EntityRepository<Post> {
       [meId, meId, postId],
     );
 
-    console.log('res ', res);
     return !!res?.rows?.[0].id;
   }
 

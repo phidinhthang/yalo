@@ -46,7 +46,6 @@ export class UsersController {
         accessToken: this.authService.signAccessToken({ id: userId } as any),
       };
     } catch (err) {
-      console.log(err);
       throw new UnauthorizedException();
     }
   }
@@ -54,7 +53,6 @@ export class UsersController {
   @UseGuards(HttpAuthGuard)
   @Get('me')
   async getMe(@MeId() userId?: number) {
-    console.log('user id', userId);
     if (!userId) {
       throw new HttpException('Not authenticated', HttpStatus.UNAUTHORIZED);
     }

@@ -179,14 +179,7 @@ export class PostService {
     );
 
     let _nextCursor: string | undefined = undefined;
-    console.log(
-      'comments ',
-      comments,
-      'comments length',
-      comments.length,
-      'limit plus one ',
-      limitPlusOne,
-    );
+
     if (comments.length === limitPlusOne) {
       _nextCursor = comments[comments.length - 1]?.createdAt.toISOString();
     }

@@ -151,10 +151,10 @@
     knex "1.0.4"
     umzug "3.0.0"
 
-"@mikro-orm/nestjs@^4.3.1":
-  version "4.3.1"
-  resolved "https://registry.yarnpkg.com/@mikro-orm/nestjs/-/nestjs-4.3.1.tgz#6359070b70c3621e780026ec1b3fdb20228d0952"
-  integrity sha512-wfWbKpmvQyUyJhsjbguRySNZr1xOUqB198kW0FL7sgBuM/+cnvDEC1OaD0SAF8Tl+f5uN3D+GkqVZmDXWfol9A==
+"@mikro-orm/nestjs@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@mikro-orm/nestjs/-/nestjs-5.1.0.tgz#e53e080b83830cb1d7be0cdfd2f9585d96d73980"
+  integrity sha512-bU0CHVsEFqo9qLTXp7ECiaJev30HUPAMO3HOxtOCWID/fktQq1t1k/yxo4RUDG0oKodmdUKYMesagj4UvS7igQ==
 
 "@mikro-orm/postgresql@^5.1.1":
   version "5.1.1"
